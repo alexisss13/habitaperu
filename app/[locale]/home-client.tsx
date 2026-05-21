@@ -43,7 +43,7 @@ interface HomeClientProps {
  * @param {HomeClientProps} props - Propiedades del componente
  */
 export function HomeClient({ properties, stats }: HomeClientProps) {
-  const { isMobile, isDesktop, isLoading } = useDeviceDetection()
+  const { isMobile, isLoading } = useDeviceDetection()
 
   // Loading state mientras se detecta el dispositivo
   if (isLoading) {
@@ -87,24 +87,6 @@ export function HomeClient({ properties, stats }: HomeClientProps) {
           }}>
             Cargando Habita Perú...
           </p>
-          
-          {/* Loading bar */}
-          <div style={{
-            width: '200px',
-            height: '4px',
-            background: '#e5e7eb',
-            borderRadius: '2px',
-            margin: '16px auto 0',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              width: '50%',
-              height: '100%',
-              background: 'linear-gradient(90deg, #0f3457 0%, #8f8272 100%)',
-              borderRadius: '2px',
-              animation: 'loading 1.2s ease-in-out infinite'
-            }} />
-          </div>
         </div>
 
         <style jsx>{`
@@ -116,15 +98,6 @@ export function HomeClient({ properties, stats }: HomeClientProps) {
             50% { 
               transform: scale(1.05);
               opacity: 0.9;
-            }
-          }
-          
-          @keyframes loading {
-            0% { 
-              transform: translateX(-100%);
-            }
-            100% { 
-              transform: translateX(300%);
             }
           }
         `}</style>

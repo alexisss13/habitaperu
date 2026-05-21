@@ -134,5 +134,105 @@
     "choose": "Choose a language and region",
     "currencyPlaceholder": "Currency functionality coming soon",
     "currencyDescription": "For now, all prices are shown in Soles (S/)"
+  },
+  "publish": {
+    "hero": {
+      "badge": "Certified platform for landlords",
+      "title": "Monetize your property",
+      "titleAccent": "with security and order",
+      "subtitle": "Manage contracts, verify tenants and control your payments from one place. Designed for the modern landlord.",
+      "startButton": "Start now — it's free",
+      "watchVideo": "See how it works",
+      "stats": {
+        "properties": "Active properties",
+        "contracts": "Conflict-free contracts",
+        "tenants": "Verified tenants"
+      }
+    },
+    "features": {
+      "badge": "Key features",
+      "title": "Everything you need to rent with confidence",
+      "kyc": {
+        "title": "KYC Verification",
+        "description": "Biometric identity validation and background checks for each tenant before signing any contract.",
+        "link": "Learn more"
+      },
+      "contracts": {
+        "title": "Legal Contracts",
+        "description": "Automatic generation of legally valid contracts, adapted to current Peruvian regulations.",
+        "link": "View demo contract"
+      },
+      "dashboard": {
+        "title": "Administrative Dashboard",
+        "description": "Centralized panel to control payments, occupancy status and communications with tenants.",
+        "link": "Go to dashboard"
+      },
+      "matching": {
+        "title": "Smart Matching",
+        "description": "Compatibility algorithm that connects your property with the most suitable tenant profile.",
+        "link": "See how it works"
+      }
+    },
+    "dashboard": {
+      "badge": "Control panel",
+      "title": "Your landlord dashboard",
+      "subtitle": "View the status of your properties, payments and contracts in real time.",
+      "payments": {
+        "title": "Payment Traffic Light",
+        "period": "April 2026",
+        "paid": "Paid",
+        "pending": "Pending",
+        "processing": "Processing",
+        "viewFull": "View full dashboard"
+      },
+      "occupancy": {
+        "title": "Monthly occupancy",
+        "period": "Last 6 months",
+        "occupied": "Occupied",
+        "income": "Monthly income",
+        "activeContracts": "Active contracts"
+      }
+    },
+    "howToStart": {
+      "badge": "Simple process",
+      "title": "Get started in 3 steps",
+      "step1": {
+        "title": "Sign up for free",
+        "description": "Create your landlord account in less than 2 minutes. No initial costs."
+      },
+      "step2": {
+        "title": "List your property",
+        "description": "Add photos, description and details. Our team will verify your property."
+      },
+      "step3": {
+        "title": "Receive requests",
+        "description": "Verified tenants will contact you. You decide who to sign with."
+      },
+      "startButton": "Start now"
+    },
+    "testimonials": {
+      "badge": "Testimonials",
+      "title": "What our landlords say",
+      "testimonial1": {
+        "text": "I used to waste a lot of time verifying tenants. Now Habita Peru does it for me and I feel much safer.",
+        "name": "Juan Díaz",
+        "properties": "6 properties in Lima"
+      },
+      "testimonial2": {
+        "text": "The dashboard allows me to see everything in real time. Payments arrive on time and without complications.",
+        "name": "Rosa Vargas",
+        "properties": "3 properties in San Isidro"
+      },
+      "testimonial3": {
+        "text": "Digital contracts are a total game changer. Everything is faster and more professional.",
+        "name": "Carlos Mendoza",
+        "properties": "2 properties in Miraflores"
+      }
+    },
+    "cta": {
+      "title": "Ready to rent with total control?",
+      "subtitle": "Join more than 4,800 landlords who already manage their properties with Habita Peru.",
+      "button": "Start now — it's free"
+    }
   }
 }

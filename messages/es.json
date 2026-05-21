@@ -134,5 +134,105 @@
     "choose": "Elige un idioma y una región",
     "currencyPlaceholder": "Funcionalidad de moneda próximamente",
     "currencyDescription": "Por ahora, todos los precios se muestran en Soles (S/)"
+  },
+  "publish": {
+    "hero": {
+      "badge": "Plataforma certificada para arrendadores",
+      "title": "Rentabiliza tu propiedad",
+      "titleAccent": "con seguridad y orden",
+      "subtitle": "Gestiona contratos, verifica inquilinos y controla tus pagos desde un solo lugar. Diseñado para el arrendador moderno.",
+      "startButton": "Comenzar ahora — es gratis",
+      "watchVideo": "Ver cómo funciona",
+      "stats": {
+        "properties": "Propiedades activas",
+        "contracts": "Contratos sin conflictos",
+        "tenants": "Inquilinos verificados"
+      }
+    },
+    "features": {
+      "badge": "Funcionalidades clave",
+      "title": "Todo lo que necesitas para arrendar con confianza",
+      "kyc": {
+        "title": "Verificación KYC",
+        "description": "Validación de identidad biométrica y antecedentes de cada inquilino antes de firmar cualquier contrato.",
+        "link": "Conocer más"
+      },
+      "contracts": {
+        "title": "Contratos Legales",
+        "description": "Generación automática de contratos con validez legal, adaptados a la normativa peruana vigente.",
+        "link": "Ver contrato demo"
+      },
+      "dashboard": {
+        "title": "Dashboard Administrativo",
+        "description": "Panel centralizado para controlar pagos, estados de ocupación y comunicaciones con inquilinos.",
+        "link": "Ir al dashboard"
+      },
+      "matching": {
+        "title": "Matching Inteligente",
+        "description": "Algoritmo de compatibilidad que conecta tu propiedad con el perfil de inquilino más adecuado.",
+        "link": "Ver cómo funciona"
+      }
+    },
+    "dashboard": {
+      "badge": "Panel de control",
+      "title": "Tu dashboard de arrendador",
+      "subtitle": "Visualiza el estado de tus propiedades, pagos y contratos en tiempo real.",
+      "payments": {
+        "title": "Semáforo de Pagos",
+        "period": "Abril 2026",
+        "paid": "Pagado",
+        "pending": "Pendiente",
+        "processing": "En proceso",
+        "viewFull": "Ver dashboard completo"
+      },
+      "occupancy": {
+        "title": "Ocupación mensual",
+        "period": "Últimos 6 meses",
+        "occupied": "Ocupadas",
+        "income": "Ingresos mes",
+        "activeContracts": "Contratos activos"
+      }
+    },
+    "howToStart": {
+      "badge": "Proceso simple",
+      "title": "Comienza en 3 pasos",
+      "step1": {
+        "title": "Regístrate gratis",
+        "description": "Crea tu cuenta de arrendador en menos de 2 minutos. Sin costos iniciales."
+      },
+      "step2": {
+        "title": "Publica tu propiedad",
+        "description": "Agrega fotos, descripción y detalles. Nuestro equipo verificará tu propiedad."
+      },
+      "step3": {
+        "title": "Recibe solicitudes",
+        "description": "Inquilinos verificados contactarán contigo. Tú decides con quién firmar."
+      },
+      "startButton": "Comenzar ahora"
+    },
+    "testimonials": {
+      "badge": "Testimonios",
+      "title": "Lo que dicen nuestros arrendadores",
+      "testimonial1": {
+        "text": "Antes perdía mucho tiempo verificando inquilinos. Ahora Habita Perú lo hace por mí y me siento mucho más seguro.",
+        "name": "Juan Díaz",
+        "properties": "6 propiedades en Lima"
+      },
+      "testimonial2": {
+        "text": "El dashboard me permite ver todo en tiempo real. Los pagos llegan puntual y sin complicaciones.",
+        "name": "Rosa Vargas",
+        "properties": "3 propiedades en San Isidro"
+      },
+      "testimonial3": {
+        "text": "Los contratos digitales son un cambio total. Todo es más rápido y profesional.",
+        "name": "Carlos Mendoza",
+        "properties": "2 propiedades en Miraflores"
+      }
+    },
+    "cta": {
+      "title": "¿Listo para arrendar con total control?",
+      "subtitle": "Únete a más de 4,800 arrendadores que ya gestionan sus propiedades con Habita Perú.",
+      "button": "Comenzar ahora — es gratis"
+    }
   }
 }

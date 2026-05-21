@@ -171,7 +171,6 @@ Abrir [http://localhost:3000](http://localhost:3000)
 La aplicación está configurada para usar **Neon PostgreSQL**. La URL de conexión ya está incluida en el `.env`:
 
 ```
-postgresql://neondb_owner:npg_7y4muFjzOZxH@ep-orange-unit-ahdz7wig-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 ```
 
 ## 🗄️ Base de Datos
