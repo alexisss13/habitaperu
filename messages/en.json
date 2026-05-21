@@ -135,6 +135,49 @@
     "currencyPlaceholder": "Currency functionality coming soon",
     "currencyDescription": "For now, all prices are shown in Soles (S/)"
   },
+  "login": {
+    "title": "Log in",
+    "welcome": "Welcome to Habita Peru",
+    "email": "Email address",
+    "password": "Password",
+    "continue": "Continue",
+    "loading": "Logging in...",
+    "or": "or",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Continue with Facebook",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "error": "Incorrect credentials. Check your email and password.",
+    "genericError": "Error logging in. Please try again.",
+    "demoCredentials": {
+      "title": "Demo credentials",
+      "admin": "Admin:",
+      "landlord": "Landlord:",
+      "tenant": "Tenant:"
+    }
+  },
+  "register": {
+    "title": "Create account",
+    "welcome": "Join Habita Peru",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email address",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "role": "Account type",
+    "tenant": "Tenant",
+    "landlord": "Landlord",
+    "continue": "Create account",
+    "loading": "Creating account...",
+    "or": "or",
+    "googleSignup": "Sign up with Google",
+    "facebookSignup": "Sign up with Facebook",
+    "hasAccount": "Already have an account?",
+    "login": "Log in",
+    "passwordMismatch": "Passwords don't match",
+    "error": "Error creating account. Please try again.",
+    "success": "Account created successfully"
+  },
   "publish": {
     "hero": {
       "badge": "Certified platform for landlords",

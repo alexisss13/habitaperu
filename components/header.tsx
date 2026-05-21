@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
-import { useTranslations } from "@/lib/i18n-context"
+import { useTranslations, useLocale } from "@/lib/i18n-context"
 import { 
   Home01Icon, 
   UserCircleIcon,
@@ -15,6 +15,7 @@ import { LanguageSwitcher } from "./language-switcher"
 
 export function Header() {
   const t = useTranslations('header')
+  const locale = useLocale()
   const pathname = usePathname()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [showAnnouncement, setShowAnnouncement] = useState(true)
@@ -157,7 +158,7 @@ export function Header() {
                   animation: 'fadeInDown 0.2s ease'
                 }}>
                   <div style={{ padding: '8px 0' }}>
-                    <Link href="/register" style={{
+                    <Link href={`/${locale}/register`} style={{
                       display: 'block',
                       padding: '12px 16px',
                       fontSize: '0.875rem',
@@ -171,7 +172,7 @@ export function Header() {
                     onClick={() => setUserMenuOpen(false)}>
                       {t('register')}
                     </Link>
-                    <Link href="/login" style={{
+                    <Link href={`/${locale}/login`} style={{
                       display: 'block',
                       padding: '12px 16px',
                       fontSize: '0.875rem',

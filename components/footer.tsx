@@ -1,12 +1,17 @@
+"use client"
+
 import Link from "next/link"
+import { useLocale } from "@/lib/i18n-context"
 
 export function Footer() {
+  const locale = useLocale()
+  
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-inner">
           <div className="footer-brand">
-            <Link href="/" className="logo">
+            <Link href={`/${locale}`} className="logo">
               <i className="fa-solid fa-house-chimney logo-icon"></i>
               <span className="logo-text">
                 Habita <span className="logo-accent">Perú</span>
@@ -18,7 +23,7 @@ export function Footer() {
           <div className="footer-links">
             <div className="footer-col">
               <h5>Plataforma</h5>
-              <Link href="/publicar">Publicar propiedad</Link>
+              <Link href={`/${locale}/publicar`}>Publicar propiedad</Link>
               <Link href="/propiedades">Buscar inmueble</Link>
               <Link href="/gestion">Contratos digitales</Link>
               <Link href="/dashboard">Dashboard</Link>
@@ -28,8 +33,8 @@ export function Footer() {
               <h5>Cuenta</h5>
               <Link href="/perfil">Mi perfil</Link>
               <Link href="/gestion">Mis alquileres</Link>
-              <Link href="/login">Iniciar sesión</Link>
-              <Link href="/register">Registrarse</Link>
+              <Link href={`/${locale}/login`}>Iniciar sesión</Link>
+              <Link href={`/${locale}/register`}>Registrarse</Link>
             </div>
 
             <div className="footer-col">

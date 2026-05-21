@@ -135,6 +135,49 @@
     "currencyPlaceholder": "Funcionalidad de moneda próximamente",
     "currencyDescription": "Por ahora, todos los precios se muestran en Soles (S/)"
   },
+  "login": {
+    "title": "Iniciar sesión",
+    "welcome": "Te damos la bienvenida a Habita Perú",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "continue": "Continuar",
+    "loading": "Iniciando sesión...",
+    "or": "o",
+    "googleLogin": "Continuar con Google",
+    "facebookLogin": "Continuar con Facebook",
+    "noAccount": "¿No tienes cuenta?",
+    "signUp": "Regístrate",
+    "error": "Credenciales incorrectas. Verifica tu email y contraseña.",
+    "genericError": "Error al iniciar sesión. Intenta nuevamente.",
+    "demoCredentials": {
+      "title": "Credenciales de prueba",
+      "admin": "Admin:",
+      "landlord": "Arrendador:",
+      "tenant": "Inquilino:"
+    }
+  },
+  "register": {
+    "title": "Crear cuenta",
+    "welcome": "Únete a Habita Perú",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "role": "Tipo de cuenta",
+    "tenant": "Inquilino",
+    "landlord": "Arrendador",
+    "continue": "Crear cuenta",
+    "loading": "Creando cuenta...",
+    "or": "o",
+    "googleSignup": "Registrarse con Google",
+    "facebookSignup": "Registrarse con Facebook",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "login": "Inicia sesión",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "error": "Error al crear la cuenta. Intenta nuevamente.",
+    "success": "Cuenta creada exitosamente"
+  },
   "publish": {
     "hero": {
       "badge": "Plataforma certificada para arrendadores",

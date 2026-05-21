@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useTranslations } from '@/lib/i18n-context'
+import { useTranslations, useLocale } from '@/lib/i18n-context'
 import {
   SecurityCheckIcon,
   FileValidationIcon,
@@ -20,6 +20,7 @@ import {
 
 export function PublishClient() {
   const t = useTranslations('publish')
+  const locale = useLocale()
 
   useEffect(() => {
     // Fade in animations
@@ -151,7 +152,7 @@ export function PublishClient() {
                 marginBottom: '40px',
                 flexWrap: 'wrap'
               }}>
-                <Link href="/register" style={{
+                <Link href={`/${locale}/register`} style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '10px',
@@ -877,7 +878,7 @@ export function PublishClient() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '48px' }}>
-            <Link href="/register" style={{
+            <Link href={`/${locale}/register`} style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '10px',
@@ -1190,7 +1191,7 @@ export function PublishClient() {
           }}>
             {t('cta.subtitle')}
           </p>
-          <Link href="/register" style={{
+          <Link href={`/${locale}/register`} style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '10px',

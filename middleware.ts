@@ -7,11 +7,14 @@ const defaultLocale = 'es'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Ignorar archivos estáticos y rutas de API
+  // Ignorar archivos estáticos, rutas de API y rutas de dashboards específicos
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/static') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/landlord') ||
+    pathname.startsWith('/tenant') ||
     pathname.includes('.')
   ) {
     return NextResponse.next()
