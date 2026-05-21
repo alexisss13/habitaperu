@@ -1,0 +1,138 @@
+{
+  "common": {
+    "appName": "Habita Peru",
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "header": {
+    "publishProperty": "List your property",
+    "login": "Log in",
+    "register": "Sign up",
+    "helpCenter": "Help center",
+    "language": "Language",
+    "announcement": {
+      "verified": "Verified properties",
+      "secure": "Secure contracts",
+      "support": "24/7 Support"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "MONTHLY RENTALS",
+      "title": "Find your next home",
+      "subtitle": "Rooms and apartments for students and professionals. Monthly rentals simple and secure.",
+      "searchPlaceholder": "Search by district, university or address...",
+      "searchButton": "Search",
+      "filters": "Filters",
+      "from": "From",
+      "perMonth": "/month",
+      "propertyAvailable": "property available",
+      "propertiesAvailable": "properties available"
+    },
+    "filters": {
+      "room": "Room",
+      "apartment": "Apt",
+      "wifi": "WiFi",
+      "furnished": "Furnished"
+    },
+    "featured": {
+      "title": "Featured properties",
+      "subtitle": "The best verified options ready for you",
+      "filterAll": "All",
+      "filterRooms": "Rooms",
+      "filterApartments": "Apartments",
+      "filterHouses": "Houses",
+      "filterFurnished": "Furnished",
+      "viewAll": "View all properties"
+    },
+    "property": {
+      "room": "room",
+      "rooms": "rooms",
+      "bathroom": "bathroom",
+      "bathrooms": "bathrooms",
+      "perMonth": "/month"
+    },
+    "howItWorks": {
+      "badge": "Simple Process",
+      "title": "How it works?",
+      "subtitle": "Find your ideal home in 3 simple steps",
+      "step1": {
+        "title": "Search and filter",
+        "description": "Explore thousands of verified properties. Use filters to find exactly what you need."
+      },
+      "step2": {
+        "title": "Schedule a visit",
+        "description": "Contact the landlord directly and schedule a visit to see the property."
+      },
+      "step3": {
+        "title": "Sign and move in",
+        "description": "Sign your digital contract securely and start enjoying your new home."
+      }
+    },
+    "whyChoose": {
+      "badge": "Advantages",
+      "title": "Why choose Habita Peru?",
+      "subtitle": "We offer the best property rental experience with security and trust",
+      "feature1": {
+        "title": "Verified Properties",
+        "description": "All properties go through a rigorous verification process to ensure your safety."
+      },
+      "feature2": {
+        "title": "Secure Contracts",
+        "description": "Digital contracts with legal validity adapted to current Peruvian regulations."
+      },
+      "feature3": {
+        "title": "Protected Payments",
+        "description": "Secure payment system with protection for tenants and landlords."
+      },
+      "feature4": {
+        "title": "24/7 Support",
+        "description": "Support team available to help you whenever you need it."
+      }
+    },
+    "cta": {
+      "badge": "For Landlords",
+      "title": "Do you have a property to rent?",
+      "subtitle": "Join more than {count} landlords who already manage their properties with Habita Peru.",
+      "satisfaction": "Satisfaction",
+      "averageRental": "Average rental",
+      "days": "days",
+      "button": "List my property",
+      "benefits": "✓ No hidden fees · ✓ Free listing"
+    },
+    "exploreLocation": {
+      "title": "Explore by location",
+      "subtitle": "Discover properties in Lima's most popular districts"
+    },
+    "studentProperties": {
+      "title": "Properties for students",
+      "subtitle": "Rooms and apartments near major universities"
+    },
+    "fullApartments": {
+      "title": "Full apartments",
+      "subtitle": "Ideal spaces for families or groups seeking privacy"
+    },
+    "budgetRooms": {
+      "title": "Budget rooms",
+      "subtitle": "Affordable options without compromising quality and comfort"
+    }
+  },
+  "languageSwitcher": {
+    "title": "Language and region",
+    "currency": "Currency",
+    "suggested": "Suggested languages and regions",
+    "choose": "Choose a language and region",
+    "currencyPlaceholder": "Currency functionality coming soon",
+    "currencyDescription": "For now, all prices are shown in Soles (S/)"
+  }
+}

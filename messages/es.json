@@ -1,0 +1,138 @@
+{
+  "common": {
+    "appName": "Habita Perú",
+    "loading": "Cargando...",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "close": "Cerrar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior"
+  },
+  "header": {
+    "publishProperty": "Publica tu propiedad",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "helpCenter": "Centro de ayuda",
+    "language": "Idioma",
+    "announcement": {
+      "verified": "Propiedades verificadas",
+      "secure": "Contratos seguros",
+      "support": "Soporte 24/7"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "ALQUILERES MENSUALES",
+      "title": "Encuentra tu próximo hogar",
+      "subtitle": "Habitaciones y departamentos para estudiantes y profesionales. Alquileres mensuales sencillos y seguros.",
+      "searchPlaceholder": "Busca por distrito, universidad o dirección...",
+      "searchButton": "Buscar",
+      "filters": "Filtros",
+      "from": "Desde",
+      "perMonth": "/mes",
+      "propertyAvailable": "propiedad disponible",
+      "propertiesAvailable": "propiedades disponibles"
+    },
+    "filters": {
+      "room": "Habitación",
+      "apartment": "Depa",
+      "wifi": "WiFi",
+      "furnished": "Amoblado"
+    },
+    "featured": {
+      "title": "Propiedades destacadas",
+      "subtitle": "Las mejores opciones verificadas y listas para ti",
+      "filterAll": "Todos",
+      "filterRooms": "Habitaciones",
+      "filterApartments": "Departamentos",
+      "filterHouses": "Casas",
+      "filterFurnished": "Amoblado",
+      "viewAll": "Ver todas las propiedades"
+    },
+    "property": {
+      "room": "habitación",
+      "rooms": "habitaciones",
+      "bathroom": "baño",
+      "bathrooms": "baños",
+      "perMonth": "/mes"
+    },
+    "howItWorks": {
+      "badge": "Proceso Simple",
+      "title": "¿Cómo funciona?",
+      "subtitle": "Encuentra tu hogar ideal en 3 simples pasos",
+      "step1": {
+        "title": "Busca y filtra",
+        "description": "Explora miles de propiedades verificadas. Usa filtros para encontrar exactamente lo que necesitas."
+      },
+      "step2": {
+        "title": "Agenda una visita",
+        "description": "Contacta directamente con el arrendador y agenda una visita para conocer la propiedad."
+      },
+      "step3": {
+        "title": "Firma y múdate",
+        "description": "Firma tu contrato digital de forma segura y comienza a disfrutar de tu nuevo hogar."
+      }
+    },
+    "whyChoose": {
+      "badge": "Ventajas",
+      "title": "¿Por qué elegir Habita Perú?",
+      "subtitle": "Ofrecemos la mejor experiencia en alquiler de propiedades con seguridad y confianza",
+      "feature1": {
+        "title": "Propiedades Verificadas",
+        "description": "Todas las propiedades pasan por un proceso de verificación riguroso para garantizar tu seguridad."
+      },
+      "feature2": {
+        "title": "Contratos Seguros",
+        "description": "Contratos digitales con validez legal adaptados a la normativa peruana vigente."
+      },
+      "feature3": {
+        "title": "Pagos Protegidos",
+        "description": "Sistema de pagos seguro con protección para inquilinos y arrendadores."
+      },
+      "feature4": {
+        "title": "Soporte 24/7",
+        "description": "Equipo de soporte disponible para ayudarte en cualquier momento que lo necesites."
+      }
+    },
+    "cta": {
+      "badge": "Para Arrendadores",
+      "title": "¿Tienes una propiedad para alquilar?",
+      "subtitle": "Únete a más de {count} arrendadores que ya gestionan sus propiedades con Habita Perú.",
+      "satisfaction": "Satisfacción",
+      "averageRental": "Promedio de alquiler",
+      "days": "días",
+      "button": "Publicar mi propiedad",
+      "benefits": "✓ Sin comisiones ocultas · ✓ Publicación gratuita"
+    },
+    "exploreLocation": {
+      "title": "Explora por ubicación",
+      "subtitle": "Descubre propiedades en los distritos más populares de Lima"
+    },
+    "studentProperties": {
+      "title": "Propiedades para estudiantes",
+      "subtitle": "Habitaciones y departamentos cerca de las principales universidades"
+    },
+    "fullApartments": {
+      "title": "Departamentos completos",
+      "subtitle": "Espacios ideales para familias o grupos que buscan privacidad"
+    },
+    "budgetRooms": {
+      "title": "Habitaciones económicas",
+      "subtitle": "Opciones accesibles sin comprometer calidad y comodidad"
+    }
+  },
+  "languageSwitcher": {
+    "title": "Idioma y región",
+    "currency": "Moneda",
+    "suggested": "Idiomas y regiones sugeridos",
+    "choose": "Elige un idioma y una región",
+    "currencyPlaceholder": "Funcionalidad de moneda próximamente",
+    "currencyDescription": "Por ahora, todos los precios se muestran en Soles (S/)"
+  }
+}

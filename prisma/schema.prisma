@@ -1,0 +1,305 @@
+// Habita Perú - Prisma Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  LANDLORD
+  TENANT
+}
+
+enum PropertyType {
+  HABITACION
+  DEPARTAMENTO
+  CASA
+  OFICINA
+  LOCAL
+}
+
+enum PropertyCondition {
+  SIN_MUEBLES
+  SEMI_AMOBLADO
+  AMOBLADO
+}
+
+enum PropertyStatus {
+  DISPONIBLE
+  OCUPADA
+  MANTENIMIENTO
+}
+
+enum ContractStatus {
+  ACTIVO
+  VENCIDO
+  CANCELADO
+}
+
+enum PaymentStatus {
+  PAGADO
+  PENDIENTE
+  EN_PROCESO
+  VENCIDO
+}
+
+enum KYCStatus {
+  PENDIENTE
+  EN_REVISION
+  APROBADO
+  RECHAZADO
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  dni           String?   @unique
+  role          Role      @default(TENANT)
+  avatar        String?
+  bio           String?
+  district      String?
+  verified      Boolean   @default(false)
+  twoFactorEnabled Boolean @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relaciones
+  propertiesOwned   Property[]      @relation("PropertyOwner")
+  contractsAsLandlord Contract[]    @relation("LandlordContracts")
+  contractsAsTenant   Contract[]    @relation("TenantContracts")
+  paymentsReceived    Payment[]     @relation("PaymentReceiver")
+  paymentsMade        Payment[]     @relation("PaymentPayer")
+  kycVerification     KYCVerification?
+  reviewsGiven        Review[]      @relation("ReviewAuthor")
+  reviewsReceived     Review[]      @relation("ReviewTarget")
+  notifications       Notification[]
+  sessions            Session[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  device    String
+  location  String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Property {
+  id          String            @id @default(cuid())
+  title       String
+  description String
+  type        PropertyType
+  condition   PropertyCondition
+  status      PropertyStatus    @default(DISPONIBLE)
+  
+  // Ubicación
+  district    String
+  address     String?
+  
+  // Características
+  area        Int?
+  rooms       Int               @default(1)
+  bathrooms   Int               @default(1)
+  parking     Int               @default(0)
+  
+  // Precio y condiciones
+  price       Decimal           @db.Decimal(10, 2)
+  deposit     Int               @default(1) // meses de garantía
+  minDuration Int               @default(12) // meses
+  availableFrom DateTime?
+  
+  // Amenidades (JSON array)
+  amenities   Json?
+  
+  // Imágenes (JSON array de URLs)
+  images      Json?
+  
+  // Perfil de inquilino preferido
+  tenantProfile Json?
+  
+  // Condiciones adicionales
+  conditions  String?
+  
+  // Métricas
+  views       Int               @default(0)
+  favorites   Int               @default(0)
+  
+  ownerId     String
+  owner       User              @relation("PropertyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  contracts   Contract[]
+  reviews     Review[]
+  
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([type])
+  @@index([district])
+}
+
+model Contract {
+  id          String         @id @default(cuid())
+  
+  propertyId  String
+  property    Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  landlordId  String
+  landlord    User           @relation("LandlordContracts", fields: [landlordId], references: [id], onDelete: Cascade)
+  
+  tenantId    String
+  tenant      User           @relation("TenantContracts", fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  status      ContractStatus @default(ACTIVO)
+  
+  startDate   DateTime
+  endDate     DateTime
+  
+  monthlyRent Decimal        @db.Decimal(10, 2)
+  deposit     Decimal        @db.Decimal(10, 2)
+  
+  // Términos y condiciones
+  terms       String?
+  
+  // Firma digital
+  landlordSignedAt DateTime?
+  tenantSignedAt   DateTime?
+  
+  payments    Payment[]
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([propertyId])
+  @@index([landlordId])
+  @@index([tenantId])
+  @@index([status])
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  
+  contractId  String
+  contract    Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  landlordId  String
+  landlord    User          @relation("PaymentReceiver", fields: [landlordId], references: [id], onDelete: Cascade)
+  
+  tenantId    String
+  tenant      User          @relation("PaymentPayer", fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  amount      Decimal       @db.Decimal(10, 2)
+  dueDate     DateTime
+  paidDate    DateTime?
+  status      PaymentStatus @default(PENDIENTE)
+  
+  // Método de pago y comprobante
+  paymentMethod String?
+  receipt       String?
+  
+  // Notas
+  notes       String?
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([contractId])
+  @@index([landlordId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model KYCVerification {
+  id          String    @id @default(cuid())
+  
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  status      KYCStatus @default(PENDIENTE)
+  
+  // Pasos de verificación
+  dniVerified       Boolean @default(false)
+  biometricVerified Boolean @default(false)
+  backgroundCheck   Boolean @default(false)
+  
+  // Documentos (URLs)
+  dniDocument       String?
+  biometricData     String?
+  backgroundReport  String?
+  
+  // Notas del revisor
+  reviewNotes       String?
+  
+  verifiedAt        DateTime?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  authorId    String
+  author      User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  
+  targetId    String
+  target      User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  
+  rating      Int      // 1-5 estrellas
+  comment     String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([propertyId])
+  @@index([authorId])
+  @@index([targetId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      String   // 'payment', 'contract', 'kyc', 'property', etc.
+  title     String
+  message   String
+  
+  read      Boolean  @default(false)
+  
+  // Metadata adicional (JSON)
+  metadata  Json?
+  
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}
