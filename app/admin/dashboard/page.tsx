@@ -17,7 +17,7 @@ export default async function AdminDashboard() {
   ] = await Promise.all([
     prisma.user.count(),
     prisma.property.count(),
-    prisma.contract.count({ where: { status: 'ACTIVO' } }),
+    prisma.contract.count({ where: { status: 'ACTIVE' } }),
     prisma.payment.aggregate({ _sum: { amount: true } }),
     prisma.user.findMany({
       take: 5,

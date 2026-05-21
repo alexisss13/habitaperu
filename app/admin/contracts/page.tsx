@@ -30,17 +30,21 @@ export default async function ContractsPage() {
 
   const stats = {
     total: contracts.length,
-    activo: contracts.filter(c => c.status === 'ACTIVO').length,
-    vencido: contracts.filter(c => c.status === 'VENCIDO').length,
+    activo: contracts.filter(c => c.status === 'ACTIVE').length,
+    vencido: contracts.filter(c => c.status === 'FINISHED' || c.status === 'BREACHED_CANCELLED').length,
     totalValue: contracts
-      .filter(c => c.status === 'ACTIVO')
+      .filter(c => c.status === 'ACTIVE')
       .reduce((sum, c) => sum + Number(c.monthlyRent), 0)
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'ACTIVO': return { bg: 'rgba(16,185,129,0.1)', color: '#10b981', label: 'Activo' }
-      case 'VENCIDO': return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', label: 'Vencido' }
+      case 'ACTIVE': return { bg: 'rgba(16,185,129,0.1)', color: '#10b981', label: 'Activo' }
+      case 'FINISHED': return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', label: 'Vencido' }
+      case 'BREACHED_CANCELLED': return { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', label: 'Cancelado' }
+      case 'DRAFT': return { bg: 'rgba(116,133,151,0.1)', color: '#748597', label: 'Borrador' }
+      case 'PENDING_TENANT': return { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', label: 'Pend. Inquilino' }
+      case 'PENDING_LANDLORD': return { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', label: 'Pend. Arrendador' }
       default: return { bg: 'rgba(116,133,151,0.1)', color: '#748597', label: status }
     }
   }

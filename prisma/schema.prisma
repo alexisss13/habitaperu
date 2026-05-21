@@ -1,4 +1,5 @@
 // Habita Perú - Prisma Schema
+// Motor LegalTech — Contratos, Firmas Digitales, Audit Trail
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,6 +8,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
 
 enum Role {
   ADMIN
@@ -34,10 +39,20 @@ enum PropertyStatus {
   MANTENIMIENTO
 }
 
+/// Estados del ciclo de vida del contrato legal
 enum ContractStatus {
-  ACTIVO
-  VENCIDO
-  CANCELADO
+  /// Borrador creado por el arrendador, aún no enviado
+  DRAFT
+  /// Enviado al inquilino, esperando su firma
+  PENDING_TENANT
+  /// Firmado por el inquilino, esperando contrafirma del arrendador
+  PENDING_LANDLORD
+  /// Contrato activo — ambas partes firmaron
+  ACTIVE
+  /// Contrato finalizado por vencimiento natural
+  FINISHED
+  /// Contrato rescindido por incumplimiento (Ley 30933)
+  BREACHED_CANCELLED
 }
 
 enum PaymentStatus {
@@ -54,34 +69,49 @@ enum KYCStatus {
   RECHAZADO
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  firstName     String
-  lastName      String
-  phone         String?
-  dni           String?   @unique
-  role          Role      @default(TENANT)
-  avatar        String?
-  bio           String?
-  district      String?
-  verified      Boolean   @default(false)
-  twoFactorEnabled Boolean @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+/// Acciones registradas en el Audit Trail criptográfico
+enum AuditAction {
+  /// El usuario visualizó el documento (Clickwrap — inicio del consentimiento)
+  VIEWED
+  /// El inquilino firmó digitalmente el contrato
+  SIGNED_TENANT
+  /// El arrendador contrafirmó — contrato queda ACTIVE
+  COUNTERSIGNED_LANDLORD
+}
 
-  // Relaciones
-  propertiesOwned   Property[]      @relation("PropertyOwner")
-  contractsAsLandlord Contract[]    @relation("LandlordContracts")
-  contractsAsTenant   Contract[]    @relation("TenantContracts")
-  paymentsReceived    Payment[]     @relation("PaymentReceiver")
-  paymentsMade        Payment[]     @relation("PaymentPayer")
+// ─────────────────────────────────────────────
+// MODELOS
+// ─────────────────────────────────────────────
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  password           String
+  firstName          String
+  lastName           String
+  phone              String?
+  /// DNI encriptado en reposo (Ley 29733)
+  dni                String?   @unique
+  role               Role      @default(TENANT)
+  avatar             String?
+  bio                String?
+  district           String?
+  verified           Boolean   @default(false)
+  twoFactorEnabled   Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  propertiesOwned     Property[]     @relation("PropertyOwner")
+  contractsAsLandlord Contract[]     @relation("LandlordContracts")
+  contractsAsTenant   Contract[]     @relation("TenantContracts")
+  paymentsReceived    Payment[]      @relation("PaymentReceiver")
+  paymentsMade        Payment[]      @relation("PaymentPayer")
   kycVerification     KYCVerification?
-  reviewsGiven        Review[]      @relation("ReviewAuthor")
-  reviewsReceived     Review[]      @relation("ReviewTarget")
+  reviewsGiven        Review[]       @relation("ReviewAuthor")
+  reviewsReceived     Review[]       @relation("ReviewTarget")
   notifications       Notification[]
   sessions            Session[]
+  auditLogs           AuditLog[]
 
   @@index([email])
   @@index([role])
@@ -109,45 +139,39 @@ model Property {
   type        PropertyType
   condition   PropertyCondition
   status      PropertyStatus    @default(DISPONIBLE)
-  
-  // Ubicación
+
   district    String
   address     String?
-  
-  // Características
+
   area        Int?
   rooms       Int               @default(1)
   bathrooms   Int               @default(1)
   parking     Int               @default(0)
-  
-  // Precio y condiciones
+
   price       Decimal           @db.Decimal(10, 2)
-  deposit     Int               @default(1) // meses de garantía
-  minDuration Int               @default(12) // meses
+  deposit     Int               @default(1)
+  minDuration Int               @default(12)
   availableFrom DateTime?
-  
-  // Amenidades (JSON array)
+
   amenities   Json?
-  
-  // Imágenes (JSON array de URLs)
   images      Json?
-  
-  // Perfil de inquilino preferido
   tenantProfile Json?
-  
-  // Condiciones adicionales
   conditions  String?
-  
-  // Métricas
+
   views       Int               @default(0)
   favorites   Int               @default(0)
-  
+
+  /// Campo de versión para Optimistic Concurrency Control (OCC).
+  /// Antes de marcar OCUPADA, se verifica que version == version_leída.
+  /// Si difiere, otro proceso ya modificó el registro → ContractConcurrencyError.
+  version     Int               @default(1)
+
   ownerId     String
   owner       User              @relation("PropertyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  
+
   contracts   Contract[]
   reviews     Review[]
-  
+
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
@@ -158,67 +182,101 @@ model Property {
 }
 
 model Contract {
-  id          String         @id @default(cuid())
-  
-  propertyId  String
-  property    Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  landlordId  String
-  landlord    User           @relation("LandlordContracts", fields: [landlordId], references: [id], onDelete: Cascade)
-  
-  tenantId    String
-  tenant      User           @relation("TenantContracts", fields: [tenantId], references: [id], onDelete: Cascade)
-  
-  status      ContractStatus @default(ACTIVO)
-  
+  id         String         @id @default(cuid())
+
+  propertyId String
+  property   Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  landlordId String
+  landlord   User           @relation("LandlordContracts", fields: [landlordId], references: [id], onDelete: Cascade)
+
+  tenantId   String
+  tenant     User           @relation("TenantContracts", fields: [tenantId], references: [id], onDelete: Cascade)
+
+  status     ContractStatus @default(DRAFT)
+
+  monthlyRent Decimal       @db.Decimal(10, 2)
+  currency    String        @default("PEN")
   startDate   DateTime
   endDate     DateTime
-  
-  monthlyRent Decimal        @db.Decimal(10, 2)
-  deposit     Decimal        @db.Decimal(10, 2)
-  
-  // Términos y condiciones
+  /// Día del mes en que vence el pago (1-31)
+  paymentDay  Int           @default(1)
+
+  deposit     Decimal       @db.Decimal(10, 2)
+
+  /// SHA-256 del HTML exacto que vio el usuario al firmar (Clickwrap / Ley 30201)
+  documentHash String?      @unique
+
   terms       String?
-  
-  // Firma digital
+
   landlordSignedAt DateTime?
   tenantSignedAt   DateTime?
-  
-  payments    Payment[]
-  
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
 
-  @@index([propertyId])
+  payments    Payment[]
+  auditLogs   AuditLog[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  /// Índice compuesto: consultas del dashboard por propiedad + estado
+  @@index([propertyId, status])
+  /// Índice compuesto: consultas del dashboard del inquilino
+  @@index([tenantId, status])
   @@index([landlordId])
-  @@index([tenantId])
-  @@index([status])
+}
+
+/// Registro inmutable del Audit Trail criptográfico.
+/// Cada fila es una prueba legal de una acción sobre un contrato.
+/// NUNCA se actualiza ni elimina — solo INSERT.
+model AuditLog {
+  id         String      @id @default(cuid())
+
+  contractId String
+  contract   Contract    @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  action     AuditAction
+
+  /// IP del cliente en el momento de la acción (IPv4 o IPv6)
+  ipAddress  String
+
+  /// User-Agent completo del navegador/cliente
+  userAgent  String
+
+  /// SHA-256 del documento HTML exacto que vio el usuario al hacer clic en "Aceptar"
+  cryptoHash String
+
+  /// Timestamp en UTC — se convierte a UTC-5 (Lima) en la capa de presentación
+  timestamp  DateTime    @default(now())
+
+  @@index([contractId])
+  @@index([userId])
+  @@index([action])
 }
 
 model Payment {
   id          String        @id @default(cuid())
-  
+
   contractId  String
   contract    Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  
+
   landlordId  String
   landlord    User          @relation("PaymentReceiver", fields: [landlordId], references: [id], onDelete: Cascade)
-  
+
   tenantId    String
   tenant      User          @relation("PaymentPayer", fields: [tenantId], references: [id], onDelete: Cascade)
-  
+
   amount      Decimal       @db.Decimal(10, 2)
   dueDate     DateTime
   paidDate    DateTime?
   status      PaymentStatus @default(PENDIENTE)
-  
-  // Método de pago y comprobante
+
   paymentMethod String?
   receipt       String?
-  
-  // Notas
-  notes       String?
-  
+  notes         String?
+
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -231,27 +289,23 @@ model Payment {
 
 model KYCVerification {
   id          String    @id @default(cuid())
-  
+
   userId      String    @unique
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   status      KYCStatus @default(PENDIENTE)
-  
-  // Pasos de verificación
+
   dniVerified       Boolean @default(false)
   biometricVerified Boolean @default(false)
   backgroundCheck   Boolean @default(false)
-  
-  // Documentos (URLs)
+
   dniDocument       String?
   biometricData     String?
   backgroundReport  String?
-  
-  // Notas del revisor
+
   reviewNotes       String?
-  
   verifiedAt        DateTime?
-  
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -260,22 +314,22 @@ model KYCVerification {
 }
 
 model Review {
-  id          String   @id @default(cuid())
-  
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  
-  authorId    String
-  author      User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  
-  targetId    String
-  target      User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
-  
-  rating      Int      // 1-5 estrellas
-  comment     String
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  authorId   String
+  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  targetId   String
+  target     User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
+
+  rating     Int
+  comment    String
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([propertyId])
   @@index([authorId])
@@ -283,20 +337,17 @@ model Review {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  type      String   // 'payment', 'contract', 'kyc', 'property', etc.
-  title     String
-  message   String
-  
-  read      Boolean  @default(false)
-  
-  // Metadata adicional (JSON)
-  metadata  Json?
-  
+  id       String   @id @default(cuid())
+
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type     String
+  title    String
+  message  String
+  read     Boolean  @default(false)
+  metadata Json?
+
   createdAt DateTime @default(now())
 
   @@index([userId])
