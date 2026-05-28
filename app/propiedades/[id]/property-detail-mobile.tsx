@@ -5,7 +5,7 @@ import Link from "next/link"
 import {
   Location01Icon, FavouriteIcon, CheckmarkCircle02Icon,
   StarIcon, WhatsappIcon, SecurityCheckIcon, ArrowLeft01Icon,
-  Calendar03Icon, MoneyBag02Icon, MessageMultiple02Icon
+  Calendar03Icon, MoneyBag02Icon, MessageMultiple02Icon, Cancel01Icon
 } from "hugeicons-react"
 import type { PropertyDetail } from './property-detail-view'
 
@@ -15,11 +15,16 @@ const typeLabel = (t: string) =>
 export function PropertyDetailMobile({ property: p }: { property: PropertyDetail }) {
   const [imgIndex, setImgIndex] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [message, setMessage] = useState('')
+  const [formSent, setFormSent] = useState(false)
 
+  // Init favorite from localStorage after mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("habitaperu_favorites")
-      const ids: string[] = stored ? JSON.parse(stored) : []
+      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
       setIsFavorite(ids.includes(p.id))
     } catch {}
   }, [p.id])
@@ -28,29 +33,132 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
     e.preventDefault()
     e.stopPropagation()
     try {
-      const stored = localStorage.getItem("habitaperu_favorites")
-      const ids: string[] = stored ? JSON.parse(stored) : []
-      const newIds = ids.includes(p.id)
-        ? ids.filter((id) => id !== p.id)
-        : [...ids, p.id]
-      localStorage.setItem("habitaperu_favorites", JSON.stringify(newIds))
-      setIsFavorite(newIds.includes(p.id))
+      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
+      const next = ids.includes(p.id) ? ids.filter(id => id !== p.id) : [...ids, p.id]
+      localStorage.setItem('habitaperu_favorites', JSON.stringify(next))
+      setIsFavorite(next.includes(p.id))
     } catch {}
   }
 
   const handleGalleryScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
-    const index = Math.round(el.scrollLeft / el.clientWidth)
-    setImgIndex(index)
+    setImgIndex(Math.round(el.scrollLeft / el.clientWidth))
   }
 
-  const images =
-    p.images.length > 0
-      ? p.images
-      : ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"]
+  const handleConsult = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!name.trim()) return
+    const text = [
+      `Hola ${p.owner.firstName}, vi tu anuncio "${p.title}" en Habita Perú.`,
+      `Mi nombre es ${name.trim()}.`,
+      phone.trim() ? `Mi teléfono es ${phone.trim()}.` : '',
+      message.trim() || '¿Sigue disponible?',
+    ].filter(Boolean).join(' ')
+
+    if (p.owner.phone) {
+      window.open(
+        `https://wa.me/51${p.owner.phone.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`,
+        '_blank'
+      )
+    }
+    setFormSent(true)
+  }
+
+  const images = p.images.length > 0
+    ? p.images
+    : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80']
 
   return (
     <div className="min-h-screen bg-white pt-14 pb-28">
+
+      {/* Contact bottom sheet */}
+      {contactOpen && (
+        <div className="fixed inset-0 z-[500] flex flex-col justify-end">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => { setContactOpen(false); setFormSent(false) }}
+          />
+          <div className="relative bg-white rounded-t-3xl px-5 pt-5 pb-8 z-10">
+            {/* Handle */}
+            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-[#151c26] text-base">Consultar propiedad</h3>
+              <button
+                onClick={() => { setContactOpen(false); setFormSent(false) }}
+                className="size-8 rounded-full flex items-center justify-center bg-gray-100 border-none cursor-pointer"
+              >
+                <Cancel01Icon size={16} className="text-gray-500" />
+              </button>
+            </div>
+
+            {formSent ? (
+              <div className="py-6 text-center">
+                <CheckmarkCircle02Icon size={44} className="text-green mx-auto mb-3" />
+                <p className="font-bold text-[#151c26] mb-1">¡Consulta enviada!</p>
+                <p className="text-sm text-gray-400 mb-4">
+                  El arrendador recibirá tu mensaje por WhatsApp.
+                </p>
+                <button
+                  onClick={() => { setFormSent(false); setContactOpen(false) }}
+                  className="text-sm text-accent font-bold bg-transparent border-none cursor-pointer"
+                >
+                  Cerrar
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleConsult} className="flex flex-col gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">
+                    Tu nombre *
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Ej: Juan Pérez"
+                    required
+                    className="w-full px-3.5 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-accent bg-gray-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">
+                    Teléfono (opcional)
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    placeholder="+51 999 999 999"
+                    className="w-full px-3.5 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-accent bg-gray-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1.5">
+                    Mensaje (opcional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
+                    placeholder="Hola, me interesa la propiedad..."
+                    className="w-full px-3.5 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-accent bg-gray-50 resize-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={!name.trim()}
+                  className="w-full py-3.5 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
+                >
+                  <MessageMultiple02Icon size={16} />
+                  Enviar consulta
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Gallery */}
       <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
         <div
@@ -115,18 +223,24 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
         {/* Title */}
         <h1 className="text-xl font-extrabold text-[#151c26] leading-snug mb-2">{p.title}</h1>
 
-        {/* Location + rating row */}
+        {/* Location + rating */}
         <div className="flex items-center gap-3 flex-wrap mb-4">
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <Location01Icon size={12} />
             <span>{p.district}, Lima</span>
           </div>
-          {p.avgRating > 0 && (
+          {p.avgRating > 0 ? (
             <div className="flex items-center gap-1 text-xs">
               <StarIcon size={11} className="text-yellow-400" />
               <span className="font-bold text-[#151c26]">{p.avgRating.toFixed(1)}</span>
-              <span className="text-gray-400">({p.reviews.length} reseñas)</span>
+              <span className="text-gray-400">
+                ({p.reviews.length} {p.reviews.length === 1 ? 'reseña' : 'reseñas'})
+              </span>
             </div>
+          ) : (
+            <span className="text-xs font-semibold text-green bg-green/10 px-2 py-0.5 rounded-full">
+              Nueva publicación
+            </span>
           )}
         </div>
 
@@ -135,13 +249,13 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
           <div>
             <p className="text-2xl font-extrabold text-accent leading-none">
               S/ {p.price.toLocaleString('es-PE')}
-              <span className="text-sm font-normal text-gray-400">/mes</span>
+              <span className="text-sm font-normal text-gray-400"> /mes</span>
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-400 mt-1.5">
               <span>{p.rooms} hab.</span>
               <span>·</span>
               <span>{p.bathrooms} baños</span>
-              {p.area && <><span>·</span><span>{p.area}m²</span></>}
+              {p.area && <><span>·</span><span>{p.area} m²</span></>}
             </div>
           </div>
           <div className="flex flex-col gap-1.5 text-xs text-gray-500 text-right">
@@ -156,7 +270,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
           </div>
         </div>
 
-        {/* Verified badge */}
+        {/* Verified */}
         <div className="flex items-center gap-2 bg-green/10 rounded-xl px-4 py-2.5 mb-5">
           <SecurityCheckIcon size={15} className="text-green shrink-0" />
           <span className="text-xs font-semibold text-green">
@@ -167,9 +281,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
         {/* Description */}
         <section className="mb-5 pb-5 border-b border-gray-100">
           <h2 className="text-base font-bold text-[#151c26] mb-2.5">Descripción</h2>
-          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
-            {p.description}
-          </p>
+          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{p.description}</p>
         </section>
 
         {/* Amenities */}
@@ -221,12 +333,12 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
               </span>
             </div>
             <div className="flex flex-col gap-3">
-              {p.reviews.slice(0, 3).map((r) => (
+              {p.reviews.slice(0, 3).map(r => (
                 <div key={r.id} className="bg-gray-50 rounded-xl p-3.5">
                   <div className="flex items-center gap-2.5 mb-2">
                     <div
                       className="size-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' }}
+                      style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                     >
                       {r.author.firstName[0]}
                     </div>
@@ -235,6 +347,9 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
                       <div className="flex items-center gap-0.5 mt-0.5">
                         {Array.from({ length: r.rating }).map((_, i) => (
                           <StarIcon key={i} size={10} className="text-yellow-400" />
+                        ))}
+                        {Array.from({ length: 5 - r.rating }).map((_, i) => (
+                          <StarIcon key={`e${i}`} size={10} className="text-gray-200" />
                         ))}
                       </div>
                     </div>
@@ -258,25 +373,32 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
         </div>
         <div className="flex gap-2 shrink-0">
           <button
+            onClick={() => setContactOpen(true)}
             className="px-4 py-2.5 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap"
             style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
           >
             <MessageMultiple02Icon size={14} />
             Consultar
           </button>
-          <a
-            href={
-              p.owner.phone
-                ? `https://wa.me/51${p.owner.phone.replace(/\D/g, "")}?text=Hola%20${p.owner.firstName},%20vi%20tu%20anuncio%20%22${encodeURIComponent(p.title)}%22%20en%20Habita%20Per%C3%BA.%20%C2%BFSigue%20disponible%3F`
-                : `https://wa.me/51999999999?text=Hola,%20me%20interesa%20la%20propiedad%20%22${encodeURIComponent(p.title)}%22%20en%20Habita%20Per%C3%BA`
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline cursor-pointer whitespace-nowrap"
-          >
-            <WhatsappIcon size={14} />
-            WhatsApp
-          </a>
+          {p.owner.phone ? (
+            <a
+              href={`https://wa.me/51${p.owner.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${p.owner.firstName}, vi tu anuncio "${p.title}" en Habita Perú. ¿Sigue disponible?`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline cursor-pointer whitespace-nowrap"
+            >
+              <WhatsappIcon size={14} />
+              WhatsApp
+            </a>
+          ) : (
+            <button
+              onClick={() => setContactOpen(true)}
+              className="px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap"
+            >
+              <WhatsappIcon size={14} />
+              WhatsApp
+            </button>
+          )}
         </div>
       </div>
     </div>

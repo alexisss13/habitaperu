@@ -111,8 +111,14 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
           <img
             src={`https://flagcdn.com/w40/${selectedLang.countryCode}.png`}
             alt={selectedLang.region ?? selectedLang.nativeName}
-            className="w-5 h-[15px] rounded-[2px] object-cover shrink-0"
-            style={{ minWidth: '20px' }}
+            className="rounded-[2px]"
+            style={{
+              width: '20px',
+              height: '15px',
+              minWidth: '20px',
+              maxWidth: '20px',
+              objectFit: 'cover',
+            }}
           />
         )}
         <Globe02Icon size={18} />
@@ -175,12 +181,19 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
                                 : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                             }`}
                           >
-                            {/* Flag — fixed size via CSS class, not HTML attribute */}
+                            {/* Flag — inline styles override the globals.css img rule */}
                             <img
                               src={`https://flagcdn.com/w40/${lang.countryCode}.png`}
                               alt={lang.region ?? lang.nativeName}
-                              className="w-[30px] h-[22px] rounded-[3px] object-cover shrink-0"
-                              style={{ minWidth: '30px' }}
+                              className="rounded-[3px]"
+                              style={{
+                                width: '32px',
+                                height: '24px',
+                                minWidth: '32px',
+                                maxWidth: '32px',
+                                objectFit: 'cover',
+                                flexShrink: 0,
+                              }}
                             />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-[#151c26] leading-none mb-0.5 truncate">
