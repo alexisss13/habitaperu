@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Home01Icon, UserMultiple02Icon, FileValidationIcon, Wallet01Icon, Settings02Icon } from 'hugeicons-react'
+import { Home01Icon, UserMultiple02Icon, FileValidationIcon, Wallet01Icon, Settings02Icon, Building03Icon } from 'hugeicons-react'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { auth } from "@/lib/auth"
@@ -24,10 +24,11 @@ export default async function LandlordLayout({ children }: LandlordLayoutProps) 
 
   const navigation = [
     { name: 'Dashboard', href: '/landlord/dashboard', icon: Home01Icon },
+    { name: 'Propiedades', href: '/landlord/properties', icon: Building03Icon },
     { name: 'Inquilinos', href: '/landlord/tenants', icon: UserMultiple02Icon },
     { name: 'Contratos', href: '/landlord/contracts', icon: FileValidationIcon },
     { name: 'Pagos', href: '/landlord/payments', icon: Wallet01Icon },
-    { name: 'Configuración', href: '/landlord/settings', icon: Settings02Icon },
+    { name: 'Config', href: '/landlord/settings', icon: Settings02Icon },
   ]
 
   return (
@@ -105,7 +106,7 @@ export default async function LandlordLayout({ children }: LandlordLayoutProps) 
 
       {/* Bottom Navigation Mobile */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 z-50">
-        <div className="grid grid-cols-5 h-16">
+        <div className="grid grid-cols-6 h-16">
           {navigation.map((item) => {
             const Icon = item.icon
             return (

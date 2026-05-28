@@ -25,6 +25,8 @@ export function TenantLayoutClient({ children, session }: TenantLayoutClientProp
     { name: "Mi Panel", href: "/tenant/dashboard" },
     { name: "Mi Contrato", href: "/tenant/contract" },
     { name: "Mis Pagos", href: "/tenant/payments" },
+    { name: "Favoritos", href: "/tenant/favorites" },
+    { name: "Mi Perfil", href: "/tenant/profile" },
     { name: "Verificación KYC", href: "/tenant/kyc" },
     { name: "Configuración", href: "/tenant/settings" },
   ]

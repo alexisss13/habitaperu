@@ -4,6 +4,36 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
+export async function updateProfileAction(data: {
+  firstName: string
+  lastName: string
+  phone: string
+  bio: string
+  district: string
+}) {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("No autenticado")
+
+  const { firstName, lastName, phone, bio, district } = data
+
+  if (!firstName.trim() || !lastName.trim()) {
+    return { success: false, error: "Nombre y apellido son requeridos" }
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      phone: phone.trim() || null,
+      bio: bio.trim() || null,
+      district: district.trim() || null,
+    },
+  })
+
+  return { success: true }
+}
+
 /**
  * Toggles the 2FA state for the currently authenticated user.
  */

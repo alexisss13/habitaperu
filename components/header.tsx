@@ -35,15 +35,16 @@ export function Header() {
     <>
       {/* Main header */}
       <header className="fixed inset-x-0 top-0 z-[100] bg-white border-b border-gray-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center justify-between h-[72px] px-10 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between h-14 md:h-[72px] px-5 md:px-10 max-w-[1400px] mx-auto">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 no-underline">
-            <Home01Icon size={28} className="text-accent" />
-            <span className="text-2xl font-extrabold text-[#151c26] tracking-tight">Habita Perú</span>
+          <Link href="/" className="flex items-center gap-2 no-underline">
+            <Home01Icon size={22} className="text-accent md:hidden" />
+            <Home01Icon size={28} className="text-accent hidden md:block" />
+            <span className="text-lg md:text-2xl font-extrabold text-[#151c26] tracking-tight">Habita Perú</span>
           </Link>
 
-          {/* Right nav */}
-          <div className="flex items-center gap-6">
+          {/* Desktop right nav */}
+          <div className="hidden md:flex items-center gap-6">
             <Link href="/publicar" className="text-[0.9rem] font-medium text-[#151c26] no-underline hover:text-accent transition-colors">
               {t('publishProperty')}
             </Link>
@@ -83,12 +84,25 @@ export function Header() {
               )}
             </div>
           </div>
+
+          {/* Mobile right actions */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link
+              href={`/${locale}/login`}
+              className="text-xs font-semibold text-accent no-underline border border-accent/30 px-3 py-1.5 rounded-lg"
+            >
+              Ingresar
+            </Link>
+            <Link href={`/${locale}/register`} className="size-8 rounded-full bg-gray-100 flex items-center justify-center no-underline">
+              <UserCircleIcon size={18} className="text-gray-500" />
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* Announcement bar */}
+      {/* Announcement bar — desktop only */}
       <div
-        className="fixed inset-x-0 z-[99] py-2.5 overflow-hidden pointer-events-auto transition-[transform,opacity] duration-300"
+        className="hidden md:block fixed inset-x-0 z-[99] py-2.5 overflow-hidden pointer-events-auto transition-[transform,opacity] duration-300"
         style={{
           top: '72px',
           background: 'linear-gradient(90deg, #0f3457 0%, #8f8272 50%, #0f3457 100%)',

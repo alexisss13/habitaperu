@@ -7,7 +7,7 @@ export function Footer() {
   const locale = useLocale()
   
   return (
-    <footer className="footer">
+    <footer className="footer hidden md:block">
       <div className="container">
         <div className="footer-inner">
           <div className="footer-brand">

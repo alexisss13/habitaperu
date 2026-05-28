@@ -144,33 +144,33 @@ className="transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px
 | Ruta | Estado | Desktop | Mobile |
 |---|---|---|---|
 | `/landlord/dashboard` | ✅ Completo | `dashboard-desktop.tsx` | `dashboard-mobile.tsx` |
-| `/landlord/tenants` | ❌ **Pendiente** | — | — |
-| `/landlord/contracts` | ❌ **Pendiente** | — | — |
-| `/landlord/payments` | ❌ **Pendiente** | — | — |
-| `/landlord/settings` | ❌ **Pendiente** | — | — |
-| `/landlord/properties` | ❌ **Pendiente** | — | — |
-| `/landlord/properties/new` | ❌ **Pendiente** | — | — |
+| `/landlord/tenants` | ✅ Completo | `tenants-desktop.tsx` | `tenants-mobile.tsx` |
+| `/landlord/contracts` | ✅ Completo | `contracts-desktop.tsx` | `contracts-mobile.tsx` |
+| `/landlord/payments` | ✅ Completo | `payments-desktop.tsx` | `payments-mobile.tsx` |
+| `/landlord/settings` | ✅ Completo | usa `UserSettingsView` | — |
+| `/landlord/properties` | ✅ Completo | `properties-desktop.tsx` | `properties-mobile.tsx` |
+| `/landlord/properties/new` | ✅ Completo | multi-step form (un archivo) | responsive |
 | `/landlord/properties/[id]/edit` | ❌ **Pendiente** | — | — |
-| `/landlord/contracts/new` | ❌ **Pendiente** | — | — |
-| `/landlord/contracts/[id]` | ❌ **Pendiente** | — | — |
+| `/landlord/contracts/new` | ✅ integrado en contracts | — | — |
+| `/landlord/contracts/[id]` | → usa `/contracts/[id]` | — | — |
 
 ### Panel Inquilino (`/tenant/*`)
 
 | Ruta | Estado | Desktop | Mobile |
 |---|---|---|---|
-| `/tenant/dashboard` | ✅ Datos hardcodeados | `dashboard-desktop.tsx` | `dashboard-mobile.tsx` |
-| `/tenant/contract` | ❌ **Pendiente** | — | — |
-| `/tenant/payments` | ❌ **Pendiente** | — | — |
-| `/tenant/favorites` | ❌ **Pendiente** | — | — |
-| `/tenant/profile` | ❌ **Pendiente** | — | — |
-| `/tenant/kyc` | ❌ **Pendiente** | — | — |
+| `/tenant/dashboard` | ✅ Completo | `dashboard-desktop.tsx` | `dashboard-mobile.tsx` |
+| `/tenant/contract` | ✅ Completo | `contract-desktop.tsx` | `contract-mobile.tsx` |
+| `/tenant/payments` | ✅ Completo | `payments-desktop.tsx` | `payments-mobile.tsx` |
+| `/tenant/favorites` | ✅ Completo | `favorites-desktop.tsx` | `favorites-mobile.tsx` |
+| `/tenant/profile` | ✅ Completo | `profile-desktop.tsx` | `profile-mobile.tsx` |
+| `/tenant/kyc` | ✅ Completo | `kyc-desktop.tsx` | `kyc-mobile.tsx` |
 
 ### Flujo de contrato (rutas transversales)
 
 | Ruta | Estado | Descripción |
 |---|---|---|
-| `/contracts/[id]` | ❌ **Pendiente** | Vista del contrato con Clickwrap para firmar |
-| `/contracts/[id]/audit` | ❌ **Pendiente** | Audit Trail del contrato |
+| `/contracts/[id]` | ✅ Completo | Clickwrap: visualiza contrato, registra AuditLog, firma |
+| `/contracts/[id]/audit` | ❌ **Pendiente** | Página dedicada solo al Audit Trail |
 | `/contracts/[id]/download` | ✅ API existe | `app/api/contracts/[id]/download/route.ts` |
 
 ---
