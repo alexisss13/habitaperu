@@ -57,13 +57,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id as string
         token.role = (user as any).role
+        // Check active contract for tenants at sign-in (stored in JWT so no extra DB call later)
+        if ((user as any).role === 'TENANT') {
+          const active = await prisma.contract.findFirst({
+            where: { tenantId: user.id as string, status: 'ACTIVE' },
+            select: { id: true },
+          })
+          token.hasActiveContract = !!active
+        } else {
+          token.hasActiveContract = false
+        }
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id as string
-        (session.user as any).role = token.role as string
+        ;(session.user as any).role = token.role as string
+        ;(session.user as any).hasActiveContract = token.hasActiveContract ?? false
       }
       return session
     },

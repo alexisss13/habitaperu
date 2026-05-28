@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Baloo_2, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth-provider"
 
 // Baloo 2 → Para títulos (más gruesa y amigable)
 const baloo2 = Baloo_2({ 
@@ -37,7 +38,9 @@ export default function RootLayout({
         />
       </head>
       <body className={mPlusRounded.className}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

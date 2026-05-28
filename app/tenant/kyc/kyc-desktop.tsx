@@ -126,7 +126,7 @@ export function TenantKYCDesktop({ verification }: Props) {
   const activeStatus = isReSubmitting ? "PENDIENTE" : (verification?.status || "PENDIENTE")
 
   return (
-    <div className="min-h-screen bg-bg-2 pt-[80px]">
+    <div className="min-h-screen bg-bg-2 ">
       {/* CSS Keyframes for Scan Effect */}
       <style jsx global>{`
         @keyframes scanEffect {

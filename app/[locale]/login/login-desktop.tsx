@@ -62,7 +62,7 @@ export function LoginDesktop() {
         switch (session.user.role) {
           case "ADMIN":    router.push("/admin/dashboard"); break
           case "LANDLORD": router.push("/landlord/dashboard"); break
-          case "TENANT":   router.push("/tenant/dashboard"); break
+          case "TENANT":   router.push(`/${locale}`); break
           default:         router.push(`/${locale}`)
         }
       } else {

@@ -69,7 +69,7 @@ export function TenantContractDesktop({ contracts }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-bg-2 pt-[80px]">
+    <div className="min-h-screen bg-bg-2 ">
       <div className="max-w-6xl mx-auto px-6 py-10">
         
         {/* Header */}
