@@ -44,7 +44,7 @@ export function PublishClient() {
     <div>
       {/* HERO SECTION */}
       <section
-        className="pt-[102px] pb-20 min-h-[85vh] flex items-center relative overflow-hidden"
+        className="pt-[112px] pb-20 min-h-[85vh] flex items-center relative overflow-hidden"
         style={{ background: 'linear-gradient(180deg, #f9fafb 0%, #ffffff 100%)' }}
       >
         <div className="absolute top-[-5%] right-[-3%] size-[500px] rounded-full z-0 blur-[60px]"

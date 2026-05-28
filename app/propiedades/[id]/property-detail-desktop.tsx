@@ -104,7 +104,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
   const avgRating = p.avgRating
 
   return (
-    <div className="min-h-screen bg-white pt-[80px]">
+    <div className="min-h-screen bg-white pt-[112px]">
 
       {/* Lightbox */}
       {lightboxOpen && images.length > 0 && (

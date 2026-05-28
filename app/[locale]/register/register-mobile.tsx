@@ -63,7 +63,7 @@ export function RegisterMobile() {
       : 'border-gray-200 bg-white text-text-muted')
 
   return (
-    <div className="min-h-screen bg-white flex flex-col pt-[72px]">
+    <div className="min-h-screen bg-white flex flex-col pt-14">
       {/* Sticky header */}
       <div className="fixed inset-x-0 top-0 z-[100] bg-white border-b border-gray-100 px-5 py-4 flex items-center gap-3">
         <button
