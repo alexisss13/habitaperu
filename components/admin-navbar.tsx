@@ -17,7 +17,6 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
   const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
 
-  // Notificaciones de ejemplo (en producción vendrían de la BD)
   const notifications = [
     { id: 1, title: "Nuevo usuario registrado", time: "Hace 5 min", unread: true },
     { id: 2, title: "Propiedad publicada", time: "Hace 1 hora", unread: true },
@@ -27,228 +26,76 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
   const unreadCount = notifications.filter(n => n.unread).length
 
   return (
-    <nav style={{
-      position: 'fixed',
-      top: 0,
-      left: isSidebarCollapsed ? '80px' : '280px',
-      right: 0,
-      height: '70px',
-      background: 'var(--admin-card-bg)',
-      borderBottom: '1px solid var(--admin-border)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 32px',
-      zIndex: 50,
-      transition: 'left 0.3s ease'
-    }}>
+    <nav
+      className="fixed top-0 right-0 h-[70px] bg-admin-card-bg border-b border-admin-border flex items-center justify-between px-8 z-50 transition-[left] duration-300 ease-in-out"
+      style={{ left: isSidebarCollapsed ? '80px' : '280px' }}
+    >
       {/* Left Section */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        {/* Toggle Sidebar Button */}
+      <div className="flex items-center gap-5">
         <button
           onClick={onToggleSidebar}
-          style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '8px',
-            border: '1px solid var(--admin-border)',
-            background: 'transparent',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            color: 'var(--admin-text)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--admin-hover-bg)'
-            e.currentTarget.style.borderColor = 'var(--admin-accent)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent'
-            e.currentTarget.style.borderColor = 'var(--admin-border)'
-          }}
+          className="size-10 rounded-lg border border-admin-border bg-transparent flex items-center justify-center cursor-pointer transition-all text-admin-text hover:bg-[var(--admin-hover-bg)] hover:border-admin-accent"
         >
           {isSidebarCollapsed ? <Menu01Icon size={20} /> : <Cancel01Icon size={20} />}
         </button>
 
-        {/* Search Bar */}
-        <div style={{
-          position: 'relative',
-          width: '400px'
-        }}>
-          <Search01Icon 
-            size={18} 
-            style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--admin-text-muted)'
-            }}
+        <div className="relative w-[400px]">
+          <Search01Icon
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-text-muted pointer-events-none"
           />
           <input
             type="text"
             placeholder="Buscar usuarios, propiedades..."
-            style={{
-              width: '100%',
-              height: '40px',
-              paddingLeft: '40px',
-              paddingRight: '12px',
-              border: '1px solid var(--admin-border)',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-              color: 'var(--admin-text)',
-              background: 'var(--admin-card-bg)',
-              outline: 'none',
-              transition: 'all 0.2s'
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = 'var(--admin-accent)'
-              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(15,52,87,0.1)'
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = 'var(--admin-border)'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
+            className="w-full h-10 pl-10 pr-3 border border-admin-border rounded-lg text-sm text-admin-text bg-admin-card-bg outline-none transition-all focus:border-admin-accent focus:shadow-[0_0_0_3px_rgba(15,52,87,0.1)]"
           />
         </div>
       </div>
 
       {/* Right Section */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {/* Theme Switcher */}
+      <div className="flex items-center gap-3">
         <ThemeSwitcher />
 
         {/* Notifications */}
-        <div style={{ position: 'relative' }}>
+        <div className="relative">
           <button
-            onClick={() => {
-              setShowNotifications(!showNotifications)
-              setShowProfile(false)
-            }}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              border: '1px solid var(--admin-border)',
-              background: showNotifications ? 'var(--admin-hover-bg)' : 'transparent',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              color: 'var(--admin-text)',
-              position: 'relative'
-            }}
-            onMouseEnter={(e) => {
-              if (!showNotifications) {
-                e.currentTarget.style.background = 'var(--admin-hover-bg)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!showNotifications) {
-                e.currentTarget.style.background = 'transparent'
-              }
-            }}
+            onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false) }}
+            className={`relative size-10 rounded-lg border border-admin-border flex items-center justify-center cursor-pointer transition-all text-admin-text hover:bg-[var(--admin-hover-bg)] ${showNotifications ? 'bg-[var(--admin-hover-bg)]' : 'bg-transparent'}`}
           >
             <Notification02Icon size={20} />
             {unreadCount > 0 && (
-              <div style={{
-                position: 'absolute',
-                top: '-4px',
-                right: '-4px',
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                background: '#EA4227',
-                color: '#fff',
-                fontSize: '0.65rem',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '2px solid var(--admin-card-bg)'
-              }}>
+              <div className="absolute -top-1 -right-1 size-[18px] rounded-full bg-accent-secondary text-white text-[0.65rem] font-semibold flex items-center justify-center border-2 border-admin-card-bg">
                 {unreadCount}
               </div>
             )}
           </button>
 
-          {/* Notifications Dropdown */}
           {showNotifications && (
-            <div style={{
-              position: 'absolute',
-              top: '50px',
-              right: 0,
-              width: '320px',
-              background: 'var(--admin-card-bg)',
-              border: '1px solid var(--admin-border)',
-              borderRadius: '12px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                padding: '16px',
-                borderBottom: '1px solid var(--admin-border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--admin-text)' }}>
-                  Notificaciones
-                </h3>
-                <span style={{ fontSize: '0.75rem', color: 'var(--admin-accent)', cursor: 'pointer' }}>
-                  Marcar todas como leídas
-                </span>
+            <div className="absolute top-[50px] right-0 w-80 bg-admin-card-bg border border-admin-border rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] overflow-hidden z-[200]">
+              <div className="p-4 border-b border-admin-border flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-admin-text">Notificaciones</h3>
+                <span className="text-xs text-admin-accent cursor-pointer">Marcar todas como leídas</span>
               </div>
-              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <div className="max-h-[300px] overflow-y-auto">
                 {notifications.map((notif) => (
                   <div
                     key={notif.id}
-                    style={{
-                      padding: '12px 16px',
-                      borderBottom: '1px solid var(--admin-border)',
-                      cursor: 'pointer',
-                      background: notif.unread ? 'rgba(15,52,87,0.03)' : 'transparent',
-                      transition: 'background 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--admin-hover-bg)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = notif.unread ? 'rgba(15,52,87,0.03)' : 'transparent'
-                    }}
+                    className={`px-4 py-3 border-b border-admin-border cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)] ${notif.unread ? 'bg-[rgba(15,52,87,0.03)]' : 'bg-transparent'}`}
                   >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                    <div className="flex items-start gap-2">
                       {notif.unread && (
-                        <div style={{
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          background: '#EA4227',
-                          marginTop: '4px',
-                          flexShrink: 0
-                        }} />
+                        <div className="size-2 rounded-full bg-accent-secondary mt-1 shrink-0" />
                       )}
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '0.875rem', color: 'var(--admin-text)', marginBottom: '4px' }}>
-                          {notif.title}
-                        </p>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>
-                          {notif.time}
-                        </p>
+                      <div className="flex-1">
+                        <p className="text-sm text-admin-text mb-1">{notif.title}</p>
+                        <p className="text-xs text-admin-text-muted">{notif.time}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div style={{
-                padding: '12px 16px',
-                textAlign: 'center',
-                borderTop: '1px solid var(--admin-border)'
-              }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--admin-accent)', cursor: 'pointer', fontWeight: '600' }}>
+              <div className="p-3 text-center border-t border-admin-border">
+                <span className="text-xs text-admin-accent cursor-pointer font-semibold">
                   Ver todas las notificaciones
                 </span>
               </div>
@@ -257,132 +104,41 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
         </div>
 
         {/* User Profile */}
-        <div style={{ position: 'relative' }}>
+        <div className="relative">
           <button
-            onClick={() => {
-              setShowProfile(!showProfile)
-              setShowNotifications(false)
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '6px 12px 6px 6px',
-              borderRadius: '8px',
-              border: '1px solid var(--admin-border)',
-              background: showProfile ? 'var(--admin-hover-bg)' : 'transparent',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              if (!showProfile) {
-                e.currentTarget.style.background = 'var(--admin-hover-bg)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!showProfile) {
-                e.currentTarget.style.background = 'transparent'
-              }
-            }}
+            onClick={() => { setShowProfile(!showProfile); setShowNotifications(false) }}
+            className={`flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-lg border border-admin-border cursor-pointer transition-all hover:bg-[var(--admin-hover-bg)] ${showProfile ? 'bg-[var(--admin-hover-bg)]' : 'bg-transparent'}`}
           >
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #EA4227, #d63820)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontWeight: '600',
-              fontSize: '0.75rem'
-            }}>
+            <div
+              className="size-8 rounded-full flex items-center justify-center text-white font-semibold text-xs"
+              style={{ background: 'linear-gradient(135deg, #EA4227, #d63820)' }}
+            >
               {user.name?.[0] || 'A'}
             </div>
-            <div style={{ textAlign: 'left' }}>
-              <p style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--admin-text)', lineHeight: 1 }}>
-                {user.name}
-              </p>
-              <p style={{ fontSize: '0.7rem', color: 'var(--admin-text-muted)', lineHeight: 1.2, marginTop: '2px' }}>
-                Admin
-              </p>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-admin-text leading-none">{user.name}</p>
+              <p className="text-[0.7rem] text-admin-text-muted leading-snug mt-0.5">Admin</p>
             </div>
           </button>
 
-          {/* Profile Dropdown */}
           {showProfile && (
-            <div style={{
-              position: 'absolute',
-              top: '50px',
-              right: 0,
-              width: '220px',
-              background: 'var(--admin-card-bg)',
-              border: '1px solid var(--admin-border)',
-              borderRadius: '12px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-              overflow: 'hidden'
-            }}>
-              <div style={{ padding: '16px', borderBottom: '1px solid var(--admin-border)' }}>
-                <p style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--admin-text)', marginBottom: '4px' }}>
-                  {user.name}
-                </p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--admin-text-muted)' }}>
-                  {user.email}
-                </p>
+            <div className="absolute top-[50px] right-0 w-[220px] bg-admin-card-bg border border-admin-border rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] overflow-hidden z-[200]">
+              <div className="p-4 border-b border-admin-border">
+                <p className="text-sm font-semibold text-admin-text mb-1">{user.name}</p>
+                <p className="text-xs text-admin-text-muted">{user.email}</p>
               </div>
-              <div style={{ padding: '8px' }}>
-                <button style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  textAlign: 'left',
-                  background: 'transparent',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                  color: 'var(--admin-text)',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--admin-hover-bg)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
+              <div className="p-2">
+                <button className="w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-admin-text cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)]">
                   Mi Perfil
                 </button>
-                <button style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  textAlign: 'left',
-                  background: 'transparent',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '0.875rem',
-                  color: 'var(--admin-text)',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--admin-hover-bg)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
+                <button className="w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-admin-text cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)]">
                   Configuración
                 </button>
               </div>
-              <div style={{ padding: '8px', borderTop: '1px solid var(--admin-border)' }}>
-                <button 
+              <div className="p-2 border-t border-admin-border">
+                <button
                   onClick={() => window.location.href = '/api/auth/signout'}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    textAlign: 'left',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem',
-                    color: '#ef4444',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  className="w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-red-600 cursor-pointer transition-colors hover:bg-red-600/10"
                 >
                   Cerrar Sesión
                 </button>

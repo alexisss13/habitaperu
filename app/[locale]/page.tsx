@@ -1,4 +1,4 @@
-import { HomeClient } from './home-client'
+import { HomeView } from './home-view'
 import { prisma } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
@@ -164,5 +164,5 @@ export default async function HomePage() {
     getPropertyStats()
   ])
 
-  return <HomeClient properties={properties} stats={stats} />
+  return <HomeView properties={properties} stats={stats} />
 }

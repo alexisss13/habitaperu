@@ -1,5 +1,12 @@
-import { RegisterClient } from './register-client'
+'use client'
+
+import { useResponsive } from '@/hooks/useResponsive'
+import { LoadingScreen } from '@/components/ui/loading-screen'
+import { RegisterDesktop } from './register-desktop'
+import { RegisterMobile } from './register-mobile'
 
 export default function RegisterPage() {
-  return <RegisterClient />
+  const { isMobile, isLoading } = useResponsive()
+  if (isLoading) return <LoadingScreen />
+  return isMobile ? <RegisterMobile /> : <RegisterDesktop />
 }

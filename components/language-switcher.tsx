@@ -5,13 +5,12 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Globe02Icon, Cancel01Icon, Tick02Icon } from 'hugeicons-react'
 import { localeMap } from '@/lib/i18n'
 
-// Definición de idiomas y regiones disponibles
 interface Language {
   code: string
   name: string
   nativeName: string
   region?: string
-  countryCode: string  // Código de país para la bandera (ISO 3166-1 alpha-2)
+  countryCode: string
 }
 
 interface LanguageGroup {
@@ -19,7 +18,6 @@ interface LanguageGroup {
   languages: Language[]
 }
 
-// Configuración de idiomas - Fácilmente escalable
 const LANGUAGE_GROUPS: LanguageGroup[] = [
   {
     title: 'Idiomas y regiones sugeridos',
@@ -62,356 +60,132 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
   const router = useRouter()
   const pathname = usePathname()
 
-  // Cargar idioma guardado del localStorage
   useEffect(() => {
     const savedLanguage = localStorage.getItem('habitaperu_language')
-    if (savedLanguage) {
-      setSelectedLanguage(savedLanguage)
-    }
+    if (savedLanguage) setSelectedLanguage(savedLanguage)
   }, [])
 
-  // Cerrar modal al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) setIsOpen(false)
     }
-
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false)
+    }
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
-      document.body.style.overflow = 'hidden' // Prevenir scroll del body
+      document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
     }
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-      document.body.style.overflow = 'unset'
-    }
-  }, [isOpen])
-
-  // Cerrar con tecla ESC
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false)
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape)
-    }
-
-    return () => {
       document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
     }
   }, [isOpen])
 
   const handleLanguageSelect = (languageCode: string) => {
     setSelectedLanguage(languageCode)
     localStorage.setItem('habitaperu_language', languageCode)
-    
-    // Obtener el locale (código de idioma sin región)
     const locale = localeMap[languageCode] || 'es'
-    
-    // Callback opcional para manejar el cambio de idioma
-    if (onLanguageChange) {
-      onLanguageChange(languageCode)
-    }
-
-    // Navegar a la nueva ruta con el locale
-    // Remover el locale actual del pathname si existe
+    if (onLanguageChange) onLanguageChange(languageCode)
     const pathnameWithoutLocale = pathname.replace(/^\/(es|en|pt|fr|de|it|ja|ko|zh)/, '') || '/'
-    
-    // Si el nuevo locale es español (default), no agregar prefijo
     const newPath = locale === 'es' ? pathnameWithoutLocale : `/${locale}${pathnameWithoutLocale}`
-    
     router.push(newPath)
-
-    // Cerrar modal después de seleccionar
-    setTimeout(() => {
-      setIsOpen(false)
-    }, 200)
-  }
-
-  const getLanguageDisplay = (code: string) => {
-    for (const group of LANGUAGE_GROUPS) {
-      const lang = group.languages.find(l => l.code === code)
-      if (lang) {
-        return lang.region ? `${lang.nativeName} (${lang.region})` : lang.nativeName
-      }
-    }
-    return 'Español (Perú)'
+    setTimeout(() => setIsOpen(false), 200)
   }
 
   return (
     <>
-      {/* Botón del Globe */}
-      <button 
+      <button
         onClick={() => setIsOpen(true)}
-        style={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'transparent',
-          border: 'none',
-          color: '#151c26',
-          cursor: 'pointer',
-          transition: 'background 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        className="size-10 rounded-full flex items-center justify-center bg-transparent border-none text-[#151c26] cursor-pointer transition-colors hover:bg-gray-100"
         aria-label="Cambiar idioma"
       >
         <Globe02Icon size={20} />
       </button>
 
-      {/* Modal Overlay */}
       {isOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.6)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px',
-          animation: 'fadeIn 0.2s ease'
-        }}>
-          {/* Modal Content */}
-          <div 
+        <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-5 animate-[fadeIn_0.2s_ease]">
+          <div
             ref={modalRef}
-            style={{
-              background: '#fff',
-              borderRadius: '16px',
-              width: '100%',
-              maxWidth: '780px',
-              maxHeight: '90vh',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-              animation: 'slideUp 0.3s ease'
-            }}
+            className="bg-white rounded-2xl w-full max-w-[780px] max-h-[90vh] flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.3)] animate-[slideUp_0.3s_ease]"
           >
             {/* Header */}
-            <div style={{
-              padding: '24px 24px 16px',
-              borderBottom: '1px solid #e5e7eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
-            }}>
+            <div className="px-6 pt-6 pb-4 border-b border-gray-200 flex items-center justify-between">
               <button
                 onClick={() => setIsOpen(false)}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                className="size-8 rounded-full flex items-center justify-center bg-transparent border-none cursor-pointer transition-colors hover:bg-gray-100"
                 aria-label="Cerrar"
               >
-                <Cancel01Icon size={16} style={{ color: '#151c26' }} />
+                <Cancel01Icon size={16} className="text-[#151c26]" />
               </button>
             </div>
 
             {/* Tabs */}
-            <div style={{
-              display: 'flex',
-              gap: '32px',
-              padding: '0 24px',
-              borderBottom: '1px solid #e5e7eb'
-            }}>
-              <button
-                onClick={() => setActiveTab('language')}
-                style={{
-                  padding: '16px 0',
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  color: activeTab === 'language' ? '#151c26' : '#6b7280',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'color 0.2s'
-                }}
-              >
-                Idioma y región
-                {activeTab === 'language' && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: '2px',
-                    background: '#151c26'
-                  }} />
-                )}
-              </button>
-              <button
-                onClick={() => setActiveTab('currency')}
-                style={{
-                  padding: '16px 0',
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  color: activeTab === 'currency' ? '#151c26' : '#6b7280',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'color 0.2s'
-                }}
-              >
-                Moneda
-                {activeTab === 'currency' && (
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: '2px',
-                    background: '#151c26'
-                  }} />
-                )}
-              </button>
+            <div className="flex gap-8 px-6 border-b border-gray-200">
+              {(['language', 'currency'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`py-4 bg-transparent border-none text-[0.95rem] font-semibold cursor-pointer transition-colors relative ${activeTab === tab ? 'text-[#151c26]' : 'text-gray-500'}`}
+                >
+                  {tab === 'language' ? 'Idioma y región' : 'Moneda'}
+                  {activeTab === tab && (
+                    <div className="absolute bottom-0 inset-x-0 h-0.5 bg-[#151c26]" />
+                  )}
+                </button>
+              ))}
             </div>
 
             {/* Content */}
-            <div style={{
-              flex: 1,
-              overflowY: 'auto',
-              padding: '24px'
-            }}>
+            <div className="flex-1 overflow-y-auto p-6">
               {activeTab === 'language' ? (
                 <>
                   {LANGUAGE_GROUPS.map((group, groupIndex) => (
-                    <div key={groupIndex} style={{ marginBottom: '32px' }}>
-                      <h3 style={{
-                        fontSize: '0.875rem',
-                        fontWeight: '600',
-                        color: '#151c26',
-                        marginBottom: '16px'
-                      }}>
-                        {group.title}
-                      </h3>
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                        gap: '12px'
-                      }}>
-                        {group.languages.map((language) => (
-                          <button
-                            key={language.code}
-                            onClick={() => handleLanguageSelect(language.code)}
-                            style={{
-                              padding: '12px 16px',
-                              background: selectedLanguage === language.code ? '#f3f4f6' : 'transparent',
-                              border: '1px solid',
-                              borderColor: selectedLanguage === language.code ? '#0f3457' : '#e5e7eb',
-                              borderRadius: '8px',
-                              textAlign: 'left',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              gap: '12px'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (selectedLanguage !== language.code) {
-                                e.currentTarget.style.background = '#f9fafb'
-                                e.currentTarget.style.borderColor = '#d1d5db'
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (selectedLanguage !== language.code) {
-                                e.currentTarget.style.background = 'transparent'
-                                e.currentTarget.style.borderColor = '#e5e7eb'
-                              }
-                            }}
-                          >
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '10px',
-                              flex: 1
-                            }}>
-                              {/* Bandera */}
-                              <img
-                                src={`https://flagcdn.com/20x15/${language.countryCode}.png`}
-                                srcSet={`https://flagcdn.com/40x30/${language.countryCode}.png 2x, https://flagcdn.com/60x45/${language.countryCode}.png 3x`}
-                                width="20"
-                                height="15"
-                                alt={language.region || language.nativeName}
-                                style={{
-                                  borderRadius: '2px',
-                                  flexShrink: 0,
-                                  boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                  objectFit: 'cover',
-                                  minWidth: '20px',
-                                  maxWidth: '20px',
-                                  minHeight: '15px',
-                                  maxHeight: '15px'
-                                }}
-                              />
-                              
-                              {/* Texto */}
-                              <div style={{ flex: 1 }}>
-                                <div style={{
-                                  fontSize: '0.875rem',
-                                  fontWeight: '500',
-                                  color: '#151c26',
-                                  marginBottom: '2px'
-                                }}>
-                                  {language.nativeName}
+                    <div key={groupIndex} className="mb-8">
+                      <h3 className="text-sm font-semibold text-[#151c26] mb-4">{group.title}</h3>
+                      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+                        {group.languages.map((language) => {
+                          const isSelected = selectedLanguage === language.code
+                          return (
+                            <button
+                              key={language.code}
+                              onClick={() => handleLanguageSelect(language.code)}
+                              className={`px-4 py-3 rounded-lg text-left cursor-pointer transition-all flex items-center justify-between gap-3 border
+                                ${isSelected
+                                  ? 'bg-gray-100 border-accent'
+                                  : 'bg-transparent border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                                }`}
+                            >
+                              <div className="flex items-center gap-2.5 flex-1">
+                                <img
+                                  src={`https://flagcdn.com/20x15/${language.countryCode}.png`}
+                                  srcSet={`https://flagcdn.com/40x30/${language.countryCode}.png 2x, https://flagcdn.com/60x45/${language.countryCode}.png 3x`}
+                                  width="20"
+                                  height="15"
+                                  alt={language.region || language.nativeName}
+                                  className="rounded-[2px] shadow-[0_1px_2px_rgba(0,0,0,0.1)] shrink-0 object-cover"
+                                />
+                                <div className="flex-1">
+                                  <div className="text-sm font-medium text-[#151c26] mb-0.5">{language.nativeName}</div>
+                                  {language.region && (
+                                    <div className="text-xs text-gray-500">{language.region}</div>
+                                  )}
                                 </div>
-                                {language.region && (
-                                  <div style={{
-                                    fontSize: '0.75rem',
-                                    color: '#6b7280'
-                                  }}>
-                                    {language.region}
-                                  </div>
-                                )}
                               </div>
-                            </div>
-                            
-                            {/* Check icon */}
-                            {selectedLanguage === language.code && (
-                              <Tick02Icon size={16} style={{ color: '#0f3457', flexShrink: 0 }} />
-                            )}
-                          </button>
-                        ))}
+                              {isSelected && <Tick02Icon size={16} className="text-accent shrink-0" />}
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                   ))}
                 </>
               ) : (
-                <div style={{
-                  padding: '40px 0',
-                  textAlign: 'center',
-                  color: '#6b7280'
-                }}>
-                  <p style={{ fontSize: '0.95rem' }}>
-                    Funcionalidad de moneda próximamente
-                  </p>
-                  <p style={{ fontSize: '0.875rem', marginTop: '8px' }}>
-                    Por ahora, todos los precios se muestran en Soles (S/)
-                  </p>
+                <div className="py-10 text-center text-gray-500">
+                  <p className="text-[0.95rem]">Funcionalidad de moneda próximamente</p>
+                  <p className="text-sm mt-2">Por ahora, todos los precios se muestran en Soles (S/)</p>
                 </div>
               )}
             </div>
@@ -424,16 +198,9 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        
         @keyframes slideUp {
-          from { 
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>

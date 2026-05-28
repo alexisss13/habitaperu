@@ -19,22 +19,18 @@ export default function AdminLayoutClient({ children, session }: AdminLayoutClie
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--admin-bg)' }}>
-      <AdminSidebar 
-        user={session.user} 
-        isCollapsed={isSidebarCollapsed}
-      />
-      <div style={{ 
-        flex: 1, 
-        marginLeft: isSidebarCollapsed ? '80px' : '280px',
-        transition: 'margin-left 0.3s ease'
-      }}>
-        <AdminNavbar 
+    <div className="flex min-h-screen bg-admin-bg">
+      <AdminSidebar user={session.user} isCollapsed={isSidebarCollapsed} />
+      <div
+        className="flex-1 transition-[margin-left] duration-300 ease-in-out"
+        style={{ marginLeft: isSidebarCollapsed ? '80px' : '280px' }}
+      >
+        <AdminNavbar
           user={session.user}
           onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           isSidebarCollapsed={isSidebarCollapsed}
         />
-        <main style={{ paddingTop: '70px' }}>
+        <main className="pt-[70px]">
           {children}
         </main>
       </div>

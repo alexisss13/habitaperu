@@ -2,162 +2,53 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 
 interface Property {
-  id: string
-  title: string
-  type: string
-  condition: string
-  district: string
-  price: number
-  images: string[]
-  favorites: number
-  rooms: number
-  bathrooms: number
-  area: number
-  _count: {
-    reviews: number
-  }
+  id: string; title: string; type: string; condition: string; district: string
+  price: number; images: string[]; favorites: number; rooms: number
+  bathrooms: number; area: number; _count: { reviews: number }
 }
 
-interface PropertyStats {
-  minPrice: number
-  availableCount: number
-}
+interface PropertyStats { minPrice: number; availableCount: number }
 
-interface HomeClientMobileProps {
-  properties: Property[]
-  stats: PropertyStats
-}
+interface HomeClientMobileProps { properties: Property[]; stats: PropertyStats }
 
-/**
- * Vista móvil de la página de inicio
- * Diseñada como una app nativa con navegación optimizada para touch
- * 
- * @param {HomeClientMobileProps} props - Propiedades del componente
- */
 export function HomeClientMobile({ properties, stats }: HomeClientMobileProps) {
   const [activeTab, setActiveTab] = useState('home')
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#f9fafb',
-      paddingBottom: '80px' // Espacio para bottom navigation
-    }}>
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Mobile Header */}
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        background: '#fff',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '16px 20px'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <h1 style={{
-            fontSize: '1.25rem',
-            fontWeight: '800',
-            color: '#0f3457',
-            margin: 0
-          }}>
-            Habita Perú
-          </h1>
-          <button style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            border: '1px solid #e5e7eb',
-            background: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}>
-            <span style={{ fontSize: '1.25rem' }}>👤</span>
+      <header className="fixed top-0 inset-x-0 z-[100] bg-white border-b border-gray-200 px-5 py-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-extrabold text-accent m-0">Habita Perú</h1>
+          <button className="size-10 rounded-full border border-gray-200 bg-white flex items-center justify-center cursor-pointer">
+            <span className="text-xl">👤</span>
           </button>
         </div>
       </header>
 
       {/* Content */}
-      <main style={{
-        paddingTop: '80px',
-        padding: '80px 20px 20px'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '32px'
-        }}>
-          <h2 style={{
-            fontSize: '1.75rem',
-            fontWeight: '800',
-            color: '#151c26',
-            marginBottom: '12px'
-          }}>
-            Vista Móvil
-          </h2>
-          <p style={{
-            fontSize: '1rem',
-            color: '#6b7280'
-          }}>
-            Diseño optimizado para móvil en desarrollo
-          </p>
+      <main className="pt-20 px-5 pb-5">
+        <div className="text-center mb-8">
+          <h2 className="text-[1.75rem] font-extrabold text-[#151c26] mb-3">Vista Móvil</h2>
+          <p className="text-base text-gray-500">Diseño optimizado para móvil en desarrollo</p>
         </div>
 
-        {/* Placeholder para propiedades */}
-        <div style={{
-          display: 'grid',
-          gap: '16px'
-        }}>
+        <div className="flex flex-col gap-4">
           {properties.slice(0, 3).map((property) => (
-            <div
-              key={property.id}
-              style={{
-                background: '#fff',
-                borderRadius: '16px',
-                padding: '16px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-              }}
+            <Link key={property.id} href={`/propiedades/${property.id}`}
+              className="bg-white rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.08)] no-underline block"
             >
-              <h3 style={{
-                fontSize: '1rem',
-                fontWeight: '600',
-                color: '#151c26',
-                marginBottom: '8px'
-              }}>
-                {property.title}
-              </h3>
-              <p style={{
-                fontSize: '0.875rem',
-                color: '#6b7280'
-              }}>
-                {property.district} · S/ {property.price}/mes
-              </p>
-            </div>
+              <h3 className="text-base font-semibold text-[#151c26] mb-2">{property.title}</h3>
+              <p className="text-sm text-gray-500">{property.district} · S/ {property.price}/mes</p>
+            </Link>
           ))}
         </div>
       </main>
 
       {/* Bottom Navigation */}
-      <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: '#fff',
-        borderTop: '1px solid #e5e7eb',
-        display: 'flex',
-        justifyContent: 'space-around',
-        padding: '12px 0',
-        zIndex: 100
-      }}>
+      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 flex justify-around py-3 z-[100]">
         {[
           { id: 'home', label: 'Inicio', icon: '🏠' },
           { id: 'search', label: 'Buscar', icon: '🔍' },
@@ -167,20 +58,10 @@ export function HomeClientMobile({ properties, stats }: HomeClientMobileProps) {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: activeTab === tab.id ? '#0f3457' : '#9ca3af',
-              fontSize: '0.75rem',
-              fontWeight: activeTab === tab.id ? '600' : '400'
-            }}
+            className={`flex flex-col items-center gap-1 bg-transparent border-none cursor-pointer text-xs
+              ${activeTab === tab.id ? 'text-accent font-semibold' : 'text-gray-400 font-normal'}`}
           >
-            <span style={{ fontSize: '1.5rem' }}>{tab.icon}</span>
+            <span className="text-2xl">{tab.icon}</span>
             <span>{tab.label}</span>
           </button>
         ))}

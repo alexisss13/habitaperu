@@ -1,0 +1,150 @@
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/db"
+import { redirect, notFound } from "next/navigation"
+import { generatePeruvianLeaseAgreement } from "@/lib/services/contract-engine"
+import { recordContractView } from "@/app/actions/contract-actions"
+import { ContractClient } from "./contract-client"
+
+export const dynamic = 'force-dynamic'
+
+interface Props {
+  params: Promise<{ id: string; locale: string }>
+}
+
+export default async function ContractPage({ params }: Props) {
+  const { id: contractId, locale } = await params
+  const session = await auth()
+
+  if (!session?.user) {
+    redirect(`/${locale}/login?callbackUrl=/contracts/${contractId}`)
+  }
+
+  const userId = session.user.id
+
+  // Fetch contract from DB with related entities
+  const contract = await prisma.contract.findUnique({
+    where: { id: contractId },
+    include: {
+      landlord: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          dni: true,
+          email: true,
+          phone: true,
+          district: true,
+        },
+      },
+      tenant: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          dni: true,
+          email: true,
+          phone: true,
+          district: true,
+        },
+      },
+      property: {
+        select: {
+          id: true,
+          address: true,
+          district: true,
+          type: true,
+          area: true,
+          rooms: true,
+          bathrooms: true,
+          title: true,
+        },
+      },
+    },
+  })
+
+  if (!contract) {
+    notFound()
+  }
+
+  // Authorize: only landlord or tenant of the contract can view it
+  const isLandlord = contract.landlordId === userId
+  const isTenant = contract.tenantId === userId
+
+  if (!isLandlord && !isTenant) {
+    redirect(`/${locale}/login?error=Unauthorized`)
+  }
+
+  // Record viewed action in Audit Trail (Clickwrap)
+  await recordContractView(contractId)
+
+  // Map to ContractData for generatePeruvianLeaseAgreement
+  const contractData = {
+    contractId: contract.id,
+    landlord: {
+      fullName: `${contract.landlord.firstName} ${contract.landlord.lastName}`,
+      dni: contract.landlord.dni ?? "No registrado",
+      email: contract.landlord.email,
+      phone: contract.landlord.phone ?? "No registrado",
+      address: contract.landlord.district ?? "Lima",
+      district: contract.landlord.district ?? "Lima",
+    },
+    tenant: {
+      fullName: `${contract.tenant.firstName} ${contract.tenant.lastName}`,
+      dni: contract.tenant.dni ?? "No registrado",
+      email: contract.tenant.email,
+      phone: contract.tenant.phone ?? "No registrado",
+      address: contract.tenant.district ?? "Lima",
+      district: contract.tenant.district ?? "Lima",
+    },
+    property: {
+      id: contract.property.id,
+      address: contract.property.address ?? "Dirección no registrada",
+      district: contract.property.district,
+      type: contract.property.type,
+      area: contract.property.area ?? undefined,
+      rooms: contract.property.rooms,
+      bathrooms: contract.property.bathrooms,
+    },
+    monthlyRent: Number(contract.monthlyRent),
+    currency: (contract.currency ?? "PEN") as "PEN" | "USD",
+    deposit: Number(contract.deposit),
+    startDate: contract.startDate,
+    endDate: contract.endDate,
+    paymentDay: contract.paymentDay,
+    paymentAccount: (() => {
+      try {
+        const parsed = contract.terms ? JSON.parse(contract.terms) : null
+        if (
+          parsed?.paymentAccount &&
+          typeof parsed.paymentAccount.provider === "string" &&
+          typeof parsed.paymentAccount.accountNumber === "string" &&
+          typeof parsed.paymentAccount.accountHolder === "string"
+        ) {
+          return parsed.paymentAccount as {
+            provider: "Niubiz" | "Culqi" | "Izipay" | "BCP" | "Interbank" | "BBVA"
+            accountNumber: string
+            accountHolder: string
+          }
+        }
+      } catch {}
+      return {
+        provider: "BCP" as const,
+        accountNumber: "Consultar con el arrendador",
+        accountHolder: `${contract.landlord.firstName} ${contract.landlord.lastName}`,
+      }
+    })(),
+  }
+
+  const html = generatePeruvianLeaseAgreement(contractData)
+
+  // Pass necessary info to client view
+  return (
+    <ContractClient
+      contract={JSON.parse(JSON.stringify(contract))}
+      html={html}
+      isLandlord={isLandlord}
+      isTenant={isTenant}
+      locale={locale}
+    />
+  )
+}

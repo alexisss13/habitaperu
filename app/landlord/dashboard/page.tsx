@@ -65,7 +65,7 @@ async function getDashboardData(landlordId: string) {
           },
         },
         status: {
-          in: ['PENDING', 'OVERDUE'],
+          in: ['PENDIENTE', 'VENCIDO'],
         },
       },
       include: {
@@ -96,14 +96,19 @@ async function getDashboardData(landlordId: string) {
     const kycRequests = await prisma.user.findMany({
       where: {
         role: 'TENANT',
-        kycStatus: 'PENDING',
-        contracts: {
+        kycVerification: {
+          status: 'PENDIENTE',
+        },
+        contractsAsTenant: {
           some: {
             property: {
               ownerId: landlordId,
             },
           },
         },
+      },
+      include: {
+        kycVerification: true,
       },
       take: 5,
     })
@@ -119,7 +124,7 @@ async function getDashboardData(landlordId: string) {
         id: payment.id,
         amount: Number(payment.amount),
         dueDate: payment.dueDate.toISOString(),
-        status: payment.status,
+        status: payment.status === 'PENDIENTE' ? 'PENDING' : payment.status === 'VENCIDO' ? 'OVERDUE' : 'PAID',
         tenant: {
           name: `${payment.contract.tenant.firstName} ${payment.contract.tenant.lastName}`,
           email: payment.contract.tenant.email,
@@ -134,7 +139,7 @@ async function getDashboardData(landlordId: string) {
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
         kycScore: 85, // Simulado
-        kycStatus: user.kycStatus,
+        kycStatus: 'PENDING',
       })),
     }
   } catch (error) {

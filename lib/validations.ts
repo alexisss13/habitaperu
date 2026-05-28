@@ -28,7 +28,7 @@ export const propertySchema = z.object({
   price: z.number().min(100, "El precio mínimo es S/ 100"),
   deposit: z.number().min(0).default(1),
   minDuration: z.number().min(1).default(12),
-  availableFrom: z.date().optional(),
+  availableFrom: z.coerce.date().optional(),
   amenities: z.array(z.string()).optional(),
   images: z.array(z.string()).optional(),
   tenantProfile: z.array(z.string()).optional(),

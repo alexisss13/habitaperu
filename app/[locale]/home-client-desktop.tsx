@@ -4,51 +4,69 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from '@/lib/i18n-context'
-import { 
-  Search01Icon,
-  FavouriteIcon,
-  StarIcon,
-  ArrowRightDoubleIcon,
-  SecurityCheckIcon,
-  FileValidationIcon,
-  CreditCardIcon,
-  CustomerSupportIcon,
-  PlusSignCircleIcon,
-  BedIcon,
-  Building03Icon,
-  Home01Icon,
-  BookOpen01Icon,
-  Sofa01Icon,
-  Wifi01Icon,
-  CheckmarkCircle01Icon,
-  ParkingAreaSquareIcon
+import {
+  Search01Icon, FavouriteIcon, StarIcon, ArrowRightDoubleIcon,
+  SecurityCheckIcon, FileValidationIcon, CreditCardIcon, CustomerSupportIcon,
+  PlusSignCircleIcon, BedIcon, Building03Icon, Home01Icon,
+  BookOpen01Icon, Sofa01Icon, Wifi01Icon, CheckmarkCircle01Icon, ParkingAreaSquareIcon
 } from 'hugeicons-react'
 
 interface Property {
-  id: string
-  title: string
-  type: string
-  condition: string
-  district: string
-  price: number
-  images: string[]
-  favorites: number
-  rooms: number
-  bathrooms: number
-  area: number
-  _count: {
-    reviews: number
-  }
+  id: string; title: string; type: string; condition: string; district: string
+  price: number; images: string[]; favorites: number; rooms: number
+  bathrooms: number; area: number; _count: { reviews: number }
 }
 
-interface PropertyStats {
-  minPrice: number
-  availableCount: number
-}
+interface PropertyStats { minPrice: number; availableCount: number }
 
-interface HomeClientProps {
-  properties: Property[]
-  stats: PropertyStats
+interface HomeClientProps { properties: Property[]; stats: PropertyStats }
+
+const filterBtn = (active: boolean) =>
+  `px-5 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all border-none
+  ${active ? 'bg-accent text-white' : 'bg-transparent text-gray-500 hover:bg-gray-100 hover:text-[#151c26]'}`
+
+function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
+  properties: Property[]; favorites: Set<string>; toggleFavorite: (id: string) => void
+  t: (key: string) => string; badge?: { bg: string; label: string }
+}) {
+  return (
+    <div className="property-grid grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+      {properties.map((property) => (
+        <Link key={property.id} href={`/propiedades/${property.id}`} className="property-card-simple fade-in">
+          <div className="property-img-simple">
+            <Image src={property.images[0] || '/placeholder.jpg'} alt={property.title} width={600} height={400} loading="lazy" />
+            <button
+              className={`btn-fav-simple ${favorites.has(property.id) ? 'active' : ''}`}
+              aria-label="Guardar"
+              onClick={(e) => { e.preventDefault(); toggleFavorite(property.id) }}
+            >
+              <FavouriteIcon size={18} />
+            </button>
+            {badge && (
+              <div className={`absolute top-3 left-3 px-3 py-1.5 ${badge.bg} text-white text-xs font-semibold rounded-lg`}>
+                {badge.label}
+              </div>
+            )}
+          </div>
+          <div className="property-info-simple">
+            <div className="property-header-simple">
+              <h4 className="property-title-simple">{property.title}</h4>
+              <div className="property-rating-simple">
+                <StarIcon size={11} className="text-gray-900" /><span>4.8</span>
+              </div>
+            </div>
+            <p className="property-location-simple">{property.district}, Lima</p>
+            <p className="property-specs-simple">
+              {property.rooms} {property.rooms === 1 ? t('property.room') : t('property.rooms')} · {property.bathrooms} {property.bathrooms === 1 ? t('property.bathroom') : t('property.bathrooms')}
+            </p>
+            <p className="property-price-simple">
+              <strong>S/ {property.price.toLocaleString()}</strong> {t('property.perMonth')}
+            </p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
 }
 
 export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
@@ -58,20 +76,11 @@ export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    // Fade in animations
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-          }
-        })
-      },
+      (entries) => entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('visible') }),
       { threshold: 0.1 }
     )
-
     document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el))
-
     return () => observer.disconnect()
   }, [])
 
@@ -80,255 +89,85 @@ export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
     if (filter === 'all') {
       setVisibleProperties(properties)
     } else {
-      const filtered = properties.filter((p) => {
+      setVisibleProperties(properties.filter((p) => {
         if (filter === 'habitacion') return p.type === 'HABITACION'
         if (filter === 'departamento') return p.type === 'DEPARTAMENTO'
         if (filter === 'casa') return p.type === 'CASA'
         if (filter === 'amoblado') return p.condition === 'AMOBLADO'
         return true
-      })
-      setVisibleProperties(filtered)
+      }))
     }
   }
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
-      const newFavorites = new Set(prev)
-      if (newFavorites.has(id)) {
-        newFavorites.delete(id)
-      } else {
-        newFavorites.add(id)
-      }
-      return newFavorites
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
     })
-  }
-
-  const getPropertyTypeLabel = (type: string) => {
-    if (type === 'HABITACION') return 'Habitación'
-    if (type === 'DEPARTAMENTO') return 'Departamento'
-    if (type === 'CASA') return 'Casa'
-    return type
   }
 
   return (
     <div>
-      {/* HERO SECTION - Clean & Intuitive UI */}
-      <section style={{
-        paddingTop: '102px',
-        paddingBottom: '80px',
-        background: 'linear-gradient(180deg, #f9fafb 0%, #ffffff 100%)',
-        minHeight: '85vh',
-        display: 'flex',
-        alignItems: 'center',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Subtle decorative elements */}
-        <div style={{
-          position: 'absolute',
-          top: '-5%',
-          right: '-3%',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(15,52,87,0.04) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)',
-          zIndex: 0
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-10%',
-          left: '-5%',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(143,130,114,0.06) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(80px)',
-          zIndex: 0
-        }} />
+      {/* HERO SECTION */}
+      <section
+        className="pt-[102px] pb-20 min-h-[85vh] flex items-center relative overflow-hidden"
+        style={{ background: 'linear-gradient(180deg, #f9fafb 0%, #ffffff 100%)' }}
+      >
+        <div className="absolute top-[-5%] right-[-3%] size-[500px] rounded-full z-0 blur-[60px]"
+          style={{ background: 'radial-gradient(circle, rgba(15,52,87,0.04) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[-10%] left-[-5%] size-[600px] rounded-full z-0 blur-[80px]"
+          style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.06) 0%, transparent 70%)' }} />
 
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 40px',
-          width: '100%',
-          position: 'relative',
-          zIndex: 1
-        }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '80px',
-            alignItems: 'center'
-          }}>
+        <div className="max-w-[1400px] mx-auto px-10 w-full relative z-[1]">
+          <div className="grid grid-cols-2 gap-20 items-center">
             {/* Left Content */}
             <div>
-              {/* Simple badge */}
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 14px',
-                background: '#f3f4f6',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                marginBottom: '20px'
-              }}>
-                <span style={{
-                  fontSize: '0.75rem',
-                  fontWeight: '600',
-                  color: '#6b7280',
-                  letterSpacing: '0.03em'
-                }}>
-                  {t('hero.badge')}
-                </span>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gray-100 border border-gray-200 rounded-lg mb-5">
+                <span className="text-xs font-semibold text-gray-500 tracking-wide">{t('hero.badge')}</span>
               </div>
 
-              <h1 style={{
-                fontSize: 'clamp(2.5rem, 5vw, 3.75rem)',
-                fontWeight: '800',
-                color: '#151c26',
-                lineHeight: '1.15',
-                marginBottom: '20px',
-                letterSpacing: '-0.02em'
-              }}>
+              <h1
+                className="font-extrabold text-[#151c26] leading-[1.15] mb-5 tracking-tight"
+                style={{ fontSize: 'clamp(2.5rem, 5vw, 3.75rem)' }}
+              >
                 {t('hero.title')}
               </h1>
-              
-              <p style={{
-                fontSize: '1.125rem',
-                color: '#6b7280',
-                lineHeight: '1.8',
-                marginBottom: '40px',
-                maxWidth: '540px'
-              }}>
-                {t('hero.subtitle')}
-              </p>
 
-              {/* Search Box - Simplified & Intuitive */}
-              <div style={{
-                background: '#fff',
-                borderRadius: '16px',
-                padding: '8px',
-                boxShadow: '0 4px 24px rgba(15,52,87,0.12)',
-                marginBottom: '24px',
-                border: '1px solid #e5e7eb',
-                maxWidth: '680px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <div style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    background: '#f9fafb',
-                    borderRadius: '12px',
-                    border: '1px solid transparent',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#fff'
-                    e.currentTarget.style.borderColor = '#e5e7eb'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#f9fafb'
-                    e.currentTarget.style.borderColor = 'transparent'
-                  }}
-                  >
-                    <Search01Icon size={20} style={{ color: '#6b7280', flexShrink: 0 }} />
+              <p className="text-lg text-gray-500 leading-[1.8] mb-10 max-w-[540px]">{t('hero.subtitle')}</p>
+
+              {/* Search Box */}
+              <div className="bg-white rounded-2xl p-2 shadow-[0_4px_24px_rgba(15,52,87,0.12)] mb-6 border border-gray-200 max-w-[680px]">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl border border-transparent transition-all hover:bg-white hover:border-gray-200">
+                    <Search01Icon size={20} className="text-gray-500 shrink-0" />
                     <input
                       type="text"
                       placeholder={t('hero.searchPlaceholder')}
-                      style={{
-                        flex: 1,
-                        border: 'none',
-                        outline: 'none',
-                        fontSize: '0.95rem',
-                        color: '#151c26',
-                        background: 'transparent',
-                        fontWeight: '400'
-                      }}
+                      className="flex-1 border-none outline-none text-[0.95rem] text-[#151c26] bg-transparent font-normal"
                     />
                   </div>
-                  
-                  <button style={{
-                    padding: '14px 28px',
-                    background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontSize: '0.95rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.02)'
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(15,52,87,0.3)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)'
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
+                  <button
+                    className="py-3.5 px-7 text-white border-none rounded-xl text-[0.95rem] font-semibold cursor-pointer transition-all whitespace-nowrap shrink-0 hover:scale-[1.02] hover:shadow-[0_4px_16px_rgba(15,52,87,0.3)]"
+                    style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}
                   >
                     {t('hero.searchButton')}
                   </button>
                 </div>
               </div>
 
-              {/* Quick Filters - Simplified */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                flexWrap: 'wrap'
-              }}>
-                <span style={{
-                  fontSize: '0.8rem',
-                  color: '#9ca3af',
-                  fontWeight: '500'
-                }}>
-                  {t('hero.filters')}:
-                </span>
+              {/* Quick Filters */}
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="text-[0.8rem] text-gray-400 font-medium">{t('hero.filters')}:</span>
                 {[
                   { value: 'habitacion', labelKey: 'filters.room', Icon: BedIcon },
                   { value: 'departamento', labelKey: 'filters.apartment', Icon: Building03Icon },
                   { value: 'wifi', labelKey: 'filters.wifi', Icon: Wifi01Icon },
                   { value: 'amoblado', labelKey: 'filters.furnished', Icon: Sofa01Icon }
-                ].map((filter, index) => (
+                ].map((filter, i) => (
                   <button
-                    key={index}
-                    style={{
-                      padding: '8px 14px',
-                      background: '#fff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '0.8rem',
-                      fontWeight: '500',
-                      color: '#6b7280',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#0f3457'
-                      e.currentTarget.style.color = '#fff'
-                      e.currentTarget.style.borderColor = '#0f3457'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#fff'
-                      e.currentTarget.style.color = '#6b7280'
-                      e.currentTarget.style.borderColor = '#e5e7eb'
-                    }}
+                    key={i}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-[0.8rem] font-medium text-gray-500 cursor-pointer transition-all hover:bg-accent hover:text-white hover:border-accent"
                   >
                     <filter.Icon size={14} />
                     {t(filter.labelKey)}
@@ -337,94 +176,35 @@ export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
               </div>
             </div>
 
-            {/* Right Image - Clean & Simple */}
-            <div style={{
-              position: 'relative',
-              height: '600px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              {/* Simple background shape */}
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: '520px',
-                height: '520px',
-                background: 'linear-gradient(135deg, rgba(15,52,87,0.04) 0%, rgba(143,130,114,0.06) 100%)',
-                borderRadius: '50%',
-                zIndex: 0
-              }} />
+            {/* Right Image */}
+            <div className="relative h-[600px] flex items-center justify-center">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[520px] rounded-full z-0"
+                style={{ background: 'linear-gradient(135deg, rgba(15,52,87,0.04) 0%, rgba(143,130,114,0.06) 100%)' }} />
 
-              {/* Price card - simplified */}
-              <div style={{
-                position: 'absolute',
-                top: '10%',
-                right: '10%',
-                padding: '16px 24px',
-                background: '#fff',
-                borderRadius: '12px',
-                boxShadow: '0 8px 24px rgba(15,52,87,0.12)',
-                zIndex: 2,
-                border: '1px solid #f3f4f6'
-              }}>
-                <div style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '4px', fontWeight: '500' }}>
-                  {t('hero.from')}
-                </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f3457' }}>
-                  S/ {stats.minPrice.toLocaleString()}<span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#6b7280' }}>{t('hero.perMonth')}</span>
+              {/* Price card */}
+              <div className="absolute top-[10%] right-[10%] px-6 py-4 bg-white rounded-xl shadow-[0_8px_24px_rgba(15,52,87,0.12)] z-[2] border border-gray-50">
+                <div className="text-xs text-gray-400 mb-1 font-medium">{t('hero.from')}</div>
+                <div className="text-2xl font-extrabold text-accent">
+                  S/ {stats.minPrice.toLocaleString()}
+                  <span className="text-sm font-semibold text-gray-500">{t('hero.perMonth')}</span>
                 </div>
               </div>
 
-              {/* Properties available card - simplified */}
-              <div style={{
-                position: 'absolute',
-                bottom: '15%',
-                left: '5%',
-                padding: '12px 20px',
-                background: '#0f3457',
-                borderRadius: '10px',
-                boxShadow: '0 8px 24px rgba(15,52,87,0.25)',
-                zIndex: 2
-              }}>
-                <div style={{ 
-                  fontSize: '0.875rem', 
-                  color: '#fff', 
-                  fontWeight: '600', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px' 
-                }}>
-                  <div style={{ 
-                    width: '8px', 
-                    height: '8px', 
-                    background: '#8f8272', 
-                    borderRadius: '50%' 
-                  }} />
+              {/* Available count */}
+              <div className="absolute bottom-[15%] left-[5%] px-5 py-3 bg-accent rounded-[10px] shadow-[0_8px_24px_rgba(15,52,87,0.25)] z-[2]">
+                <div className="text-sm text-white font-semibold flex items-center gap-2">
+                  <div className="size-2 rounded-full bg-brown" />
                   {stats.availableCount} {stats.availableCount === 1 ? t('hero.propertyAvailable') : t('hero.propertiesAvailable')}
                 </div>
               </div>
 
-              {/* Main Image */}
-              <div style={{
-                position: 'relative',
-                zIndex: 1,
-                width: '100%',
-                maxWidth: '650px'
-              }}>
+              <div className="relative z-[1] w-full max-w-[650px]">
                 <Image
                   src="/imagehero.webp"
                   alt="Habitación moderna"
                   width={650}
                   height={550}
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 20px 40px rgba(15,52,87,0.15))'
-                  }}
+                  className="w-full h-auto object-contain drop-shadow-[0_20px_40px_rgba(15,52,87,0.15)]"
                   priority
                 />
               </div>
@@ -433,259 +213,33 @@ export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
         </div>
       </section>
 
-      {/* FEATURED PROPERTIES - Clean UI */}
-      <section style={{
-        padding: '80px 0',
-        background: '#fff'
-      }}>
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 40px'
-        }}>
-          {/* Section Header */}
-          <div style={{
-            marginBottom: '40px'
-          }}>
-            <h2 style={{
-              fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-              fontWeight: '700',
-              color: '#151c26',
-              marginBottom: '12px'
-            }}>
-              {t('featured.title')}
-            </h2>
-            <p style={{
-              fontSize: '1rem',
-              color: '#6b7280',
-              maxWidth: '600px'
-            }}>
-              {t('featured.subtitle')}
-            </p>
+      {/* FEATURED PROPERTIES */}
+      <section className="py-20 bg-white">
+        <div className="max-w-[1400px] mx-auto px-10">
+          <div className="mb-10">
+            <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-3">{t('featured.title')}</h2>
+            <p className="text-base text-gray-500 max-w-[600px]">{t('featured.subtitle')}</p>
           </div>
 
-          {/* Filters - Simplified */}
-          <div style={{
-            display: 'flex',
-            gap: '10px',
-            marginBottom: '32px',
-            flexWrap: 'wrap',
-            borderBottom: '1px solid #f3f4f6',
-            paddingBottom: '16px'
-          }}>
-            <button
-              onClick={() => handleFilter('all')}
-              style={{
-                padding: '8px 20px',
-                background: activeFilter === 'all' ? '#0f3457' : 'transparent',
-                color: activeFilter === 'all' ? '#fff' : '#6b7280',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (activeFilter !== 'all') {
-                  e.currentTarget.style.background = '#f3f4f6'
-                  e.currentTarget.style.color = '#151c26'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeFilter !== 'all') {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = '#6b7280'
-                }
-              }}
-            >
-              {t('featured.filterAll')}
-            </button>
-            <button
-              onClick={() => handleFilter('habitacion')}
-              style={{
-                padding: '8px 20px',
-                background: activeFilter === 'habitacion' ? '#0f3457' : 'transparent',
-                color: activeFilter === 'habitacion' ? '#fff' : '#6b7280',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (activeFilter !== 'habitacion') {
-                  e.currentTarget.style.background = '#f3f4f6'
-                  e.currentTarget.style.color = '#151c26'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeFilter !== 'habitacion') {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = '#6b7280'
-                }
-              }}
-            >
-              {t('featured.filterRooms')}
-            </button>
-            <button
-              onClick={() => handleFilter('departamento')}
-              style={{
-                padding: '8px 20px',
-                background: activeFilter === 'departamento' ? '#0f3457' : 'transparent',
-                color: activeFilter === 'departamento' ? '#fff' : '#6b7280',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (activeFilter !== 'departamento') {
-                  e.currentTarget.style.background = '#f3f4f6'
-                  e.currentTarget.style.color = '#151c26'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeFilter !== 'departamento') {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = '#6b7280'
-                }
-              }}
-            >
-              {t('featured.filterApartments')}
-            </button>
-            <button
-              onClick={() => handleFilter('casa')}
-              style={{
-                padding: '8px 20px',
-                background: activeFilter === 'casa' ? '#0f3457' : 'transparent',
-                color: activeFilter === 'casa' ? '#fff' : '#6b7280',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (activeFilter !== 'casa') {
-                  e.currentTarget.style.background = '#f3f4f6'
-                  e.currentTarget.style.color = '#151c26'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeFilter !== 'casa') {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = '#6b7280'
-                }
-              }}
-            >
-              {t('featured.filterHouses')}
-            </button>
-            <button
-              onClick={() => handleFilter('amoblado')}
-              style={{
-                padding: '8px 20px',
-                background: activeFilter === 'amoblado' ? '#0f3457' : 'transparent',
-                color: activeFilter === 'amoblado' ? '#fff' : '#6b7280',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (activeFilter !== 'amoblado') {
-                  e.currentTarget.style.background = '#f3f4f6'
-                  e.currentTarget.style.color = '#151c26'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeFilter !== 'amoblado') {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = '#6b7280'
-                }
-              }}
-            >
-              {t('featured.filterFurnished')}
-            </button>
-          </div>
-
-          <div className="property-grid" id="propertyGrid">
-            {visibleProperties.map((property) => (
-              <Link
-                key={property.id}
-                href={`/propiedades/${property.id}`}
-                className="property-card-simple fade-in"
-              >
-                <div className="property-img-simple">
-                  <Image
-                    src={property.images[0] || '/placeholder.jpg'}
-                    alt={property.title}
-                    width={600}
-                    height={400}
-                    loading="lazy"
-                  />
-                  <button
-                    className={`btn-fav-simple ${favorites.has(property.id) ? 'active' : ''}`}
-                    aria-label="Guardar"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      toggleFavorite(property.id)
-                    }}
-                  >
-                    <FavouriteIcon 
-                      size={18}
-                    />
-                  </button>
-                </div>
-                <div className="property-info-simple">
-                  <div className="property-header-simple">
-                    <h4 className="property-title-simple">{property.title}</h4>
-                    <div className="property-rating-simple">
-                      <StarIcon size={11} className="text-gray-900" />
-                      <span>4.8</span>
-                    </div>
-                  </div>
-                  <p className="property-location-simple">{property.district}, Lima</p>
-                  <p className="property-specs-simple">
-                    {property.rooms} {property.rooms === 1 ? t('property.room') : t('property.rooms')} · {property.bathrooms} {property.bathrooms === 1 ? t('property.bathroom') : t('property.bathrooms')}
-                  </p>
-                  <p className="property-price-simple">
-                    <strong>S/ {property.price.toLocaleString()}</strong> {t('property.perMonth')}
-                  </p>
-                </div>
-              </Link>
+          <div className="flex gap-2.5 mb-8 flex-wrap border-b border-gray-100 pb-4">
+            {[
+              { key: 'all', label: t('featured.filterAll') },
+              { key: 'habitacion', label: t('featured.filterRooms') },
+              { key: 'departamento', label: t('featured.filterApartments') },
+              { key: 'casa', label: t('featured.filterHouses') },
+              { key: 'amoblado', label: t('featured.filterFurnished') },
+            ].map(({ key, label }) => (
+              <button key={key} onClick={() => handleFilter(key)} className={filterBtn(activeFilter === key)}>
+                {label}
+              </button>
             ))}
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: '48px' }}>
-            <Link href="/propiedades" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '14px 32px',
-              background: 'transparent',
-              border: '1.5px solid #0f3457',
-              borderRadius: '12px',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: '#0f3457',
-              textDecoration: 'none',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#0f3457'
-              e.currentTarget.style.color = '#fff'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = '#0f3457'
-            }}
+          <PropertyCardGrid properties={visibleProperties} favorites={favorites} toggleFavorite={toggleFavorite} t={t} />
+
+          <div className="text-center mt-12">
+            <Link href="/propiedades"
+              className="inline-flex items-center gap-2 py-3.5 px-8 bg-transparent border-[1.5px] border-accent rounded-xl text-[0.9rem] font-semibold text-accent no-underline transition-all hover:bg-accent hover:text-white"
             >
               <ArrowRightDoubleIcon size={20} /> {t('featured.viewAll')}
             </Link>
@@ -693,743 +247,172 @@ export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
         </div>
       </section>
 
-      {/* HOW IT WORKS - Premium Design */}
-      <section style={{
-        padding: '100px 0',
-        background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Decorative elements */}
-        <div style={{
-          position: 'absolute',
-          top: '10%',
-          right: '-5%',
-          width: '400px',
-          height: '400px',
-          background: 'radial-gradient(circle, rgba(143,130,114,0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)'
-        }} />
+      {/* HOW IT WORKS */}
+      <section
+        className="py-[100px] relative overflow-hidden"
+        style={{ background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)' }}
+      >
+        <div className="absolute top-[10%] right-[-5%] size-[400px] rounded-full blur-[60px]"
+          style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.1) 0%, transparent 70%)' }} />
 
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 40px',
-          position: 'relative',
-          zIndex: 1
-        }}>
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '64px'
-          }}>
-            <div style={{
-              display: 'inline-block',
-              padding: '8px 20px',
-              background: 'linear-gradient(135deg, rgba(15,52,87,0.08) 0%, rgba(143,130,114,0.1) 100%)',
-              border: '1px solid rgba(143,130,114,0.2)',
-              borderRadius: '100px',
-              marginBottom: '16px'
-            }}>
-              <span style={{
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                color: '#0f3457',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}>
-                Proceso Simple
-              </span>
+        <div className="max-w-[1200px] mx-auto px-10 relative z-[1]">
+          <div className="text-center mb-16">
+            <div className="inline-block px-5 py-2 rounded-full border border-brown/20 mb-4"
+              style={{ background: 'linear-gradient(135deg, rgba(15,52,87,0.08) 0%, rgba(143,130,114,0.1) 100%)' }}>
+              <span className="text-xs font-bold text-accent tracking-[0.1em] uppercase">Proceso Simple</span>
             </div>
-            <h2 style={{
-              fontSize: 'clamp(2rem, 4vw, 2.75rem)',
-              fontWeight: '800',
-              color: '#151c26',
-              marginBottom: '16px',
-              letterSpacing: '-0.02em'
-            }}>
+            <h2 className="text-[clamp(2rem,4vw,2.75rem)] font-extrabold text-[#151c26] mb-4 tracking-tight">
               ¿Cómo funciona?
             </h2>
-            <p style={{
-              fontSize: '1.125rem',
-              color: '#6b7280',
-              maxWidth: '600px',
-              margin: '0 auto',
-              lineHeight: '1.7'
-            }}>
+            <p className="text-lg text-gray-500 max-w-[600px] mx-auto leading-[1.7]">
               Encuentra tu hogar ideal en 3 simples pasos
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '40px',
-            position: 'relative'
-          }}>
-            {/* Connecting line */}
-            <div style={{
-              position: 'absolute',
-              top: '80px',
-              left: '25%',
-              right: '25%',
-              height: '2px',
-              background: 'linear-gradient(90deg, transparent 0%, #e5e7eb 20%, #e5e7eb 80%, transparent 100%)',
-              zIndex: 0
-            }} />
+          <div className="grid gap-10 relative" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
+            <div className="absolute top-20 left-[25%] right-[25%] h-0.5"
+              style={{ background: 'linear-gradient(90deg, transparent 0%, #e5e7eb 20%, #e5e7eb 80%, transparent 100%)' }} />
 
-            {/* Step 1 */}
-            <div style={{
-              position: 'relative',
-              textAlign: 'center',
-              padding: '40px 24px',
-              background: '#fff',
-              borderRadius: '24px',
-              boxShadow: '0 4px 20px rgba(15,52,87,0.08)',
-              transition: 'all 0.3s',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,52,87,0.15)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(15,52,87,0.08)'
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: '-20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '56px',
-                height: '56px',
-                background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)',
-                color: '#fff',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.5rem',
-                fontWeight: '800',
-                boxShadow: '0 8px 24px rgba(15,52,87,0.3)',
-                border: '4px solid #fff'
-              }}>
-                1
+            {[
+              {
+                num: '1', title: 'Busca y filtra',
+                desc: 'Explora miles de propiedades verificadas. Usa filtros para encontrar exactamente lo que necesitas.',
+                numBg: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)', numShadow: 'rgba(15,52,87,0.3)',
+                iconBg: 'linear-gradient(135deg, rgba(15,52,87,0.1) 0%, rgba(15,52,87,0.05) 100%)',
+                iconBorder: 'rgba(15,52,87,0.1)', icon: <Search01Icon size={40} className="text-accent" />
+              },
+              {
+                num: '2', title: 'Agenda una visita',
+                desc: 'Contacta directamente con el arrendador y agenda una visita para conocer la propiedad.',
+                numBg: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)', numShadow: 'rgba(143,130,114,0.35)',
+                iconBg: 'linear-gradient(135deg, rgba(143,130,114,0.15) 0%, rgba(143,130,114,0.08) 100%)',
+                iconBorder: 'rgba(143,130,114,0.2)', icon: <span className="text-[2.5rem]">📅</span>
+              },
+              {
+                num: '3', title: 'Firma y múdate',
+                desc: 'Firma tu contrato digital de forma segura y comienza a disfrutar de tu nuevo hogar.',
+                numBg: 'linear-gradient(135deg, #d5d0bd 0%, #b8b3a0 100%)', numShadow: 'rgba(213,208,189,0.35)',
+                iconBg: 'linear-gradient(135deg, rgba(213,208,189,0.2) 0%, rgba(213,208,189,0.1) 100%)',
+                iconBorder: 'rgba(213,208,189,0.3)', icon: <span className="text-[2.5rem]">✍️</span>
+              }
+            ].map((step, i) => (
+              <div key={i}
+                className="relative text-center px-6 py-10 bg-white rounded-3xl shadow-[0_4px_20px_rgba(15,52,87,0.08)] transition-all duration-300 cursor-pointer hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(15,52,87,0.15)]"
+              >
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 size-14 rounded-full flex items-center justify-center text-white text-2xl font-extrabold border-4 border-white shadow-[0_8px_24px_var(--shadow)]"
+                  style={{ background: step.numBg, boxShadow: `0 8px 24px ${step.numShadow}` }}>
+                  {step.num}
+                </div>
+                <div className="size-24 rounded-3xl flex items-center justify-center mt-8 mb-6 mx-auto border-2"
+                  style={{ background: step.iconBg, borderColor: step.iconBorder }}>
+                  {step.icon}
+                </div>
+                <h3 className="text-[1.375rem] font-bold text-[#151c26] mb-3">{step.title}</h3>
+                <p className="text-[0.95rem] text-gray-500 leading-[1.7]">{step.desc}</p>
               </div>
-              <div style={{
-                width: '96px',
-                height: '96px',
-                background: 'linear-gradient(135deg, rgba(15,52,87,0.1) 0%, rgba(15,52,87,0.05) 100%)',
-                borderRadius: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '32px auto 24px',
-                border: '2px solid rgba(15,52,87,0.1)'
-              }}>
-                <Search01Icon size={40} style={{ color: '#0f3457' }} />
-              </div>
-              <h3 style={{
-                fontSize: '1.375rem',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '12px'
-              }}>
-                Busca y filtra
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                lineHeight: '1.7'
-              }}>
-                Explora miles de propiedades verificadas. Usa filtros para encontrar exactamente lo que necesitas.
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div style={{
-              position: 'relative',
-              textAlign: 'center',
-              padding: '40px 24px',
-              background: '#fff',
-              borderRadius: '24px',
-              boxShadow: '0 4px 20px rgba(15,52,87,0.08)',
-              transition: 'all 0.3s',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,52,87,0.15)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(15,52,87,0.08)'
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: '-20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '56px',
-                height: '56px',
-                background: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)',
-                color: '#fff',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.5rem',
-                fontWeight: '800',
-                boxShadow: '0 8px 24px rgba(143,130,114,0.35)',
-                border: '4px solid #fff'
-              }}>
-                2
-              </div>
-              <div style={{
-                width: '96px',
-                height: '96px',
-                background: 'linear-gradient(135deg, rgba(143,130,114,0.15) 0%, rgba(143,130,114,0.08) 100%)',
-                borderRadius: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '32px auto 24px',
-                border: '2px solid rgba(143,130,114,0.2)',
-                fontSize: '2.5rem'
-              }}>
-                📅
-              </div>
-              <h3 style={{
-                fontSize: '1.375rem',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '12px'
-              }}>
-                Agenda una visita
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                lineHeight: '1.7'
-              }}>
-                Contacta directamente con el arrendador y agenda una visita para conocer la propiedad.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div style={{
-              position: 'relative',
-              textAlign: 'center',
-              padding: '40px 24px',
-              background: '#fff',
-              borderRadius: '24px',
-              boxShadow: '0 4px 20px rgba(15,52,87,0.08)',
-              transition: 'all 0.3s',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = '0 12px 40px rgba(15,52,87,0.15)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(15,52,87,0.08)'
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: '-20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '56px',
-                height: '56px',
-                background: 'linear-gradient(135deg, #d5d0bd 0%, #b8b3a0 100%)',
-                color: '#fff',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.5rem',
-                fontWeight: '800',
-                boxShadow: '0 8px 24px rgba(213,208,189,0.35)',
-                border: '4px solid #fff'
-              }}>
-                3
-              </div>
-              <div style={{
-                width: '96px',
-                height: '96px',
-                background: 'linear-gradient(135deg, rgba(213,208,189,0.2) 0%, rgba(213,208,189,0.1) 100%)',
-                borderRadius: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '32px auto 24px',
-                border: '2px solid rgba(213,208,189,0.3)',
-                fontSize: '2.5rem'
-              }}>
-                ✍️
-              </div>
-              <h3 style={{
-                fontSize: '1.375rem',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '12px'
-              }}>
-                Firma y múdate
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                lineHeight: '1.7'
-              }}>
-                Firma tu contrato digital de forma segura y comienza a disfrutar de tu nuevo hogar.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* WHY CHOOSE US - Premium Design */}
-      <section style={{
-        padding: '100px 0',
-        background: '#fff',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Decorative background */}
-        <div style={{
-          position: 'absolute',
-          bottom: '-10%',
-          left: '-5%',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(15,52,87,0.06) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)'
-        }} />
+      {/* WHY CHOOSE US */}
+      <section className="py-[100px] bg-white relative overflow-hidden">
+        <div className="absolute bottom-[-10%] left-[-5%] size-[500px] rounded-full blur-[60px]"
+          style={{ background: 'radial-gradient(circle, rgba(15,52,87,0.06) 0%, transparent 70%)' }} />
 
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 40px',
-          position: 'relative',
-          zIndex: 1
-        }}>
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '64px'
-          }}>
-            <div style={{
-              display: 'inline-block',
-              padding: '8px 20px',
-              background: 'linear-gradient(135deg, rgba(143,130,114,0.12) 0%, rgba(15,52,87,0.08) 100%)',
-              border: '1px solid rgba(143,130,114,0.2)',
-              borderRadius: '100px',
-              marginBottom: '16px'
-            }}>
-              <span style={{
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                color: '#8f8272',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase'
-              }}>
-                Ventajas
-              </span>
+        <div className="max-w-[1200px] mx-auto px-10 relative z-[1]">
+          <div className="text-center mb-16">
+            <div className="inline-block px-5 py-2 rounded-full border border-brown/20 mb-4"
+              style={{ background: 'linear-gradient(135deg, rgba(143,130,114,0.12) 0%, rgba(15,52,87,0.08) 100%)' }}>
+              <span className="text-xs font-bold text-brown tracking-[0.1em] uppercase">Ventajas</span>
             </div>
-            <h2 style={{
-              fontSize: 'clamp(2rem, 4vw, 2.75rem)',
-              fontWeight: '800',
-              color: '#151c26',
-              marginBottom: '16px',
-              letterSpacing: '-0.02em'
-            }}>
+            <h2 className="text-[clamp(2rem,4vw,2.75rem)] font-extrabold text-[#151c26] mb-4 tracking-tight">
               ¿Por qué elegir Habita Perú?
             </h2>
-            <p style={{
-              fontSize: '1.125rem',
-              color: '#6b7280',
-              maxWidth: '700px',
-              margin: '0 auto',
-              lineHeight: '1.7'
-            }}>
+            <p className="text-lg text-gray-500 max-w-[700px] mx-auto leading-[1.7]">
               Ofrecemos la mejor experiencia en alquiler de propiedades con seguridad y confianza
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '32px'
-          }}>
-            {/* Feature 1 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #f9fafb 0%, #fff 100%)',
-              borderRadius: '24px',
-              padding: '40px 32px',
-              border: '2px solid #f3f4f6',
-              transition: 'all 0.3s',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.borderColor = '#008A05'
-              e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,138,5,0.15)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = '#f3f4f6'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: '-20px',
-                right: '-20px',
-                width: '100px',
-                height: '100px',
-                background: 'radial-gradient(circle, rgba(0,138,5,0.1) 0%, transparent 70%)',
-                borderRadius: '50%'
-              }} />
-              <div style={{
-                width: '72px',
-                height: '72px',
-                background: 'linear-gradient(135deg, rgba(0,138,5,0.1) 0%, rgba(0,138,5,0.05) 100%)',
-                borderRadius: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '24px',
-                border: '2px solid rgba(0,138,5,0.15)'
-              }}>
-                <SecurityCheckIcon size={32} style={{ color: '#008A05' }} />
+          <div className="grid gap-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+            {[
+              {
+                Icon: SecurityCheckIcon, iconColor: '#008A05', accentColor: 'rgba(0,138,5',
+                title: 'Propiedades Verificadas',
+                desc: 'Todas las propiedades pasan por un proceso de verificación riguroso para garantizar tu seguridad.',
+                hoverBorder: '#008A05', hoverShadow: '0 20px 40px rgba(0,138,5,0.15)'
+              },
+              {
+                Icon: FileValidationIcon, iconColor: '#8f8272', accentColor: 'rgba(143,130,114',
+                title: 'Contratos Seguros',
+                desc: 'Contratos digitales con validez legal adaptados a la normativa peruana vigente.',
+                hoverBorder: '#8f8272', hoverShadow: '0 20px 40px rgba(143,130,114,0.2)'
+              },
+              {
+                Icon: CreditCardIcon, iconColor: '#8f8272', accentColor: 'rgba(213,208,189',
+                title: 'Pagos Protegidos',
+                desc: 'Sistema de pagos seguro con protección para inquilinos y arrendadores.',
+                hoverBorder: '#d5d0bd', hoverShadow: '0 20px 40px rgba(213,208,189,0.25)'
+              },
+              {
+                Icon: CustomerSupportIcon, iconColor: '#0f3457', accentColor: 'rgba(15,52,87',
+                title: 'Soporte 24/7',
+                desc: 'Equipo de soporte disponible para ayudarte en cualquier momento que lo necesites.',
+                hoverBorder: '#0f3457', hoverShadow: '0 20px 40px rgba(15,52,87,0.15)'
+              }
+            ].map(({ Icon, iconColor, accentColor, title, desc }, i) => (
+              <div key={i}
+                className="rounded-3xl p-10 border-2 border-gray-100 transition-all duration-300 cursor-pointer relative overflow-hidden hover:-translate-y-2 group"
+                style={{ background: 'linear-gradient(135deg, #f9fafb 0%, #fff 100%)' }}
+              >
+                <div className="absolute -top-5 -right-5 size-[100px] rounded-full"
+                  style={{ background: `radial-gradient(circle, ${accentColor},0.1) 0%, transparent 70%)` }} />
+                <div className="size-[72px] rounded-[20px] flex items-center justify-center mb-6 border-2"
+                  style={{
+                    background: `linear-gradient(135deg, ${accentColor},0.1) 0%, ${accentColor},0.05) 100%)`,
+                    borderColor: `${accentColor},0.15)`
+                  }}>
+                  <Icon size={32} style={{ color: iconColor }} />
+                </div>
+                <h3 className="text-xl font-bold text-[#151c26] mb-3">{title}</h3>
+                <p className="text-[0.95rem] text-gray-500 leading-[1.7]">{desc}</p>
               </div>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '12px'
-              }}>
-                Propiedades Verificadas
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                lineHeight: '1.7'
-              }}>
-                Todas las propiedades pasan por un proceso de verificación riguroso para garantizar tu seguridad.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #f9fafb 0%, #fff 100%)',
-              borderRadius: '24px',
-              padding: '40px 32px',
-              border: '2px solid #f3f4f6',
-              transition: 'all 0.3s',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.borderColor = '#8f8272'
-              e.currentTarget.style.boxShadow = '0 20px 40px rgba(143,130,114,0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = '#f3f4f6'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: '-20px',
-                right: '-20px',
-                width: '100px',
-                height: '100px',
-                background: 'radial-gradient(circle, rgba(143,130,114,0.15) 0%, transparent 70%)',
-                borderRadius: '50%'
-              }} />
-              <div style={{
-                width: '72px',
-                height: '72px',
-                background: 'linear-gradient(135deg, rgba(143,130,114,0.15) 0%, rgba(143,130,114,0.08) 100%)',
-                borderRadius: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '24px',
-                border: '2px solid rgba(143,130,114,0.2)'
-              }}>
-                <FileValidationIcon size={32} style={{ color: '#8f8272' }} />
-              </div>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '12px'
-              }}>
-                Contratos Seguros
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                lineHeight: '1.7'
-              }}>
-                Contratos digitales con validez legal adaptados a la normativa peruana vigente.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #f9fafb 0%, #fff 100%)',
-              borderRadius: '24px',
-              padding: '40px 32px',
-              border: '2px solid #f3f4f6',
-              transition: 'all 0.3s',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.borderColor = '#d5d0bd'
-              e.currentTarget.style.boxShadow = '0 20px 40px rgba(213,208,189,0.25)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = '#f3f4f6'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: '-20px',
-                right: '-20px',
-                width: '100px',
-                height: '100px',
-                background: 'radial-gradient(circle, rgba(213,208,189,0.2) 0%, transparent 70%)',
-                borderRadius: '50%'
-              }} />
-              <div style={{
-                width: '72px',
-                height: '72px',
-                background: 'linear-gradient(135deg, rgba(213,208,189,0.2) 0%, rgba(213,208,189,0.1) 100%)',
-                borderRadius: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '24px',
-                border: '2px solid rgba(213,208,189,0.3)'
-              }}>
-                <CreditCardIcon size={32} style={{ color: '#8f8272' }} />
-              </div>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '12px'
-              }}>
-                Pagos Protegidos
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                lineHeight: '1.7'
-              }}>
-                Sistema de pagos seguro con protección para inquilinos y arrendadores.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div style={{
-              background: 'linear-gradient(135deg, #f9fafb 0%, #fff 100%)',
-              borderRadius: '24px',
-              padding: '40px 32px',
-              border: '2px solid #f3f4f6',
-              transition: 'all 0.3s',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.borderColor = '#0f3457'
-              e.currentTarget.style.boxShadow = '0 20px 40px rgba(15,52,87,0.15)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = '#f3f4f6'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-            >
-              <div style={{
-                position: 'absolute',
-                top: '-20px',
-                right: '-20px',
-                width: '100px',
-                height: '100px',
-                background: 'radial-gradient(circle, rgba(15,52,87,0.1) 0%, transparent 70%)',
-                borderRadius: '50%'
-              }} />
-              <div style={{
-                width: '72px',
-                height: '72px',
-                background: 'linear-gradient(135deg, rgba(15,52,87,0.1) 0%, rgba(15,52,87,0.05) 100%)',
-                borderRadius: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '24px',
-                border: '2px solid rgba(15,52,87,0.15)'
-              }}>
-                <CustomerSupportIcon size={32} style={{ color: '#0f3457' }} />
-              </div>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '12px'
-              }}>
-                Soporte 24/7
-              </h3>
-              <p style={{
-                fontSize: '0.95rem',
-                color: '#6b7280',
-                lineHeight: '1.7'
-              }}>
-                Equipo de soporte disponible para ayudarte en cualquier momento que lo necesites.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* EXPLORE BY LOCATION - New Section */}
-      <section style={{
-        padding: '80px 0',
-        background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)'
-      }}>
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 40px'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '32px'
-          }}>
+      {/* EXPLORE BY LOCATION */}
+      <section className="py-20" style={{ background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)' }}>
+        <div className="max-w-[1400px] mx-auto px-10">
+          <div className="flex justify-between items-end mb-8">
             <div>
-              <h2 style={{
-                fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '8px'
-              }}>
-                {t('exploreLocation.title')}
-              </h2>
-              <p style={{
-                fontSize: '1rem',
-                color: '#6b7280'
-              }}>
-                {t('exploreLocation.subtitle')}
-              </p>
+              <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('exploreLocation.title')}</h2>
+              <p className="text-base text-gray-500">{t('exploreLocation.subtitle')}</p>
             </div>
-            <Link href="/propiedades?filter=location" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: '#0f3457',
-              textDecoration: 'none',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.gap = '10px'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.gap = '6px'
-            }}
+            <Link href="/propiedades?filter=location"
+              className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
             </Link>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '20px'
-          }}>
+          <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
             {[
               { district: 'San Isidro', count: 45, image: '/placeholder.jpg' },
               { district: 'Miraflores', count: 67, image: '/placeholder.jpg' },
               { district: 'Barranco', count: 38, image: '/placeholder.jpg' },
               { district: 'Surco', count: 52, image: '/placeholder.jpg' }
-            ].map((location, index) => (
-              <Link
-                key={index}
-                href={`/propiedades?district=${location.district}`}
-                style={{
-                  position: 'relative',
-                  height: '280px',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  textDecoration: 'none',
-                  transition: 'all 0.3s',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)'
-                  e.currentTarget.style.boxShadow = '0 12px 32px rgba(15,52,87,0.15)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)'
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
+            ].map((location, i) => (
+              <Link key={i} href={`/propiedades?district=${location.district}`}
+                className="relative h-[280px] rounded-2xl overflow-hidden no-underline cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(15,52,87,0.15)]"
               >
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: `linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%)`,
-                  zIndex: 1
-                }} />
-                <Image
-                  src={location.image}
-                  alt={location.district}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-                <div style={{
-                  position: 'absolute',
-                  bottom: '20px',
-                  left: '20px',
-                  zIndex: 2,
-                  color: '#fff'
-                }}>
-                  <h3 style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    marginBottom: '4px'
-                  }}>
-                    {location.district}
-                  </h3>
-                  <p style={{
-                    fontSize: '0.9rem',
-                    opacity: 0.9
-                  }}>
-                    {location.count} propiedades
-                  </p>
+                <div className="absolute inset-0 z-[1]"
+                  style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%)' }} />
+                <Image src={location.image} alt={location.district} fill className="object-cover" />
+                <div className="absolute bottom-5 left-5 z-[2] text-white">
+                  <h3 className="text-2xl font-bold mb-1">{location.district}</h3>
+                  <p className="text-[0.9rem] opacity-90">{location.count} propiedades</p>
                 </div>
               </Link>
             ))}
@@ -1437,559 +420,134 @@ export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
         </div>
       </section>
 
-      {/* STUDENT PROPERTIES - New Section */}
-      <section style={{
-        padding: '80px 0',
-        background: '#fff'
-      }}>
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 40px'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '32px'
-          }}>
+      {/* STUDENT PROPERTIES */}
+      <section className="py-20 bg-white">
+        <div className="max-w-[1400px] mx-auto px-10">
+          <div className="flex justify-between items-end mb-8">
             <div>
-              <h2 style={{
-                fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '8px'
-              }}>
-                {t('studentProperties.title')}
-              </h2>
-              <p style={{
-                fontSize: '1rem',
-                color: '#6b7280'
-              }}>
-                {t('studentProperties.subtitle')}
-              </p>
+              <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('studentProperties.title')}</h2>
+              <p className="text-base text-gray-500">{t('studentProperties.subtitle')}</p>
             </div>
-            <Link href="/propiedades?filter=students" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: '#0f3457',
-              textDecoration: 'none',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.gap = '10px'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.gap = '6px'
-            }}
+            <Link href="/propiedades?filter=students"
+              className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
             </Link>
           </div>
-
-          <div className="property-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px'
-          }}>
-            {visibleProperties.slice(0, 4).map((property) => (
-              <Link
-                key={property.id}
-                href={`/propiedades/${property.id}`}
-                className="property-card-simple fade-in"
-              >
-                <div className="property-img-simple">
-                  <Image
-                    src={property.images[0] || '/placeholder.jpg'}
-                    alt={property.title}
-                    width={600}
-                    height={400}
-                    loading="lazy"
-                  />
-                  <button
-                    className={`btn-fav-simple ${favorites.has(property.id) ? 'active' : ''}`}
-                    aria-label="Guardar"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      toggleFavorite(property.id)
-                    }}
-                  >
-                    <FavouriteIcon size={18} />
-                  </button>
-                  <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    left: '12px',
-                    padding: '6px 12px',
-                    background: '#008A05',
-                    color: '#fff',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    borderRadius: '8px'
-                  }}>
-                    Cerca de universidades
-                  </div>
-                </div>
-                <div className="property-info-simple">
-                  <div className="property-header-simple">
-                    <h4 className="property-title-simple">{property.title}</h4>
-                    <div className="property-rating-simple">
-                      <StarIcon size={11} className="text-gray-900" />
-                      <span>4.8</span>
-                    </div>
-                  </div>
-                  <p className="property-location-simple">{property.district}, Lima</p>
-                  <p className="property-specs-simple">
-                    {property.rooms} {property.rooms === 1 ? t('property.room') : t('property.rooms')} · {property.bathrooms} {property.bathrooms === 1 ? t('property.bathroom') : t('property.bathrooms')}
-                  </p>
-                  <p className="property-price-simple">
-                    <strong>S/ {property.price.toLocaleString()}</strong> {t('property.perMonth')}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <PropertyCardGrid
+            properties={visibleProperties.slice(0, 4)}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+            t={t}
+            badge={{ bg: 'bg-[#008A05]', label: 'Cerca de universidades' }}
+          />
         </div>
       </section>
 
-      {/* FULL APARTMENTS - New Section */}
-      <section style={{
-        padding: '80px 0',
-        background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)'
-      }}>
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 40px'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '32px'
-          }}>
+      {/* FULL APARTMENTS */}
+      <section className="py-20" style={{ background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)' }}>
+        <div className="max-w-[1400px] mx-auto px-10">
+          <div className="flex justify-between items-end mb-8">
             <div>
-              <h2 style={{
-                fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '8px'
-              }}>
-                {t('fullApartments.title')}
-              </h2>
-              <p style={{
-                fontSize: '1rem',
-                color: '#6b7280'
-              }}>
-                {t('fullApartments.subtitle')}
-              </p>
+              <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('fullApartments.title')}</h2>
+              <p className="text-base text-gray-500">{t('fullApartments.subtitle')}</p>
             </div>
-            <Link href="/propiedades?type=departamento" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: '#0f3457',
-              textDecoration: 'none',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.gap = '10px'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.gap = '6px'
-            }}
+            <Link href="/propiedades?type=departamento"
+              className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
             </Link>
           </div>
-
-          <div className="property-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px'
-          }}>
-            {properties.filter(p => p.type === 'DEPARTAMENTO').slice(0, 4).map((property) => (
-              <Link
-                key={property.id}
-                href={`/propiedades/${property.id}`}
-                className="property-card-simple fade-in"
-              >
-                <div className="property-img-simple">
-                  <Image
-                    src={property.images[0] || '/placeholder.jpg'}
-                    alt={property.title}
-                    width={600}
-                    height={400}
-                    loading="lazy"
-                  />
-                  <button
-                    className={`btn-fav-simple ${favorites.has(property.id) ? 'active' : ''}`}
-                    aria-label="Guardar"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      toggleFavorite(property.id)
-                    }}
-                  >
-                    <FavouriteIcon size={18} />
-                  </button>
-                </div>
-                <div className="property-info-simple">
-                  <div className="property-header-simple">
-                    <h4 className="property-title-simple">{property.title}</h4>
-                    <div className="property-rating-simple">
-                      <StarIcon size={11} className="text-gray-900" />
-                      <span>4.8</span>
-                    </div>
-                  </div>
-                  <p className="property-location-simple">{property.district}, Lima</p>
-                  <p className="property-specs-simple">
-                    {property.rooms} {property.rooms === 1 ? t('property.room') : t('property.rooms')} · {property.bathrooms} {property.bathrooms === 1 ? t('property.bathroom') : t('property.bathrooms')}
-                  </p>
-                  <p className="property-price-simple">
-                    <strong>S/ {property.price.toLocaleString()}</strong> {t('property.perMonth')}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <PropertyCardGrid
+            properties={properties.filter(p => p.type === 'DEPARTAMENTO').slice(0, 4)}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+            t={t}
+          />
         </div>
       </section>
 
-      {/* BUDGET ROOMS - New Section */}
-      <section style={{
-        padding: '80px 0',
-        background: '#fff'
-      }}>
-        <div style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 40px'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '32px'
-          }}>
+      {/* BUDGET ROOMS */}
+      <section className="py-20 bg-white">
+        <div className="max-w-[1400px] mx-auto px-10">
+          <div className="flex justify-between items-end mb-8">
             <div>
-              <h2 style={{
-                fontSize: 'clamp(1.75rem, 3vw, 2.25rem)',
-                fontWeight: '700',
-                color: '#151c26',
-                marginBottom: '8px'
-              }}>
-                {t('budgetRooms.title')}
-              </h2>
-              <p style={{
-                fontSize: '1rem',
-                color: '#6b7280'
-              }}>
-                {t('budgetRooms.subtitle')}
-              </p>
+              <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('budgetRooms.title')}</h2>
+              <p className="text-base text-gray-500">{t('budgetRooms.subtitle')}</p>
             </div>
-            <Link href="/propiedades?sort=price-asc" style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: '#0f3457',
-              textDecoration: 'none',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.gap = '10px'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.gap = '6px'
-            }}
+            <Link href="/propiedades?sort=price-asc"
+              className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
             </Link>
           </div>
-
-          <div className="property-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px'
-          }}>
-            {[...properties].sort((a, b) => a.price - b.price).slice(0, 4).map((property) => (
-              <Link
-                key={property.id}
-                href={`/propiedades/${property.id}`}
-                className="property-card-simple fade-in"
-              >
-                <div className="property-img-simple">
-                  <Image
-                    src={property.images[0] || '/placeholder.jpg'}
-                    alt={property.title}
-                    width={600}
-                    height={400}
-                    loading="lazy"
-                  />
-                  <button
-                    className={`btn-fav-simple ${favorites.has(property.id) ? 'active' : ''}`}
-                    aria-label="Guardar"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      toggleFavorite(property.id)
-                    }}
-                  >
-                    <FavouriteIcon size={18} />
-                  </button>
-                  <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    left: '12px',
-                    padding: '6px 12px',
-                    background: '#8f8272',
-                    color: '#fff',
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    borderRadius: '8px'
-                  }}>
-                    Mejor precio
-                  </div>
-                </div>
-                <div className="property-info-simple">
-                  <div className="property-header-simple">
-                    <h4 className="property-title-simple">{property.title}</h4>
-                    <div className="property-rating-simple">
-                      <StarIcon size={11} className="text-gray-900" />
-                      <span>4.8</span>
-                    </div>
-                  </div>
-                  <p className="property-location-simple">{property.district}, Lima</p>
-                  <p className="property-specs-simple">
-                    {property.rooms} {property.rooms === 1 ? t('property.room') : t('property.rooms')} · {property.bathrooms} {property.bathrooms === 1 ? t('property.bathroom') : t('property.bathrooms')}
-                  </p>
-                  <p className="property-price-simple">
-                    <strong>S/ {property.price.toLocaleString()}</strong> {t('property.perMonth')}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <PropertyCardGrid
+            properties={[...properties].sort((a, b) => a.price - b.price).slice(0, 4)}
+            favorites={favorites}
+            toggleFavorite={toggleFavorite}
+            t={t}
+            badge={{ bg: 'bg-brown', label: 'Mejor precio' }}
+          />
         </div>
       </section>
 
-      {/* CTA FOR LANDLORDS - Premium Design */}
-      <section style={{
-        padding: '100px 0',
-        background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 50%, #061829 100%)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Decorative elements */}
-        <div style={{
-          position: 'absolute',
-          top: '-20%',
-          right: '-10%',
-          width: '600px',
-          height: '600px',
-          background: 'radial-gradient(circle, rgba(143,130,114,0.2) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(80px)'
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '-20%',
-          left: '-10%',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(213,208,189,0.15) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(80px)'
-        }} />
+      {/* CTA FOR LANDLORDS */}
+      <section
+        className="py-[100px] relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 50%, #061829 100%)' }}
+      >
+        <div className="absolute top-[-20%] right-[-10%] size-[600px] rounded-full blur-[80px]"
+          style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.2) 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[-20%] left-[-10%] size-[500px] rounded-full blur-[80px]"
+          style={{ background: 'radial-gradient(circle, rgba(213,208,189,0.15) 0%, transparent 70%)' }} />
+        <div className="absolute top-[20%] left-[10%] size-[60px] rounded-full border-[3px] border-brown/40 opacity-60" />
+        <div className="absolute bottom-[25%] right-[15%] size-20 rounded-2xl bg-cream/15 rotate-[25deg] opacity-50" />
 
-        {/* Geometric shapes */}
-        <div style={{
-          position: 'absolute',
-          top: '20%',
-          left: '10%',
-          width: '60px',
-          height: '60px',
-          border: '3px solid rgba(143,130,114,0.4)',
-          borderRadius: '50%',
-          opacity: 0.6
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '25%',
-          right: '15%',
-          width: '80px',
-          height: '80px',
-          background: 'rgba(213,208,189,0.15)',
-          borderRadius: '16px',
-          transform: 'rotate(25deg)',
-          opacity: 0.5
-        }} />
-
-        <div style={{
-          maxWidth: '1100px',
-          margin: '0 auto',
-          padding: '0 40px',
-          position: 'relative',
-          zIndex: 1
-        }}>
-          <div style={{
-            background: 'rgba(255,255,255,0.05)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '32px',
-            padding: '64px 56px',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '48px',
-            flexWrap: 'wrap'
-          }}>
-            <div style={{ flex: '1', minWidth: '300px' }}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                background: 'rgba(143,130,114,0.2)',
-                border: '1px solid rgba(143,130,114,0.4)',
-                borderRadius: '100px',
-                marginBottom: '20px'
-              }}>
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  background: '#8f8272',
-                  borderRadius: '50%',
-                  animation: 'pulse 2s infinite'
-                }} />
-                <span style={{
-                  fontSize: '0.75rem',
-                  fontWeight: '700',
-                  color: '#d5d0bd',
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase'
-                }}>
-                  Para Arrendadores
-                </span>
+        <div className="max-w-[1100px] mx-auto px-10 relative z-[1]">
+          <div className="bg-white/5 backdrop-blur-[20px] rounded-[32px] p-16 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.3)] flex items-center justify-between gap-12 flex-wrap">
+            <div className="flex-1 min-w-[300px]">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-brown/20 border border-brown/40 rounded-full mb-5">
+                <div className="size-2 rounded-full bg-brown animate-pulse" />
+                <span className="text-xs font-bold text-cream tracking-[0.05em] uppercase">Para Arrendadores</span>
               </div>
-              <h2 style={{
-                fontSize: 'clamp(1.875rem, 4vw, 2.5rem)',
-                fontWeight: '800',
-                color: '#fff',
-                marginBottom: '16px',
-                lineHeight: '1.2',
-                letterSpacing: '-0.02em'
-              }}>
+              <h2
+                className="font-extrabold text-white mb-4 leading-[1.2] tracking-tight"
+                style={{ fontSize: 'clamp(1.875rem, 4vw, 2.5rem)' }}
+              >
                 ¿Tienes una propiedad para alquilar?
               </h2>
-              <p style={{
-                fontSize: '1.125rem',
-                color: 'rgba(255,255,255,0.85)',
-                lineHeight: '1.7',
-                marginBottom: '24px'
-              }}>
-                Únete a más de <span style={{ fontWeight: '700', color: '#d5d0bd' }}>4,800 arrendadores</span> que ya gestionan sus propiedades con Habita Perú.
+              <p className="text-lg text-white/85 leading-[1.7] mb-6">
+                Únete a más de{' '}
+                <span className="font-bold text-cream">4,800 arrendadores</span>{' '}
+                que ya gestionan sus propiedades con Habita Perú.
               </p>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '32px',
-                marginTop: '32px'
-              }}>
+              <div className="flex items-center gap-8 mt-8">
                 <div>
-                  <div style={{
-                    fontSize: '2rem',
-                    fontWeight: '800',
-                    color: '#fff',
-                    lineHeight: '1',
-                    marginBottom: '6px'
-                  }}>
-                    98%
-                  </div>
-                  <div style={{
-                    fontSize: '0.85rem',
-                    color: 'rgba(255,255,255,0.7)'
-                  }}>
-                    Satisfacción
-                  </div>
+                  <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">98%</div>
+                  <div className="text-[0.85rem] text-white/70">Satisfacción</div>
                 </div>
-                <div style={{
-                  width: '1px',
-                  height: '40px',
-                  background: 'rgba(255,255,255,0.2)'
-                }} />
+                <div className="w-px h-10 bg-white/20" />
                 <div>
-                  <div style={{
-                    fontSize: '2rem',
-                    fontWeight: '800',
-                    color: '#fff',
-                    lineHeight: '1',
-                    marginBottom: '6px'
-                  }}>
-                    15 días
-                  </div>
-                  <div style={{
-                    fontSize: '0.85rem',
-                    color: 'rgba(255,255,255,0.7)'
-                  }}>
-                    Promedio de alquiler
-                  </div>
+                  <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">15 días</div>
+                  <div className="text-[0.85rem] text-white/70">Promedio de alquiler</div>
                 </div>
               </div>
             </div>
 
-            <div style={{ flexShrink: 0 }}>
-              <Link href="/publicar" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '18px 40px',
-                background: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)',
-                color: '#fff',
-                fontSize: '1rem',
-                fontWeight: '700',
-                borderRadius: '16px',
-                textDecoration: 'none',
-                transition: 'all 0.3s',
-                boxShadow: '0 8px 32px rgba(143,130,114,0.4)',
-                border: '2px solid rgba(213,208,189,0.2)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 16px 48px rgba(143,130,114,0.5)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(143,130,114,0.4)'
-              }}
+            <div className="shrink-0">
+              <Link href="/publicar"
+                className="inline-flex items-center gap-3 py-[18px] px-10 text-white text-base font-bold rounded-2xl no-underline transition-all border-2 border-cream/20 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(143,130,114,0.5)]"
+                style={{ background: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)', boxShadow: '0 8px 32px rgba(143,130,114,0.4)' }}
               >
                 <PlusSignCircleIcon size={24} />
                 Publicar mi propiedad
               </Link>
-              <p style={{
-                fontSize: '0.8rem',
-                color: 'rgba(255,255,255,0.6)',
-                marginTop: '12px',
-                textAlign: 'center'
-              }}>
+              <p className="text-[0.8rem] text-white/60 mt-3 text-center">
                 ✓ Sin comisiones ocultas · ✓ Publicación gratuita
               </p>
             </div>
           </div>
         </div>
-
-        <style jsx>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.1); }
-          }
-        `}</style>
       </section>
     </div>
   )
