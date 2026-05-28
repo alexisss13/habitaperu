@@ -1,6 +1,8 @@
 'use client'
 
 import { MoneyBag02Icon, Search01Icon, FilterIcon, CheckmarkCircle02Icon, Clock01Icon } from "hugeicons-react"
+import { usePagination } from '@/hooks/use-pagination'
+import { AdminPagination } from '@/components/ui/pagination'
 import type { PaymentsData } from './payments-view'
 
 const statusBadge = (status: string) => {
@@ -38,6 +40,7 @@ const fmtDate = (d: Date | null) =>
 
 export function PaymentsDesktop({ data }: { data: PaymentsData }) {
   const { payments, stats } = data
+  const pagination = usePagination(payments, 10)
 
   return (
     <div className="p-10 min-h-screen">
@@ -93,7 +96,7 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
           <div>Monto</div><div>Método</div><div>Estado</div><div></div>
         </div>
 
-        {payments.map(p => {
+        {pagination.paginatedItems.map(p => {
           const badge = statusBadge(p.status)
           const { Icon } = badge
           return (
@@ -143,6 +146,19 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
             </div>
           )
         })}
+      </div>
+
+      {/* Pagination */}
+      <div className="bg-admin-card-bg rounded-b-xl border border-t-0 border-admin-border">
+        <AdminPagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.setPage}
+          startIndex={pagination.startIndex}
+          endIndex={pagination.endIndex}
+          totalItems={pagination.totalItems}
+          itemLabel="pagos"
+        />
       </div>
     </div>
   )

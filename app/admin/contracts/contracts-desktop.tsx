@@ -1,6 +1,8 @@
 'use client'
 
 import { FileValidationIcon, Search01Icon, FilterIcon } from "hugeicons-react"
+import { usePagination } from '@/hooks/use-pagination'
+import { AdminPagination } from '@/components/ui/pagination'
 import type { ContractsData } from './contracts-view'
 
 const statusBadge = (status: string) => {
@@ -25,6 +27,7 @@ const duration = (start: Date, end: Date) => {
 
 export function ContractsDesktop({ data }: { data: ContractsData }) {
   const { contracts, stats } = data
+  const pagination = usePagination(contracts, 10)
 
   return (
     <div className="p-10 min-h-screen">
@@ -85,7 +88,7 @@ export function ContractsDesktop({ data }: { data: ContractsData }) {
           <div></div>
         </div>
 
-        {contracts.map(c => {
+        {pagination.paginatedItems.map(c => {
           const badge = statusBadge(c.status)
           return (
             <div
@@ -129,6 +132,19 @@ export function ContractsDesktop({ data }: { data: ContractsData }) {
             </div>
           )
         })}
+      </div>
+
+      {/* Pagination */}
+      <div className="bg-admin-card-bg rounded-b-xl border border-t-0 border-admin-border">
+        <AdminPagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.setPage}
+          startIndex={pagination.startIndex}
+          endIndex={pagination.endIndex}
+          totalItems={pagination.totalItems}
+          itemLabel="contratos"
+        />
       </div>
     </div>
   )

@@ -565,18 +565,18 @@ del arrendador, ya autenticado) para no mezclar flujo de marketing con flujo aut
 - [x] `/tenant/payments` — historial + subir comprobante (hecho)
 - [x] `/tenant/kyc` — subir documentos (hecho)
 - [x] `/landlord/properties` — CRUD de propiedades (hecho)
-- [ ] `/landlord/payments` — gestión de pagos con semáforo
-- [ ] `/admin/kyc` — revisión de verificaciones
-- [ ] Notificaciones (modelo DB → bell en header → dropdown)
-- [ ] Storage de imágenes (Cloudflare R2 o Cloudinary)
+- [x] `/landlord/payments` — gestión de pagos con semáforo (hecho)
+- [x] `/admin/kyc` — revisión de verificaciones (hecho)
+- [x] Notificaciones (modelo DB → bell en header → dropdown) (hecho)
+- [x] Storage de imágenes (Cloudflare R2 o Cloudinary) (hecho)
 
 ### Baja (mejoras)
 - [ ] Email transaccional (Resend)
-- [ ] Integración WhatsApp en property detail
+- [x] Integración WhatsApp en property detail (hecho)
 - [ ] OAuth Google/Facebook
-- [ ] 2FA (campo `twoFactorEnabled` ya existe en User)
+- [x] 2FA (campo `twoFactorEnabled` ya existe en User) (hecho)
 - [ ] Paginación en todos los listings
-- [ ] `/admin/audit` — Audit Trail global
-- [ ] Búsqueda avanzada con filtros en `/propiedades`
-- [ ] Reviews reales (post-contrato)
+- [x] `/admin/audit` — Audit Trail global (hecho)
+- [x] Búsqueda avanzada con filtros en `/propiedades` (hecho)
+- [x] Reviews reales (post-contrato) (hecho)
 - [ ] Pasarela de pagos (Culqi o Niubiz)

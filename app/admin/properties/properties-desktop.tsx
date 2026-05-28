@@ -2,6 +2,8 @@
 
 import Image from "next/image"
 import { Building03Icon, Search01Icon, FilterIcon, Location01Icon, BedIcon, Bathtub02Icon } from "hugeicons-react"
+import { usePagination } from '@/hooks/use-pagination'
+import { AdminPagination } from '@/components/ui/pagination'
 import type { PropertiesData } from './properties-view'
 
 const statusBadge = (status: string) => {
@@ -15,6 +17,7 @@ const statusBadge = (status: string) => {
 
 export function PropertiesDesktop({ data }: { data: PropertiesData }) {
   const { properties, stats } = data
+  const pagination = usePagination(properties, 9) // 3 cols × 3 rows
 
   return (
     <div className="p-10 min-h-screen">
@@ -66,7 +69,7 @@ export function PropertiesDesktop({ data }: { data: PropertiesData }) {
 
       {/* Grid */}
       <div className="grid grid-cols-3 gap-6">
-        {properties.map(p => {
+        {pagination.paginatedItems.map(p => {
           const badge = statusBadge(p.status)
           return (
             <div
@@ -124,6 +127,17 @@ export function PropertiesDesktop({ data }: { data: PropertiesData }) {
           )
         })}
       </div>
+
+      {/* Pagination */}
+      <AdminPagination
+        currentPage={pagination.currentPage}
+        totalPages={pagination.totalPages}
+        onPageChange={pagination.setPage}
+        startIndex={pagination.startIndex}
+        endIndex={pagination.endIndex}
+        totalItems={pagination.totalItems}
+        itemLabel="propiedades"
+      />
     </div>
   )
 }

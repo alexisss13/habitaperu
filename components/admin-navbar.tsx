@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Search01Icon, Notification02Icon, Menu01Icon, Cancel01Icon } from "hugeicons-react"
+import { Search01Icon, Menu01Icon, Cancel01Icon } from "hugeicons-react"
 import ThemeSwitcher from "./theme-switcher"
+import { NotificationBell } from "./notification-bell"
 
 interface AdminNavbarProps {
   user: {
@@ -14,16 +15,7 @@ interface AdminNavbarProps {
 }
 
 export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed }: AdminNavbarProps) {
-  const [showNotifications, setShowNotifications] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
-
-  const notifications = [
-    { id: 1, title: "Nuevo usuario registrado", time: "Hace 5 min", unread: true },
-    { id: 2, title: "Propiedad publicada", time: "Hace 1 hora", unread: true },
-    { id: 3, title: "Pago recibido", time: "Hace 2 horas", unread: false },
-  ]
-
-  const unreadCount = notifications.filter(n => n.unread).length
 
   return (
     <nav
@@ -57,56 +49,12 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
         <ThemeSwitcher />
 
         {/* Notifications */}
-        <div className="relative">
-          <button
-            onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false) }}
-            className={`relative size-10 rounded-lg border border-admin-border flex items-center justify-center cursor-pointer transition-all text-admin-text hover:bg-[var(--admin-hover-bg)] ${showNotifications ? 'bg-[var(--admin-hover-bg)]' : 'bg-transparent'}`}
-          >
-            <Notification02Icon size={20} />
-            {unreadCount > 0 && (
-              <div className="absolute -top-1 -right-1 size-[18px] rounded-full bg-accent-secondary text-white text-[0.65rem] font-semibold flex items-center justify-center border-2 border-admin-card-bg">
-                {unreadCount}
-              </div>
-            )}
-          </button>
-
-          {showNotifications && (
-            <div className="absolute top-[50px] right-0 w-80 bg-admin-card-bg border border-admin-border rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] overflow-hidden z-[200]">
-              <div className="p-4 border-b border-admin-border flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-admin-text">Notificaciones</h3>
-                <span className="text-xs text-admin-accent cursor-pointer">Marcar todas como leídas</span>
-              </div>
-              <div className="max-h-[300px] overflow-y-auto">
-                {notifications.map((notif) => (
-                  <div
-                    key={notif.id}
-                    className={`px-4 py-3 border-b border-admin-border cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)] ${notif.unread ? 'bg-[rgba(15,52,87,0.03)]' : 'bg-transparent'}`}
-                  >
-                    <div className="flex items-start gap-2">
-                      {notif.unread && (
-                        <div className="size-2 rounded-full bg-accent-secondary mt-1 shrink-0" />
-                      )}
-                      <div className="flex-1">
-                        <p className="text-sm text-admin-text mb-1">{notif.title}</p>
-                        <p className="text-xs text-admin-text-muted">{notif.time}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="p-3 text-center border-t border-admin-border">
-                <span className="text-xs text-admin-accent cursor-pointer font-semibold">
-                  Ver todas las notificaciones
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
+        <NotificationBell theme="admin" />
 
         {/* User Profile */}
         <div className="relative">
           <button
-            onClick={() => { setShowProfile(!showProfile); setShowNotifications(false) }}
+            onClick={() => setShowProfile(!showProfile)}
             className={`flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-lg border border-admin-border cursor-pointer transition-all hover:bg-[var(--admin-hover-bg)] ${showProfile ? 'bg-[var(--admin-hover-bg)]' : 'bg-transparent'}`}
           >
             <div

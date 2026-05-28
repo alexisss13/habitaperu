@@ -1,6 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
+import { WriteReviewModal } from "@/components/write-review-modal"
 import { 
   FileValidationIcon, 
   Home01Icon, 
@@ -16,6 +18,7 @@ interface Props {
 }
 
 export function TenantContractMobile({ contracts }: Props) {
+  const [reviewingProperty, setReviewingProperty] = useState<{ id: string; title: string } | null>(null)
   const activeContract = contracts.find(c => c.status === "ACTIVE")
   const pendingContract = contracts.find(c => c.status === "PENDING_TENANT" || c.status === "DRAFT")
   const waitingContract = contracts.find(c => c.status === "PENDING_LANDLORD")
@@ -205,6 +208,13 @@ export function TenantContractMobile({ contracts }: Props) {
                 </a>
               )}
 
+              <button
+                onClick={() => setReviewingProperty({ id: activeContract.property.id, title: activeContract.property.title })}
+                className="w-full h-11 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                ⭐ Escribir Reseña Inmueble
+              </button>
+
               <a
                 href={`/api/contracts/${activeContract.id}/download`}
                 target="_blank"
@@ -247,13 +257,21 @@ export function TenantContractMobile({ contracts }: Props) {
                     <h5 className="text-xs font-bold text-text truncate max-w-[180px]">{c.property.title}</h5>
                     <p className="text-[10px] text-text-muted mt-0.5">S/ {c.monthlyRent} • {getStatusBadge(c.status)}</p>
                   </div>
-                  <a 
-                    href={`/api/contracts/${c.id}/download`}
-                    target="_blank"
-                    className="size-9 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg flex items-center justify-center text-text-muted no-underline"
-                  >
-                    <Download01Icon size={16} />
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setReviewingProperty({ id: c.property.id, title: c.property.title })}
+                      className="h-9 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-250 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                    >
+                      ⭐ Calificar
+                    </button>
+                    <a 
+                      href={`/api/contracts/${c.id}/download`}
+                      target="_blank"
+                      className="size-9 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg flex items-center justify-center text-text-muted no-underline"
+                    >
+                      <Download01Icon size={16} />
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
@@ -261,6 +279,14 @@ export function TenantContractMobile({ contracts }: Props) {
         )}
 
       </div>
+
+      {reviewingProperty && (
+        <WriteReviewModal
+          propertyId={reviewingProperty.id}
+          propertyTitle={reviewingProperty.title}
+          onClose={() => setReviewingProperty(null)}
+        />
+      )}
     </div>
   )
 }

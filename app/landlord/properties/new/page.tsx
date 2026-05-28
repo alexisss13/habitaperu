@@ -14,7 +14,7 @@ import {
   ArrowRight01Icon,
   ArrowLeft01Icon
 } from "hugeicons-react"
-
+import { uploadImageAction } from "@/app/actions/upload-actions"
 const DISTRICTS = [
   "Miraflores",
   "San Isidro",
@@ -69,6 +69,42 @@ export default function NewPropertyPage() {
   const [imageUrl1, setImageUrl1] = useState("")
   const [imageUrl2, setImageUrl2] = useState("")
   const [imageUrl3, setImageUrl3] = useState("")
+  const [uploading1, setUploading1] = useState(false)
+  const [uploading2, setUploading2] = useState(false)
+  const [uploading3, setUploading3] = useState(false)
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setImageUrl: (url: string) => void,
+    setUploading: (loading: boolean) => void
+  ) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setError(null)
+
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const res = await uploadImageAction(formData, "properties")
+      if (res.success && res.url) {
+        setImageUrl(res.url)
+      } else {
+        if (res.isMocked) {
+          setError("Cloudinary no configurado. Se mantiene el simulador, por favor ingresa la URL de forma manual o usa fotos de prueba.")
+        } else {
+          setError(res.error || "Error al subir la imagen.")
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      setError("Error de conexión al subir la imagen.")
+    } finally {
+      setUploading(false)
+    }
+  }
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [conditions, setConditions] = useState("")
@@ -419,8 +455,8 @@ export default function NewPropertyPage() {
               </div>
 
               <div className="pt-4 border-t border-slate-200">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-bold text-text uppercase tracking-wider">Enlaces de Fotos (URLs)</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-text uppercase tracking-wider">Fotos de la Propiedad</h3>
                   <button
                     type="button"
                     onClick={loadDemoImages}
@@ -429,28 +465,87 @@ export default function NewPropertyPage() {
                     Usar fotos de prueba
                   </button>
                 </div>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    value={imageUrl1}
-                    onChange={(e) => setImageUrl1(e.target.value)}
-                    placeholder="URL de foto principal"
-                    className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent"
-                  />
-                  <input
-                    type="text"
-                    value={imageUrl2}
-                    onChange={(e) => setImageUrl2(e.target.value)}
-                    placeholder="URL de foto secundaria"
-                    className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent"
-                  />
-                  <input
-                    type="text"
-                    value={imageUrl3}
-                    onChange={(e) => setImageUrl3(e.target.value)}
-                    placeholder="URL de foto adicional"
-                    className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent"
-                  />
+                <div className="space-y-4">
+                  {/* Image 1 */}
+                  <div className="border border-slate-200 rounded-xl p-3 bg-slate-50">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold text-text">Foto Principal (Obligatoria)</span>
+                      {uploading1 && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto] gap-3 items-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, setImageUrl1, setUploading1)}
+                        className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800"
+                      />
+                      {imageUrl1 && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={imageUrl1} alt="Principal" className="size-10 rounded object-cover border border-slate-200" />
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={imageUrl1}
+                      onChange={(e) => setImageUrl1(e.target.value)}
+                      placeholder="O pega la URL de la foto principal aquí"
+                      className="w-full h-9 px-3 border border-slate-200 rounded-xl text-[11px] font-semibold focus:border-accent mt-2 bg-white"
+                    />
+                  </div>
+
+                  {/* Image 2 */}
+                  <div className="border border-slate-200 rounded-xl p-3 bg-slate-50">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold text-text">Foto Secundaria</span>
+                      {uploading2 && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto] gap-3 items-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, setImageUrl2, setUploading2)}
+                        className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800"
+                      />
+                      {imageUrl2 && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={imageUrl2} alt="Secundaria" className="size-10 rounded object-cover border border-slate-200" />
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={imageUrl2}
+                      onChange={(e) => setImageUrl2(e.target.value)}
+                      placeholder="O pega la URL de la foto secundaria aquí"
+                      className="w-full h-9 px-3 border border-slate-200 rounded-xl text-[11px] font-semibold focus:border-accent mt-2 bg-white"
+                    />
+                  </div>
+
+                  {/* Image 3 */}
+                  <div className="border border-slate-200 rounded-xl p-3 bg-slate-50">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold text-text">Foto Adicional</span>
+                      {uploading3 && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto] gap-3 items-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, setImageUrl3, setUploading3)}
+                        className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800"
+                      />
+                      {imageUrl3 && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={imageUrl3} alt="Adicional" className="size-10 rounded object-cover border border-slate-200" />
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      value={imageUrl3}
+                      onChange={(e) => setImageUrl3(e.target.value)}
+                      placeholder="O pega la URL de la foto adicional aquí"
+                      className="w-full h-9 px-3 border border-slate-200 rounded-xl text-[11px] font-semibold focus:border-accent mt-2 bg-white"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

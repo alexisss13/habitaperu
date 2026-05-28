@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 
+import { checkTwoFactorRequiredAction } from "@/app/actions/user-actions"
+
 export function LoginMobile() {
   const router = useRouter()
   const t = useTranslations('login')
@@ -15,17 +17,45 @@ export function LoginMobile() {
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
 
+  // 2FA States
+  const [require2FA, setRequire2FA] = useState(false)
+  const [totpCode, setTotpCode] = useState("")
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setLoading(true)
     try {
+      if (!require2FA) {
+        // Step 1: Check if 2FA is required
+        const checkResult = await checkTwoFactorRequiredAction(formData.email, formData.password)
+        if (!checkResult.success) {
+          setError(checkResult.error || t('error'))
+          setLoading(false)
+          return
+        }
+
+        if (checkResult.twoFactorRequired) {
+          setRequire2FA(true)
+          setLoading(false)
+          return
+        }
+      }
+
+      // Step 2: Perform Credentials Sign In (with or without 2FA)
       const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
+        totpCode: require2FA ? totpCode : "",
         redirect: false,
       })
-      if (result?.error) { setError(t('error')); setLoading(false); return }
+
+      if (result?.error) {
+        setError(require2FA ? "Código 2FA incorrecto. Por favor, intenta de nuevo." : t('error'))
+        setLoading(false)
+        return
+      }
+
       const response = await fetch("/api/auth/session")
       const session = await response.json()
       if (session?.user?.role) {
@@ -53,20 +83,37 @@ export function LoginMobile() {
       {/* Sticky header */}
       <div className="fixed inset-x-0 top-0 z-[100] bg-white border-b border-gray-100 px-5 py-4 flex items-center gap-3">
         <button
-          onClick={() => router.back()}
+          onClick={() => {
+            if (require2FA) {
+              setRequire2FA(false)
+              setTotpCode("")
+              setError("")
+            } else {
+              router.back()
+            }
+          }}
           className="size-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-text-muted text-sm cursor-pointer shrink-0"
           aria-label="Volver"
         >
           ✕
         </button>
-        <h1 className="text-[0.9375rem] font-semibold text-text m-0">{t('title')}</h1>
+        <h1 className="text-[0.9375rem] font-semibold text-text m-0">
+          {require2FA ? "Autenticación 2FA" : t('title')}
+        </h1>
       </div>
 
       {/* Content */}
       <div className="flex-1 px-5 py-6 flex flex-col">
         {/* Welcome */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-text mb-2 leading-tight tracking-tight">{t('welcome')}</h2>
+          <h2 className="text-2xl font-bold text-text mb-2 leading-tight tracking-tight">
+            {require2FA ? "Verificación de Seguridad" : t('welcome')}
+          </h2>
+          {require2FA && (
+            <p className="text-xs text-text-muted">
+              Tu cuenta tiene activada la protección 2FA. Por favor, ingresa el código de 6 dígitos.
+            </p>
+          )}
         </div>
 
         {/* Form */}
@@ -74,57 +121,85 @@ export function LoginMobile() {
           {error && (
             <div className="flex items-start gap-2.5 p-3 px-3.5 bg-red-50 border border-red-200 rounded-lg text-red-600 text-[0.8125rem] leading-snug">
               <span className="shrink-0">⚠️</span>
-              <span>{error}</span>
+              <span className="font-semibold">{error}</span>
             </div>
           )}
 
-          {/* Email */}
-          <div className="relative">
-            <input
-              id="email"
-              type="email"
-              className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent [appearance:none]"
-              style={{ padding: '24px 14px 10px 14px' }}
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              onFocus={() => setFocusedField('email')}
-              onBlur={() => setFocusedField(null)}
-              required
-            />
-            <label htmlFor="email" className="absolute left-3.5 pointer-events-none transition-all" style={{
-              top: floatLabel('email') ? '8px' : '50%',
-              transform: floatLabel('email') ? 'translateY(0)' : 'translateY(-50%)',
-              fontSize: floatLabel('email') ? '0.6875rem' : '1rem',
-              fontWeight: floatLabel('email') ? '600' : '400',
-              color: '#6b7280',
-            }}>
-              {t('email')}
-            </label>
-          </div>
+          {!require2FA ? (
+            <>
+              {/* Email */}
+              <div className="relative">
+                <input
+                  id="email"
+                  type="email"
+                  className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent [appearance:none]"
+                  style={{ padding: '24px 14px 10px 14px' }}
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField(null)}
+                  required
+                />
+                <label htmlFor="email" className="absolute left-3.5 pointer-events-none transition-all" style={{
+                  top: floatLabel('email') ? '8px' : '50%',
+                  transform: floatLabel('email') ? 'translateY(0)' : 'translateY(-50%)',
+                  fontSize: floatLabel('email') ? '0.6875rem' : '1rem',
+                  fontWeight: floatLabel('email') ? '600' : '400',
+                  color: '#6b7280',
+                }}>
+                  {t('email')}
+                </label>
+              </div>
 
-          {/* Password */}
-          <div className="relative">
-            <input
-              id="password"
-              type="password"
-              className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent [appearance:none]"
-              style={{ padding: '24px 14px 10px 14px' }}
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              onFocus={() => setFocusedField('password')}
-              onBlur={() => setFocusedField(null)}
-              required
-            />
-            <label htmlFor="password" className="absolute left-3.5 pointer-events-none transition-all" style={{
-              top: floatLabel('password') ? '8px' : '50%',
-              transform: floatLabel('password') ? 'translateY(0)' : 'translateY(-50%)',
-              fontSize: floatLabel('password') ? '0.6875rem' : '1rem',
-              fontWeight: floatLabel('password') ? '600' : '400',
-              color: '#6b7280',
-            }}>
-              {t('password')}
-            </label>
-          </div>
+              {/* Password */}
+              <div className="relative">
+                <input
+                  id="password"
+                  type="password"
+                  className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent [appearance:none]"
+                  style={{ padding: '24px 14px 10px 14px' }}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField(null)}
+                  required
+                />
+                <label htmlFor="password" className="absolute left-3.5 pointer-events-none transition-all" style={{
+                  top: floatLabel('password') ? '8px' : '50%',
+                  transform: floatLabel('password') ? 'translateY(0)' : 'translateY(-50%)',
+                  fontSize: floatLabel('password') ? '0.6875rem' : '1rem',
+                  fontWeight: floatLabel('password') ? '600' : '400',
+                  color: '#6b7280',
+                }}>
+                  {t('password')}
+                </label>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* 2FA input */}
+              <div className="relative">
+                <input
+                  id="totpCode"
+                  type="text"
+                  maxLength={6}
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  placeholder="Código de 6 dígitos"
+                  className="w-full bg-white border border-gray-300 rounded-lg text-base text-center tracking-[0.5em] font-mono outline-none transition-all focus:border-accent [appearance:none]"
+                  style={{ padding: '16px' }}
+                  value={totpCode}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                  required
+                  autoFocus
+                />
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[0.7rem] text-amber-800">
+                <p className="font-semibold mb-0.5">💡 Código de Simulación 2FA:</p>
+                <p className="m-0">Para pruebas rápidas de este prototipo, ingresa el código <strong>123456</strong>.</p>
+              </div>
+            </>
+          )}
 
           <button
             type="submit"
@@ -135,15 +210,19 @@ export function LoginMobile() {
             }}
             disabled={loading}
           >
-            {loading ? t('loading') : t('continue')}
+            {loading ? t('loading') : (require2FA ? "Verificar e Iniciar Sesión" : t('continue'))}
           </button>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-2">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-[0.6875rem] text-text-muted font-semibold">{t('or')}</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
+          {!require2FA && (
+            <>
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-2">
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-[0.6875rem] text-text-muted font-semibold">{t('or')}</span>
+                <div className="flex-1 h-px bg-gray-200" />
+              </div>
+            </>
+          )}
 
           {/* Google */}
           <button type="button"

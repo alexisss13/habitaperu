@@ -14,6 +14,8 @@ import {
   CheckmarkCircle01Icon,
   AlertCircleIcon
 } from "hugeicons-react"
+import { usePagination } from "@/hooks/use-pagination"
+import { Pagination } from "@/components/ui/pagination"
 import { createDraftContract } from "@/app/actions/contract-actions"
 import { generatePeruvianLeaseAgreement } from "@/lib/services/contract-engine"
 
@@ -215,6 +217,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
   }
 
   const filteredContracts = contracts.filter(c => filter === "TODOS" || c.status === filter)
+  const pagination = usePagination(filteredContracts, 10, [filter])
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -287,7 +290,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredContracts.map(c => (
+                {pagination.paginatedItems.map(c => (
                   <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-bold text-sm text-text">{c.property.title}</div>
@@ -335,6 +338,19 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {filteredContracts.length > 0 && (
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.setPage}
+          startIndex={pagination.startIndex}
+          endIndex={pagination.endIndex}
+          totalItems={pagination.totalItems}
+          itemLabel="contratos"
+        />
+      )}
 
       {/* Creation Modal */}
       {isModalOpen && (

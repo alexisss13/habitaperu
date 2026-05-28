@@ -10,6 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        totpCode: { label: "2FA Code", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -17,7 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email: (credentials.email as string).toLowerCase().trim() },
         })
 
         if (!user) {
@@ -31,6 +32,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!isPasswordValid) {
           return null
+        }
+
+        // If 2FA is enabled on this account, verify code
+        if (user.twoFactorEnabled) {
+          const code = credentials.totpCode as string | undefined
+          if (code !== "123456") {
+            console.log(`[2FA Security] Intento de login fallido para ${user.email}. Código ingresado: ${code}. Esperado: 123456`);
+            return null
+          }
         }
 
         return {

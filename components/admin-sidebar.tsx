@@ -10,7 +10,9 @@ import {
   MoneyBag02Icon,
   Settings02Icon,
   LogoutCircle02Icon,
-  DashboardSquare02Icon
+  DashboardSquare02Icon,
+  SecurityCheckIcon,
+  DatabaseIcon
 } from "hugeicons-react"
 
 interface AdminSidebarProps {
@@ -27,9 +29,11 @@ export default function AdminSidebar({ user, isCollapsed }: AdminSidebarProps) {
   const menuItems = [
     { href: "/admin/dashboard", icon: DashboardSquare02Icon, label: "Dashboard" },
     { href: "/admin/users", icon: UserMultiple02Icon, label: "Usuarios" },
+    { href: "/admin/kyc", icon: SecurityCheckIcon, label: "Verificaciones" },
     { href: "/admin/properties", icon: Building03Icon, label: "Propiedades" },
     { href: "/admin/contracts", icon: FileValidationIcon, label: "Contratos" },
     { href: "/admin/payments", icon: MoneyBag02Icon, label: "Pagos" },
+    { href: "/admin/audit", icon: DatabaseIcon, label: "Auditoría Legal" },
     { href: "/admin/settings", icon: Settings02Icon, label: "Configuración" },
   ]
 

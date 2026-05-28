@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { NotificationBell } from "@/components/notification-bell"
 
 export const metadata: Metadata = {
   title: 'Dashboard Arrendador - Habita Perú',
@@ -77,6 +78,28 @@ export default async function LandlordLayout({ children }: LandlordLayoutProps) 
       </aside>
 
       <div className="md:pl-64 flex flex-col flex-1">
+        {/* Top Header */}
+        <header className="sticky top-0 bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 z-40">
+          <div className="flex items-center gap-4">
+            <span className="text-[#151c26] font-bold text-lg md:hidden">Habita Perú</span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <NotificationBell theme="landlord" />
+            <div className="h-6 w-px bg-slate-200" />
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-semibold text-text leading-none">{session.user.name}</p>
+              <p className="text-xs text-text-muted mt-0.5 leading-none">Arrendador</p>
+            </div>
+            <a
+              href="/api/auth/signout"
+              className="text-xs font-bold text-red-600 hover:text-red-700 no-underline"
+            >
+              Salir
+            </a>
+          </div>
+        </header>
+
         <main className="flex-1 pb-20 md:pb-8">{children}</main>
       </div>
 

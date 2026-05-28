@@ -155,9 +155,16 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
           style={{ background: 'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)' }}>
           <MessageMultiple02Icon size={18} /> Consultar
         </button>
-        <button className="flex-1 py-3 bg-green text-white rounded-xl font-medium flex items-center justify-center gap-2 text-sm">
+        <a
+          href={p.owner.phone
+            ? `https://wa.me/51${p.owner.phone.replace(/\D/g, "")}?text=Hola%20${p.owner.firstName},%20vi%20tu%20anuncio%20de%20alquiler%20%22${encodeURIComponent(p.title)}%22%20en%20Habita%20Perú.%20¿Sigue%20disponible?`
+            : `https://wa.me/51999999999?text=Hola,%20me%20interesa%20la%20propiedad%20%22${encodeURIComponent(p.title)}%22%20en%20Habita%20Perú.`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 py-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl font-medium flex items-center justify-center gap-2 text-sm no-underline text-center cursor-pointer"
+        >
           <WhatsappIcon size={18} /> WhatsApp
-        </button>
+        </a>
       </div>
     </div>
   )

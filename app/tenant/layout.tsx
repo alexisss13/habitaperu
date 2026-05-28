@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import type { Metadata } from 'next'
+import { TenantLayoutClient } from "@/components/tenant-layout-client"
 
 export const metadata: Metadata = {
   title: 'Mi Panel Inquilino - Habita Perú',
@@ -18,5 +19,10 @@ export default async function TenantLayout({
     redirect("/login")
   }
 
-  return <>{children}</>
+  // Typecast or pass session as is since next-auth v5 session structure matches layout prop expectation.
+  return (
+    <TenantLayoutClient session={session as any}>
+      {children}
+    </TenantLayoutClient>
+  )
 }

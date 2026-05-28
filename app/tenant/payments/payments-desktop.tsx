@@ -11,6 +11,7 @@ import {
   FileValidationIcon 
 } from "hugeicons-react"
 import { submitPaymentReceipt } from "@/app/actions/payment-actions"
+import { uploadImageAction } from "@/app/actions/upload-actions"
 import type { TenantPaymentItem } from "./payments-view"
 
 interface Props {
@@ -28,6 +29,36 @@ export function TenantPaymentsDesktop({ payments }: Props) {
   const [notes, setNotes] = useState("")
   const [modalError, setModalError] = useState<string | null>(null)
   const [modalSuccess, setModalSuccess] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setModalError(null)
+
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const res = await uploadImageAction(formData, "payments")
+      if (res.success && res.url) {
+        setReceiptUrl(res.url)
+      } else {
+        if (res.isMocked) {
+          setModalError("Cloudinary no configurado. Se mantiene el simulador, por favor ingresa la URL de forma manual o usa la simulación.")
+        } else {
+          setModalError(res.error || "Error al subir el comprobante.")
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      setModalError("Error de conexión al subir la imagen del comprobante.")
+    } finally {
+      setUploading(false)
+    }
+  }
 
   // State for previewing receipt modal
   const [previewPayment, setPreviewPayment] = useState<TenantPaymentItem | null>(null)
@@ -332,31 +363,37 @@ export function TenantPaymentsDesktop({ payments }: Props) {
                 </select>
               </div>
 
-              {/* Receipt File upload simulator */}
+              {/* Receipt File upload */}
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-xs font-bold text-text-muted uppercase">Comprobante de Pago (Voucher)</label>
-                  <button
-                    type="button"
-                    onClick={handleSimulateFile}
-                    className="text-[10px] text-accent hover:underline bg-transparent border-0 cursor-pointer font-bold"
-                  >
-                    Simular Carga de Voucher
-                  </button>
+                  <div className="flex gap-2">
+                    {uploading && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
+                    <button
+                      type="button"
+                      onClick={handleSimulateFile}
+                      className="text-[10px] text-accent hover:underline bg-transparent border-0 cursor-pointer font-bold"
+                    >
+                      Simular Carga de Voucher
+                    </button>
+                  </div>
                 </div>
 
-                <div className="relative">
+                <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
+                  />
                   <input
                     type="text"
                     required
                     value={receiptUrl}
                     onChange={(e) => setReceiptUrl(e.target.value)}
-                    placeholder="URL de la imagen del comprobante o presiona simular"
-                    className="w-full h-11 pl-3 pr-10 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent"
+                    placeholder="O pega la URL de la imagen del comprobante aquí"
+                    className="w-full h-11 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent bg-white"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                    <ImageAdd01Icon size={16} />
-                  </div>
                 </div>
 
                 {receiptUrl && (
@@ -365,7 +402,7 @@ export function TenantPaymentsDesktop({ payments }: Props) {
                     <img src={receiptUrl} alt="Comprobante" className="size-12 rounded object-cover border border-slate-200" />
                     <div>
                       <p className="text-[10px] font-bold text-text line-clamp-1">comprobante_pago.png</p>
-                      <p className="text-[9px] text-text-muted">Simulado con éxito</p>
+                      <p className="text-[9px] text-text-muted">Archivo listo para verificación</p>
                     </div>
                   </div>
                 )}

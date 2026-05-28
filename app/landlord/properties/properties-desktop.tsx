@@ -12,6 +12,8 @@ import {
   FileValidationIcon,
   Tag01Icon
 } from "hugeicons-react"
+import { usePagination } from "@/hooks/use-pagination"
+import { Pagination } from "@/components/ui/pagination"
 
 interface PropertyInfo {
   id: string
@@ -53,6 +55,8 @@ export function PropertiesDesktop({ properties }: Props) {
     if (filter === "MANTENIMIENTO") return p.status === "MANTENIMIENTO"
     return true
   })
+
+  const pagination = usePagination(filteredProperties, 9, [filter])
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -152,7 +156,7 @@ export function PropertiesDesktop({ properties }: Props) {
       {/* Properties Cards Grid */}
       {filteredProperties.length > 0 ? (
         <div className="grid grid-cols-3 gap-6">
-          {filteredProperties.map(p => {
+          {pagination.paginatedItems.map(p => {
             const imgArray = Array.isArray(p.images) ? p.images as string[] : []
             const firstImage = imgArray.length > 0 ? imgArray[0] : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=400&q=85"
 
@@ -254,6 +258,19 @@ export function PropertiesDesktop({ properties }: Props) {
             Publicar mi primer anuncio
           </Link>
         </div>
+      )}
+
+      {/* Pagination */}
+      {filteredProperties.length > 0 && (
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.setPage}
+          startIndex={pagination.startIndex}
+          endIndex={pagination.endIndex}
+          totalItems={pagination.totalItems}
+          itemLabel="propiedades"
+        />
       )}
     </div>
   )

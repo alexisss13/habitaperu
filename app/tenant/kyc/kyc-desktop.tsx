@@ -12,6 +12,7 @@ import {
   FileValidationIcon 
 } from "hugeicons-react"
 import { submitKYCVerification } from "@/app/actions/kyc-actions"
+import { uploadImageAction } from "@/app/actions/upload-actions"
 import type { KYCVerificationData } from "./kyc-view"
 
 interface Props {
@@ -31,6 +32,36 @@ export function TenantKYCDesktop({ verification }: Props) {
   
   // State for re-submission if rejected
   const [isReSubmitting, setIsReSubmitting] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setError(null)
+
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const res = await uploadImageAction(formData, "kyc")
+      if (res.success && res.url) {
+        setDniDocument(res.url)
+      } else {
+        if (res.isMocked) {
+          setError("Cloudinary no configurado. Se mantiene el simulador, por favor ingresa la URL de forma manual o usa la simulación.")
+        } else {
+          setError(res.error || "Error al subir el DNI.")
+        }
+      }
+    } catch (err) {
+      console.error(err)
+      setError("Error de conexión al subir la imagen del DNI.")
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSimulateDni = () => {
     // Simulated DNI image scan url
@@ -170,26 +201,32 @@ export function TenantKYCDesktop({ verification }: Props) {
 
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[10px] text-text-muted font-bold uppercase">Foto del Documento</span>
-                      <button
-                        type="button"
-                        onClick={handleSimulateDni}
-                        className="text-[10px] text-accent hover:underline bg-transparent border-0 cursor-pointer font-bold"
-                      >
-                        Simular Carga de DNI
-                      </button>
+                      <div className="flex gap-2">
+                        {uploading && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
+                        <button
+                          type="button"
+                          onClick={handleSimulateDni}
+                          className="text-[10px] text-accent hover:underline bg-transparent border-0 cursor-pointer font-bold"
+                        >
+                          Simular Carga de DNI
+                        </button>
+                      </div>
                     </div>
 
-                    <div className="relative">
+                    <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
+                      />
                       <input 
                         type="text" 
                         value={dniDocument} 
                         onChange={(e) => setDniDocument(e.target.value)}
-                        placeholder="Pega la URL de la foto de tu DNI o usa la simulación" 
-                        className="w-full h-11 pl-3 pr-10 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent"
+                        placeholder="O pega la URL de la foto de tu DNI aquí" 
+                        className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent bg-white"
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                        <ImageAdd01Icon size={16} />
-                      </div>
                     </div>
 
                     {dniDocument && (

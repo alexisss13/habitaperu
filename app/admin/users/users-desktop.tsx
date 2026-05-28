@@ -1,6 +1,8 @@
 'use client'
 
 import { UserMultiple02Icon, Search01Icon, FilterIcon, Mail01Icon, SmartPhone02Icon, CheckmarkCircle02Icon, Cancel01Icon } from "hugeicons-react"
+import { usePagination } from '@/hooks/use-pagination'
+import { AdminPagination } from '@/components/ui/pagination'
 import type { UsersData } from './users-view'
 
 const roleBadgeClass = (role: string) => {
@@ -23,6 +25,7 @@ const roleLabel = (role: string) => {
 
 export function UsersDesktop({ data }: { data: UsersData }) {
   const { users, stats } = data
+  const pagination = usePagination(users, 10)
 
   return (
     <div className="p-10 min-h-screen">
@@ -83,7 +86,7 @@ export function UsersDesktop({ data }: { data: UsersData }) {
           <div></div>
         </div>
 
-        {users.map(user => (
+        {pagination.paginatedItems.map(user => (
           <div
             key={user.id}
             className="grid grid-cols-[2fr_1.5fr_1fr_1fr_1fr_0.5fr] px-6 py-5 border-b border-admin-border items-center hover:bg-[rgba(116,133,151,0.05)] transition-colors cursor-pointer"
@@ -145,6 +148,19 @@ export function UsersDesktop({ data }: { data: UsersData }) {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="bg-admin-card-bg rounded-b-xl border border-t-0 border-admin-border">
+        <AdminPagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.setPage}
+          startIndex={pagination.startIndex}
+          endIndex={pagination.endIndex}
+          totalItems={pagination.totalItems}
+          itemLabel="usuarios"
+        />
       </div>
     </div>
   )

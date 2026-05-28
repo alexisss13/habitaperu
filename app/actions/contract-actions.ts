@@ -25,6 +25,7 @@ import {
   type SerializedError,
 } from "@/lib/exceptions/contract-errors"
 import { createDocumentHash } from "@/lib/services/contract-engine"
+import { createNotificationHelper } from "@/lib/notifications"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tipos de retorno de Server Actions
@@ -182,6 +183,16 @@ export async function signContractAsTenant(
         },
         select: { id: true, status: true },
       })
+
+      // Notificar al arrendador que el inquilino firmó el borrador del contrato
+      await createNotificationHelper(
+        contract.landlordId,
+        "CONTRACT_SIGN",
+        "Contrato firmado por el inquilino",
+        "El inquilino ha firmado el borrador del contrato. Su contrafirma es requerida para activarlo.",
+        { contractId: contract.id },
+        tx
+      )
 
       return updated
     })
@@ -380,6 +391,16 @@ export async function counterSignAsLandlord(
         },
         select: { id: true, status: true },
       })
+
+      // Notificar al inquilino que el contrato está activo
+      await createNotificationHelper(
+        contract.tenantId,
+        "CONTRACT_ACTIVE",
+        "Contrato de alquiler activo",
+        "El arrendador ha firmado el contrato. Tu alquiler ya se encuentra activo y puedes revisar tus pagos.",
+        { contractId: contract.id },
+        tx
+      )
 
       return updated
     })

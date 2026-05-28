@@ -205,10 +205,16 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                   style={{ background: 'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)' }}>
                   <MessageMultiple02Icon size={20} /> Enviar consulta
                 </button>
-                <button type="button"
-                  className="w-full py-3 bg-green text-white rounded-lg font-medium flex items-center justify-center gap-2">
+                <a
+                  href={p.owner.phone
+                    ? `https://wa.me/51${p.owner.phone.replace(/\D/g, "")}?text=Hola%20${p.owner.firstName},%20vi%20tu%20anuncio%20de%20alquiler%20%22${encodeURIComponent(p.title)}%22%20en%20Habita%20Perú.%20¿Sigue%20disponible?`
+                    : `https://wa.me/51999999999?text=Hola,%20me%20interesa%20la%20propiedad%20%22${encodeURIComponent(p.title)}%22%20en%20Habita%20Perú.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg font-medium flex items-center justify-center gap-2 no-underline text-center cursor-pointer"
+                >
                   <WhatsappIcon size={20} /> Contactar por WhatsApp
-                </button>
+                </a>
               </form>
 
               <div className="pt-4 border-t border-gray-200 flex flex-col gap-3">
