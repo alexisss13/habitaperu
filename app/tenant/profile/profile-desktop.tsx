@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  UserCircleIcon, Mail01Icon, Phone01Icon, Location01Icon,
-  Edit01Icon, CheckmarkCircle02Icon, SecurityCheckIcon, CalendarAdd01Icon
+  UserCircleIcon, Mail01Icon, SmartPhone02Icon, Location01Icon,
+  CheckmarkCircle02Icon, SecurityCheckIcon, CalendarAdd01Icon
 } from "hugeicons-react"
 import { updateProfileAction } from "@/app/actions/user-actions"
 import type { UserProfile } from "./profile-view"
@@ -118,7 +118,6 @@ export function ProfileDesktop({ profile }: { profile: UserProfile }) {
                     onClick={() => { setEditing(true); setSuccess(""); setError("") }}
                     className="flex items-center gap-1.5 text-sm font-semibold text-accent hover:bg-accent/5 px-3 py-1.5 rounded-lg transition-all cursor-pointer bg-transparent border-none"
                   >
-                    <Edit01Icon size={15} />
                     Editar
                   </button>
                 ) : (
@@ -194,7 +193,7 @@ export function ProfileDesktop({ profile }: { profile: UserProfile }) {
                 {/* Teléfono */}
                 <div>
                   <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block flex items-center gap-1.5">
-                    <Phone01Icon size={12} />
+                    <SmartPhone02Icon size={12} />
                     Teléfono
                   </label>
                   {editing ? (

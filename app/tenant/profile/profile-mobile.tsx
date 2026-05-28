@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  UserCircleIcon, Edit01Icon, CheckmarkCircle02Icon,
-  Phone01Icon, Location01Icon, Cancel01Icon
+  UserCircleIcon, CheckmarkCircle02Icon,
+  SmartPhone02Icon, Location01Icon, Cancel01Icon
 } from "hugeicons-react"
 import { updateProfileAction } from "@/app/actions/user-actions"
 import type { UserProfile } from "./profile-view"
@@ -66,7 +66,6 @@ export function ProfileMobile({ profile }: { profile: UserProfile }) {
               onClick={() => { setEditing(true); setSuccess(""); setError("") }}
               className="flex items-center gap-1.5 text-sm font-semibold text-accent bg-transparent border-none cursor-pointer"
             >
-              <Edit01Icon size={15} />
               Editar
             </button>
           ) : (
@@ -150,7 +149,7 @@ export function ProfileMobile({ profile }: { profile: UserProfile }) {
 
           <div>
             <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1 block flex items-center gap-1">
-              <Phone01Icon size={11} /> Teléfono
+              <SmartPhone02Icon size={11} /> Teléfono
             </label>
             {editing ? (
               <input

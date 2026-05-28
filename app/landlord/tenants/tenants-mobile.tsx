@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import {
-  UserMultiple02Icon, SearchIcon, SecurityCheckIcon,
+  UserMultiple02Icon, Search01Icon, SecurityCheckIcon,
   FileValidationIcon, CheckmarkCircle02Icon, Clock05Icon, AlertCircleIcon
 } from "hugeicons-react"
 import type { TenantItem } from "./tenants-view"
@@ -48,7 +48,7 @@ export function TenantsMobile({ tenants }: { tenants: TenantItem[] }) {
         <p className="text-sm text-gray-400">{tenants.length} en total</p>
 
         <div className="relative mt-4">
-          <SearchIcon size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search01Icon size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

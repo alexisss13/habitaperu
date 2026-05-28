@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import {
-  UserMultiple02Icon, SearchIcon, SecurityCheckIcon,
+  UserMultiple02Icon, Search01Icon, SecurityCheckIcon,
   FileValidationIcon, CheckmarkCircle02Icon, Cancel01Icon,
   Clock05Icon, AlertCircleIcon
 } from "hugeicons-react"
@@ -65,7 +65,7 @@ export function TenantsDesktop({ tenants }: { tenants: TenantItem[] }) {
         {/* Filters */}
         <div className="flex items-center gap-3 mb-6 flex-wrap">
           <div className="relative flex-1 max-w-sm">
-            <SearchIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search01Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
