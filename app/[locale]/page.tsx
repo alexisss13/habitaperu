@@ -130,6 +130,45 @@ async function getProperties() {
   }
 }
 
+// Lima districts aggregated into "Lima"
+const LIMA_DISTRICTS = [
+  'Miraflores','San Isidro','Barranco','Santiago de Surco','San Borja','La Molina',
+  'Lince','Jesús María','Magdalena del Mar','San Miguel','Pueblo Libre','Surquillo',
+  'Chorrillos','Lima','Surco','Rímac','Rimac','Breña','La Victoria','El Agustino',
+  'Los Olivos','Comas','Independencia','San Martín de Porres','Callao','Ate',
+  'San Juan de Lurigancho','Villa El Salvador','Lurigancho','Carabayllo',
+]
+
+const PERU_CITIES = ['Lima','Arequipa','Trujillo','Cusco','Chiclayo','Piura','Huancayo','Tacna']
+
+async function getCityCounts() {
+  try {
+    const results = await prisma.property.groupBy({
+      by: ['district'],
+      where: { status: 'DISPONIBLE' },
+      _count: { district: true },
+    })
+
+    // Aggregate all Lima districts as "Lima"
+    const limaCount = results
+      .filter(r => LIMA_DISTRICTS.some(d => d.toLowerCase() === r.district.toLowerCase()))
+      .reduce((sum, r) => sum + r._count.district, 0)
+
+    // Map other cities
+    const cityMap: Record<string, number> = { Lima: limaCount }
+    results.forEach(r => {
+      const matched = PERU_CITIES.find(
+        c => c.toLowerCase() === r.district.toLowerCase() && c !== 'Lima'
+      )
+      if (matched) cityMap[matched] = (cityMap[matched] ?? 0) + r._count.district
+    })
+
+    return PERU_CITIES.map(city => ({ city, count: cityMap[city] ?? 0 }))
+  } catch {
+    return PERU_CITIES.map(city => ({ city, count: 0 }))
+  }
+}
+
 async function getPropertyStats() {
   try {
     // Obtener el precio mínimo y el total de propiedades disponibles
@@ -159,10 +198,11 @@ async function getPropertyStats() {
 }
 
 export default async function HomePage() {
-  const [properties, stats] = await Promise.all([
+  const [properties, stats, cityCounts] = await Promise.all([
     getProperties(),
-    getPropertyStats()
+    getPropertyStats(),
+    getCityCounts(),
   ])
 
-  return <HomeView properties={properties} stats={stats} />
+  return <HomeView properties={properties} stats={stats} cityCounts={cityCounts} />
 }

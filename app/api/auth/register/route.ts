@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { registerSchema } from "@/lib/validations"
 import { z } from "zod"
+import { sendWelcomeEmail } from "@/lib/email"
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,6 +45,9 @@ export async function POST(req: NextRequest) {
         role: true,
       },
     })
+
+    // Send welcome email (non-blocking)
+    sendWelcomeEmail(user.email, user.firstName).catch(() => {})
 
     return NextResponse.json(
       { user, message: "Usuario creado exitosamente" },

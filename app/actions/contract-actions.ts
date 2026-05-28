@@ -17,6 +17,11 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Prisma, AuditAction, ContractStatus, PropertyStatus, Role } from "@prisma/client"
 import {
+  sendContractSentEmail,
+  sendContractSignedByTenantEmail,
+  sendContractActiveEmail,
+} from "@/lib/email"
+import {
   ContractConcurrencyError,
   ContractStateError,
   InvalidSignatureError,
@@ -200,6 +205,24 @@ export async function signContractAsTenant(
     // ── 4. Revalidar cache del dashboard del tenant ───────────────────────────
     revalidatePath("/tenant/dashboard")
 
+    // ── 5. Notificar al arrendador por email (non-blocking) ──────────────────
+    prisma.contract.findUnique({
+      where: { id: contractId },
+      select: {
+        landlord: { select: { email: true, firstName: true, lastName: true } },
+        property: { select: { title: true } },
+      },
+    }).then(c => {
+      if (c) {
+        sendContractSignedByTenantEmail(
+          c.landlord.email,
+          `${c.landlord.firstName} ${c.landlord.lastName}`,
+          c.property.title,
+          contractId,
+        ).catch(() => {})
+      }
+    }).catch(() => {})
+
     return {
       success: true,
       data: {
@@ -211,7 +234,6 @@ export async function signContractAsTenant(
     if (isKnownLegalError(error)) {
       return { success: false, error: error.serialize() }
     }
-    // Error inesperado: loguear sin exponer detalles al cliente
     console.error("[signContractAsTenant] Error inesperado:", error)
     return {
       success: false,
@@ -406,9 +428,29 @@ export async function counterSignAsLandlord(
     })
 
     // ── 4. Revalidar caches ───────────────────────────────────────────────────
-    // revalidateTag en Next.js 16 requiere un segundo argumento de profile
     revalidatePath("/landlord/dashboard")
     revalidatePath("/propiedades")
+
+    // ── 5. Emails de contrato activo a ambas partes (non-blocking) ───────────
+    prisma.contract.findUnique({
+      where: { id: updatedContract.id },
+      select: {
+        landlord: { select: { email: true, firstName: true, lastName: true } },
+        tenant:   { select: { email: true, firstName: true, lastName: true } },
+        property: { select: { title: true } },
+      },
+    }).then(c => {
+      if (c) {
+        sendContractActiveEmail(
+          c.landlord.email,
+          c.tenant.email,
+          `${c.landlord.firstName} ${c.landlord.lastName}`,
+          `${c.tenant.firstName} ${c.tenant.lastName}`,
+          c.property.title,
+          updatedContract.id,
+        ).catch(() => {})
+      }
+    }).catch(() => {})
 
     return {
       success: true,
@@ -614,6 +656,28 @@ export async function createDraftContract(input: {
     })
 
     revalidatePath("/landlord/dashboard")
+
+    // Notificar al inquilino por email (non-blocking)
+    prisma.user.findUnique({
+      where: { id: input.tenantId },
+      select: { email: true, firstName: true, lastName: true },
+    }).then(tenant => {
+      if (tenant) {
+        prisma.property.findUnique({
+          where: { id: input.propertyId },
+          select: { title: true },
+        }).then(property => {
+          if (property) {
+            sendContractSentEmail(
+              tenant.email,
+              `${tenant.firstName} ${tenant.lastName}`,
+              property.title,
+              contract.id,
+            ).catch(() => {})
+          }
+        }).catch(() => {})
+      }
+    }).catch(() => {})
 
     return { success: true, data: { contractId: contract.id } }
   } catch (error: unknown) {

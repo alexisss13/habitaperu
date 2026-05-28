@@ -158,12 +158,20 @@ export function PropertiesMobile({ properties }: Props) {
                       <span className="text-[9px] text-text-muted font-semibold block uppercase">Mensual</span>
                       <span className="text-sm font-extrabold text-[#151c26]">S/ {Number(p.price).toLocaleString()}</span>
                     </div>
-                    <Link 
-                      href={`/propiedades/${p.id}`}
-                      className="text-xs font-bold text-accent no-underline"
-                    >
-                      Ver Detalle &rarr;
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/landlord/properties/${p.id}/edit`}
+                        className="text-xs font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg no-underline"
+                      >
+                        Editar
+                      </Link>
+                      <Link
+                        href={`/propiedades/${p.id}`}
+                        className="text-xs font-bold text-gray-400 no-underline"
+                      >
+                        Ver →
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -229,11 +229,17 @@ export function PropertiesDesktop({ properties }: Props) {
                       <span className="text-[10px] text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-medium">
                         {getConditionLabel(p.condition)}
                       </span>
-                      <Link 
-                        href={`/propiedades/${p.id}`}
-                        className="text-xs font-bold text-accent hover:text-accent-dark no-underline"
+                      <Link
+                        href={`/landlord/properties/${p.id}/edit`}
+                        className="text-xs font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg hover:bg-accent/5 no-underline transition-colors"
                       >
-                        Ver Detalle &rarr;
+                        Editar
+                      </Link>
+                      <Link
+                        href={`/propiedades/${p.id}`}
+                        className="text-xs font-bold text-gray-500 hover:text-[#151c26] no-underline"
+                      >
+                        Ver →
                       </Link>
                     </div>
                   </div>

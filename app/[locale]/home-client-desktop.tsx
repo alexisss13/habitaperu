@@ -18,8 +18,9 @@ interface Property {
 }
 
 interface PropertyStats { minPrice: number; availableCount: number }
+interface CityCount { city: string; count: number }
 
-interface HomeClientProps { properties: Property[]; stats: PropertyStats }
+interface HomeClientProps { properties: Property[]; stats: PropertyStats; cityCounts: CityCount[] }
 
 const filterBtn = (active: boolean) =>
   `px-5 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all border-none
@@ -34,7 +35,7 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
       {properties.map((property) => (
         <Link key={property.id} href={`/propiedades/${property.id}`} className="property-card-simple fade-in">
           <div className="property-img-simple">
-            <Image src={property.images[0] || '/placeholder.jpg'} alt={property.title} width={600} height={400} loading="lazy" />
+            <Image src={property.images[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80'} alt={property.title} width={600} height={400} loading="lazy" />
             <button
               className={`btn-fav-simple ${favorites.has(property.id) ? 'active' : ''}`}
               aria-label="Guardar"
@@ -69,7 +70,7 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
   )
 }
 
-export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
+export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientProps) {
   const t = useTranslations('home')
   const [activeFilter, setActiveFilter] = useState('all')
   const [visibleProperties, setVisibleProperties] = useState(properties)
@@ -397,25 +398,55 @@ export function HomeClientDesktop({ properties, stats }: HomeClientProps) {
             </Link>
           </div>
 
-          <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-            {[
-              { district: 'San Isidro', count: 45, image: '/placeholder.jpg' },
-              { district: 'Miraflores', count: 67, image: '/placeholder.jpg' },
-              { district: 'Barranco', count: 38, image: '/placeholder.jpg' },
-              { district: 'Surco', count: 52, image: '/placeholder.jpg' }
-            ].map((location, i) => (
-              <Link key={i} href={`/propiedades?district=${location.district}`}
-                className="relative h-[280px] rounded-2xl overflow-hidden no-underline cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(15,52,87,0.15)]"
+          {/* Region pills — quick links to filter by city */}
+          <div className="flex flex-wrap gap-3 mb-8">
+            {cityCounts.map((loc) => (
+              <Link
+                key={loc.city}
+                href={`/propiedades?district=${encodeURIComponent(loc.city)}`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-semibold no-underline transition-all group ${
+                  loc.count > 0
+                    ? 'border-gray-200 text-[#151c26] hover:border-accent hover:text-accent hover:bg-accent/5'
+                    : 'border-gray-100 text-gray-300 cursor-default pointer-events-none'
+                }`}
               >
-                <div className="absolute inset-0 z-[1]"
-                  style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%)' }} />
-                <Image src={location.image} alt={location.district} fill className="object-cover" />
-                <div className="absolute bottom-5 left-5 z-[2] text-white">
-                  <h3 className="text-2xl font-bold mb-1">{location.district}</h3>
-                  <p className="text-[0.9rem] opacity-90">{location.count} propiedades</p>
-                </div>
+                <span
+                  className="size-2 rounded-full"
+                  style={{
+                    background: loc.count > 0
+                      ? 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)'
+                      : '#e5e7eb',
+                  }}
+                />
+                {loc.city}
+                {loc.count > 0 && (
+                  <span className="text-xs text-gray-400 font-normal ml-0.5">
+                    ({loc.count})
+                  </span>
+                )}
               </Link>
             ))}
+          </div>
+
+          {/* CTA banner */}
+          <div
+            className="rounded-2xl px-8 py-6 flex items-center justify-between"
+            style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
+          >
+            <div>
+              <p className="text-white font-extrabold text-lg mb-1">
+                Encuentra tu próximo hogar en el Perú
+              </p>
+              <p className="text-white/70 text-sm">
+                {cityCounts.reduce((s, c) => s + c.count, 0)} propiedades disponibles en todo el país
+              </p>
+            </div>
+            <Link
+              href="/propiedades"
+              className="bg-white text-accent font-bold text-sm px-5 py-2.5 rounded-xl no-underline hover:bg-white/90 transition-colors whitespace-nowrap"
+            >
+              Ver todas →
+            </Link>
           </div>
         </div>
       </section>

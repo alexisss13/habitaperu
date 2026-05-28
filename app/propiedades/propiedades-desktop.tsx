@@ -77,7 +77,6 @@ export function PropiedadesDesktop({
       prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
     )
 
-  const districts = Array.from(new Set(originalProperties.map(p => p.district))).sort()
   const filtersActive = activeFiltersCount(selectedTypes, minPrice, maxPrice, selectedDistrict, minRooms)
 
   return (
@@ -219,19 +218,21 @@ export function PropiedadesDesktop({
 
                 <div className="h-px bg-gray-100" />
 
-                {/* District */}
+                {/* District / City — free text search */}
                 <div>
                   <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2.5">
-                    Distrito
+                    Distrito o ciudad
                   </p>
-                  <select
+                  <input
+                    type="text"
                     value={selectedDistrict}
                     onChange={e => setSelectedDistrict(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-accent bg-gray-50 text-[#151c26] font-medium cursor-pointer transition-colors"
-                  >
-                    <option value="">Todos los distritos</option>
-                    {districts.map(d => <option key={d} value={d}>{d}</option>)}
-                  </select>
+                    placeholder="Ej: Lima, Arequipa, Miraflores…"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-accent bg-gray-50 text-[#151c26] transition-colors"
+                  />
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Busca por ciudad o distrito del Perú
+                  </p>
                 </div>
 
                 <div className="h-px bg-gray-100" />

@@ -105,7 +105,7 @@ export function Header() {
             {showManageButton && (
               <Link
                 href="/tenant/dashboard"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white no-underline hover:opacity-90 transition-opacity"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold !text-white no-underline hover:opacity-90 transition-opacity"
                 style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
               >
                 <Home01Icon size={16} />

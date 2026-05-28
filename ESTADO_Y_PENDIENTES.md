@@ -1,7 +1,7 @@
 # HabitaPeru — Estado actual y roadmap completo
 
 > Documento de referencia técnica para continuar el desarrollo.
-> Actualizado: mayo 2026.
+> Actualizado: junio 2026.
 
 ---
 
@@ -13,7 +13,7 @@
 | Lenguaje | TypeScript |
 | Estilos | Tailwind CSS v4 (`@import "tailwindcss"`) |
 | Base de datos | PostgreSQL vía Prisma ORM |
-| Autenticación | NextAuth v5 (auth.js) |
+| Autenticación | NextAuth v5 (auth.js) + SessionProvider |
 | Internacionalización | i18n custom con contexto React (`lib/i18n-context.tsx`) |
 | Iconos | `hugeicons-react` |
 | Validaciones | Zod |
@@ -33,37 +33,26 @@ window.innerWidth >= 768px →  isMobile: false (isDesktop)
 
 El hook `hooks/useResponsive.ts` mide el ancho del cliente. Devuelve `isLoading: true` durante el primer render de SSR para evitar flash de layout incorrecto.
 
-### Patrón A — rutas sin datos de servidor (login, register, settings públicas)
+### Patrón A — rutas sin datos de servidor (login, register)
 
 ```
 app/[locale]/login/
 ├── page.tsx              ← 'use client', usa useResponsive, renderiza Mobile o Desktop
-├── login-desktop.tsx     ← componente de la vista desktop
-└── login-mobile.tsx      ← componente de la vista móvil
+├── login-desktop.tsx
+└── login-mobile.tsx
 ```
 
 ### Patrón B — rutas con datos de servidor (home, admin/*, landlord, tenant, propiedades)
 
 ```
 app/admin/dashboard/
-├── page.tsx              ← Server Component, hace fetch a DB, retorna <DashboardView data={...} />
+├── page.tsx              ← Server Component, hace fetch a DB
 ├── dashboard-view.tsx    ← 'use client', usa useResponsive → renderiza Mobile o Desktop
-├── dashboard-desktop.tsx ← componente de la vista desktop
-└── dashboard-mobile.tsx  ← componente de la vista móvil
+├── dashboard-desktop.tsx
+└── dashboard-mobile.tsx
 ```
 
 **Regla:** Los server components (`page.tsx`) nunca importan `useResponsive`. Solo los `*-view.tsx` lo hacen.
-
-### Ejemplo de un view típico
-
-```tsx
-// 'use client'
-export function XyzView({ data }: Props) {
-  const { isMobile, isLoading } = useResponsive()
-  if (isLoading) return <LoadingScreen message="Cargando..." />
-  return isMobile ? <XyzMobile data={data} /> : <XyzDesktop data={data} />
-}
-```
 
 ---
 
@@ -71,48 +60,70 @@ export function XyzView({ data }: Props) {
 
 ### Regla general: siempre Tailwind, salvo estas excepciones
 
-| Caso | Qué usar | Ejemplo |
-|---|---|---|
-| Layout, spacing, colores de marca | `className="..."` Tailwind | `className="flex items-center gap-4 bg-accent text-white"` |
-| Valores **dinámicos en runtime** (React state) | `style={{}}` | `style={{ marginLeft: isSidebarCollapsed ? '80px' : '280px' }}` |
-| Gradientes de marca y decorativos | `style={{}}` | `style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}` |
-| Radial-gradient blobs decorativos | `style={{}}` | `style={{ background: 'radial-gradient(circle, rgba(15,52,87,0.04) 0%, transparent 70%)' }}` |
-| CSS gradient text (`-webkit-background-clip`) | `style={{}}` | Ver hero del publicar |
-| Animaciones con `@keyframes` complejos | `style jsx` | gradientShift en header |
-| CSS variables NO mapeadas en `@theme` | `className="bg-[var(--admin-hover-bg)]"` | Arbitrary value |
-| `clamp()` en font-size | `className="text-[clamp(2rem,4vw,2.75rem)]"` | Arbitrary value |
-| `repeat(auto-fit, ...)` en grid | `className="grid-cols-[repeat(auto-fit,minmax(280px,1fr))]"` | Arbitrary value |
+| Caso | Qué usar |
+|---|---|
+| Layout, spacing, colores | `className="..."` Tailwind |
+| Gradientes de marca y decorativos | `style={{ background: 'linear-gradient(...)' }}` |
+| Color de texto sobre gradiente | `style={{ color: '#ffffff' }}` — NUNCA solo Tailwind para esto |
+| Valores dinámicos en runtime | `style={{}}` |
+| Gradiente text (`-webkit-background-clip`) | `style={{}}` |
 
-### Tokens Tailwind disponibles (definidos en `@theme` en `globals.css`)
+> **IMPORTANTE:** El texto blanco sobre botones con gradiente DEBE setearse via `style={{ color: '#ffffff' }}`,
+> no via Tailwind `text-white`. El motivo: CSS Cascade Level 5 hace que reglas no-layered (globals.css, browser reset)
+> ganen sobre `@layer utilities` de Tailwind. Usar `components/ui/button.tsx` que maneja esto correctamente.
+
+### Offset de contenido en páginas públicas con Header
+
+| Contexto | Valor | Por qué |
+|---|---|---|
+| Desktop público (`/es`, `/propiedades`, etc.) | `pt-[112px]` | 72px header + ~40px announcement bar |
+| Mobile público | `pt-14` (56px) | Solo el header — announcement bar es `hidden md:block` |
+| Admin / Landlord / Tenant | Su propio valor | Layouts propios sin el Header global |
+
+### Tokens Tailwind disponibles
 
 ```
-bg-bg / bg-bg-2 / bg-bg-card / bg-border
-text-text / text-text-muted / text-text-dim
 bg-accent / text-accent / border-accent
-bg-accent-secondary / text-accent-secondary
-text-brown / bg-cream
+bg-accent-secondary / text-accent-secondary  ← color: #EA4227 (naranja-rojo) — usar con cuidado
 bg-green / text-green
 bg-red / text-red
+bg-bg / bg-bg-2 / bg-bg-card / bg-border
+text-text / text-text-muted / text-text-dim
 bg-admin-bg / bg-admin-sidebar-bg / bg-admin-card-bg
 border-admin-border / text-admin-text / text-admin-text-muted
 text-admin-accent / text-admin-success / text-admin-warning / text-admin-error
 shadow-sm / shadow-base / shadow-lg / shadow-card
-rounded-DEFAULT / rounded-sm
 ```
 
-### Hover — nunca `onMouseEnter/Leave`
+### Hover — nunca `onMouseEnter/Leave`, siempre Tailwind `hover:`
+
+---
+
+## 4. Componentes UI reutilizables
+
+| Componente | Ruta | Descripción |
+|---|---|---|
+| `Button` | `components/ui/button.tsx` | Botón con variantes primary/secondary/ghost/danger/success/whatsapp/outline. Maneja color de texto via inline style para garantizar correcta aplicación |
+| `Pagination` / `AdminPagination` | `components/ui/pagination.tsx` | Paginación con prop `compact` para mobile |
+| `LoadingScreen` | `components/ui/loading-screen.tsx` | Pantalla de carga para orquestadores |
+| `NotificationBell` | `components/notification-bell.tsx` | Campanita con badge de notificaciones |
+
+### Uso de Button
 
 ```tsx
-// MAL — no usar
-onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-8px)' }}
+import { Button } from "@/components/ui/button"
 
-// BIEN — Tailwind puro
-className="transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px_40px_rgba(15,52,87,0.15)]"
+<Button variant="primary" size="md">Guardar</Button>
+<Button variant="primary" loading={saving} leftIcon={<Icon size={16} />}>Enviar</Button>
+<Button variant="whatsapp" href="https://wa.me/..." external>WhatsApp</Button>
+<Button variant="secondary">Cancelar</Button>
+<Button variant="danger">Eliminar</Button>
+<Button variant="primary" fullWidth href="/dashboard">Ir al panel</Button>
 ```
 
 ---
 
-## 4. Estructura de rutas — estado actual
+## 5. Estructura de rutas — estado actual
 
 ### Rutas públicas / i18n
 
@@ -123,21 +134,24 @@ className="transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px
 | `/[locale]/register` | ✅ Completo | `register-desktop.tsx` | `register-mobile.tsx` |
 | `/[locale]/publicar` | ✅ Landing page | `publish-client.tsx` | `publish-mobile.tsx` |
 | `/[locale]/publicar/formulario` | ❌ **Pendiente** | — | — |
-| `/propiedades` | ✅ Vista básica | `propiedades-desktop.tsx` | `propiedades-mobile.tsx` |
-| `/propiedades/[id]` | ✅ Vista básica | `property-detail-desktop.tsx` | `property-detail-mobile.tsx` |
+| `/[locale]/propiedades` | ✅ Completo | `propiedades-desktop.tsx` | `propiedades-mobile.tsx` |
+| `/[locale]/propiedades/[id]` | ✅ Completo | `property-detail-desktop.tsx` | `property-detail-mobile.tsx` |
+
+> Las rutas `/propiedades` y `/propiedades/[id]` existen también en `app/propiedades/` (origen).
+> Las versiones con locale en `app/[locale]/propiedades/` son wrappers que importan los mismos views.
 
 ### Panel Admin (`/admin/*`)
 
 | Ruta | Estado | Desktop | Mobile |
 |---|---|---|---|
 | `/admin/dashboard` | ✅ Completo | `dashboard-desktop.tsx` | `dashboard-mobile.tsx` |
-| `/admin/users` | ✅ Vista básica | `users-desktop.tsx` | `users-mobile.tsx` |
-| `/admin/contracts` | ✅ Vista básica | `contracts-desktop.tsx` | `contracts-mobile.tsx` |
-| `/admin/payments` | ✅ Vista básica | `payments-desktop.tsx` | `payments-mobile.tsx` |
-| `/admin/properties` | ✅ Vista básica | `properties-desktop.tsx` | `properties-mobile.tsx` |
-| `/admin/settings` | ✅ Vista básica | `settings-desktop.tsx` | `settings-mobile.tsx` |
-| `/admin/kyc` | ❌ **Pendiente** | — | — |
-| `/admin/audit` | ❌ **Pendiente** | — | — |
+| `/admin/users` | ✅ Completo | `users-desktop.tsx` | `users-mobile.tsx` |
+| `/admin/contracts` | ✅ Completo | `contracts-desktop.tsx` | `contracts-mobile.tsx` |
+| `/admin/payments` | ✅ Completo | `payments-desktop.tsx` | `payments-mobile.tsx` |
+| `/admin/properties` | ✅ Completo | `properties-desktop.tsx` | `properties-mobile.tsx` |
+| `/admin/settings` | ✅ Completo | `settings-desktop.tsx` | `settings-mobile.tsx` |
+| `/admin/kyc` | ✅ Completo | `kyc-desktop.tsx` | `kyc-mobile.tsx` |
+| `/admin/audit` | ✅ Completo | `audit-desktop.tsx` | `audit-mobile.tsx` |
 
 ### Panel Arrendador (`/landlord/*`)
 
@@ -149,8 +163,8 @@ className="transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px
 | `/landlord/payments` | ✅ Completo | `payments-desktop.tsx` | `payments-mobile.tsx` |
 | `/landlord/settings` | ✅ Completo | usa `UserSettingsView` | — |
 | `/landlord/properties` | ✅ Completo | `properties-desktop.tsx` | `properties-mobile.tsx` |
-| `/landlord/properties/new` | ✅ Completo | multi-step form (un archivo) | responsive |
-| `/landlord/properties/[id]/edit` | ❌ **Pendiente** | — | — |
+| `/landlord/properties/new` | ✅ Completo | multi-step form | responsive |
+| `/landlord/properties/[id]/edit` | ✅ Completo | `edit-property-form.tsx` | responsive |
 | `/landlord/contracts/new` | ✅ integrado en contracts | — | — |
 | `/landlord/contracts/[id]` | → usa `/contracts/[id]` | — | — |
 
@@ -164,99 +178,89 @@ className="transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_12px
 | `/tenant/favorites` | ✅ Completo | `favorites-desktop.tsx` | `favorites-mobile.tsx` |
 | `/tenant/profile` | ✅ Completo | `profile-desktop.tsx` | `profile-mobile.tsx` |
 | `/tenant/kyc` | ✅ Completo | `kyc-desktop.tsx` | `kyc-mobile.tsx` |
+| `/tenant/settings` | ✅ Completo | usa `UserSettingsView` | — |
+
+> El panel tenant usa sidebar (desktop) + bottom tabs 5 items (mobile) vía `components/tenant-layout-client.tsx`.
 
 ### Flujo de contrato (rutas transversales)
 
 | Ruta | Estado | Descripción |
 |---|---|---|
 | `/contracts/[id]` | ✅ Completo | Clickwrap: visualiza contrato, registra AuditLog, firma |
-| `/contracts/[id]/audit` | ❌ **Pendiente** | Página dedicada solo al Audit Trail |
+| `/contracts/[id]/audit` | ✅ Completo | Página dedicada al Audit Trail con timeline inmutable |
 | `/contracts/[id]/download` | ✅ API existe | `app/api/contracts/[id]/download/route.ts` |
 
 ---
 
-## 5. API Routes — estado actual
+## 6. API Routes — estado actual
 
 ### Implementadas
 
 | Endpoint | Método | Descripción |
 |---|---|---|
 | `/api/auth/[...nextauth]` | GET/POST | NextAuth handler |
-| `/api/auth/register` | POST | Registro de usuario con Zod validation |
-| `/api/properties` | GET | Lista propiedades con filtros (type, district, price, rooms, status) |
-| `/api/properties` | POST | Crea propiedad (solo LANDLORD) |
-| `/api/properties/[id]` | GET/PATCH/DELETE | CRUD de propiedad individual |
+| `/api/auth/register` | POST | Registro con Zod validation |
+| `/api/properties` | GET/POST | Lista y crea propiedades |
+| `/api/properties/[id]` | GET/PUT/DELETE | CRUD individual (PUT verifica ownership) |
 | `/api/contracts/[id]/download` | GET | Descarga PDF/HTML del contrato |
+| `/api/favorites` | GET | Devuelve propiedades por lista de IDs (localStorage) |
 
-### Pendientes de implementar
+### Pendientes
 
 ```
-POST   /api/contracts              → Crear contrato DRAFT (ya existe createDraftContract Server Action)
-GET    /api/contracts              → Listar contratos del usuario autenticado
-GET    /api/contracts/[id]         → Detalle de contrato (para la vista Clickwrap)
-PATCH  /api/contracts/[id]         → Actualizar estado (si se necesita vía API además de Server Actions)
-
+POST   /api/contracts              → Crear contrato DRAFT (ya existe Server Action)
 GET    /api/users/[id]             → Perfil público de usuario
-PATCH  /api/users/me               → Actualizar perfil del usuario autenticado
-
 POST   /api/kyc                    → Enviar documentos KYC
-GET    /api/kyc/[userId]           → Estado KYC del usuario
-PATCH  /api/kyc/[userId]           → Aprobar/rechazar KYC (solo ADMIN)
-
+PATCH  /api/kyc/[userId]           → Aprobar/rechazar KYC (admin)
 POST   /api/payments               → Registrar pago
-GET    /api/payments               → Listar pagos (filtrado por contrato/usuario)
 PATCH  /api/payments/[id]          → Actualizar estado de pago
-
-GET    /api/notifications          → Notificaciones del usuario autenticado
-PATCH  /api/notifications/[id]/read → Marcar como leída
-DELETE /api/notifications/[id]     → Eliminar notificación
-
-POST   /api/reviews                → Crear reseña
-GET    /api/reviews?propertyId=... → Reseñas de una propiedad
-
-POST   /api/favorites              → Agregar/quitar favorito (toggle)
-GET    /api/favorites              → Favoritos del usuario autenticado
-
-GET    /api/audit/[contractId]     → Audit Trail completo de un contrato (solo partes + admin)
-
-POST   /api/upload/property-images → Subir imágenes de propiedad (requiere storage: Cloudinary/S3/R2)
+POST   /api/reviews                → Crear reseña post-contrato
+GET    /api/audit/[contractId]     → Audit Trail completo
 POST   /api/upload/kyc-docs        → Subir documentos KYC
 ```
 
 ---
 
-## 6. Server Actions — estado actual
+## 7. Server Actions — estado actual
 
 Archivo: `app/actions/contract-actions.ts`
 
-| Acción | Estado | Descripción |
-|---|---|---|
-| `createDraftContract` | ✅ Implementada | Crea contrato DRAFT + genera hash SHA-256 |
-| `recordContractView` | ✅ Implementada | Registra en AuditLog que el usuario vio el contrato (Clickwrap) |
-| `signContractAsTenant` | ✅ Implementada | Firma el contrato como TENANT, cambia estado a PENDING_LANDLORD |
-| `counterSignAsLandlord` | ✅ Implementada | Contrafirma como LANDLORD con OCC, activa contrato, marca propiedad OCUPADA |
+| Acción | Estado |
+|---|---|
+| `createDraftContract` | ✅ |
+| `recordContractView` | ✅ |
+| `signContractAsTenant` | ✅ |
+| `counterSignAsLandlord` | ✅ (con OCC) |
+
+Archivo: `app/actions/user-actions.ts`
+
+| Acción | Estado |
+|---|---|
+| `updateProfileAction` | ✅ |
+| `checkTwoFactorRequiredAction` | ✅ |
+
+Archivo: `app/actions/upload-actions.ts`
+
+| Acción | Estado |
+|---|---|
+| `uploadImageAction` | ✅ (Cloudinary / mock) |
 
 ### Pendientes
 
 ```
-createPayment(contractId, amount, dueDate)        → Generar cuotas del contrato
-markPaymentAsPaid(paymentId, receiptUrl)          → Marcar pago como PAGADO
-breachContract(contractId, reason)               → Rescindir contrato (BREACHED_CANCELLED)
-finishContract(contractId)                        → Finalizar contrato natural (FINISHED)
-requestKYCReview(userId)                          → Enviar KYC a revisión
-approveKYC(userId, notes)                         → Admin aprueba KYC
-rejectKYC(userId, reason)                         → Admin rechaza KYC
-toggleFavorite(propertyId)                        → Agregar/quitar favorito
-createReview(propertyId, targetId, rating, comment) → Crear reseña post-contrato
+createPayment(contractId, amount, dueDate)
+markPaymentAsPaid(paymentId, receiptUrl)
+breachContract(contractId, reason)
+finishContract(contractId)
+requestKYCReview(userId)
+approveKYC(userId, notes)
+rejectKYC(userId, reason)
+createReview(propertyId, targetId, rating, comment)
 ```
 
 ---
 
-## 7. Motor LegalTech — lo que ya está construido
-
-Este es el núcleo del proyecto. Está completamente funcional.
-
-### Flujo de firma de contrato
+## 8. Motor LegalTech — flujo implementado
 
 ```
 DRAFT
@@ -265,8 +269,8 @@ PENDING_TENANT
   ↓ (tenant visualiza → recordContractView)
   ↓ (tenant firma → signContractAsTenant)
 PENDING_LANDLORD
-  ↓ (landlord contrafirma → counterSignAsLandlord)
-  ↓ (OCC: propiedad → OCUPADA, version++)
+  ↓ (landlord contrafirma → counterSignAsLandlord + OCC)
+  ↓ (propiedad → OCUPADA, version++)
 ACTIVE
   ↓ (vencimiento natural)
 FINISHED
@@ -275,308 +279,110 @@ FINISHED
 BREACHED_CANCELLED
 ```
 
-### Leyes implementadas
-- **Ley 27269** — Firmas y Certificados Digitales (firmas digitales válidas)
-- **Ley 30201** — Allanamiento Futuro (cláusula en el contrato generado)
-- **Ley 30933** — Desalojo Notarial Exprés (cláusula de 2 meses impago)
-- **Ley 29733** — Protección de Datos Personales (cláusula LOPD + DNI encriptado)
+**Leyes implementadas en el contrato generado:**
+- Ley 27269 — Firmas Digitales
+- Ley 30201 — Allanamiento Futuro
+- Ley 30933 — Desalojo Notarial Exprés
+- Ley 29733 — Protección de Datos
 
-### Archivo de contrato generado
-`lib/services/contract-engine.ts` produce un HTML completo con:
-- Datos de partes (landlord + tenant con DNI)
-- Cláusulas legales obligatorias
-- Bloque de firmas
-- Hash SHA-256 del documento en el footer
-
-### Audit Trail (modelo `AuditLog`)
-- Registro **inmutable** (solo INSERT, nunca UPDATE/DELETE)
-- Campos: `contractId`, `userId`, `action` (VIEWED / SIGNED_TENANT / COUNTERSIGNED_LANDLORD), `ipAddress`, `userAgent`, `cryptoHash`, `timestamp`
-- El `cryptoHash` es el SHA-256 del HTML exacto que vio el usuario al firmar
+**AuditLog:** Inmutable (solo INSERT). Campos: contractId, userId, action, ipAddress, userAgent, cryptoHash, timestamp.
 
 ---
 
-## 8. Bugs y desincronizaciones conocidas
+## 9. Autenticación y sesión
 
-### Críticos (rompen funcionalidad real)
+- **JWT extendido:** campos `id`, `role`, `hasActiveContract`
+- `hasActiveContract` se calcula al hacer login (query a DB una sola vez, queda en el token)
+- `SessionProvider` configurado en `app/layout.tsx` vía `components/auth-provider.tsx`
+- El `Header` público usa `useSession()` para mostrar UI personalizada según rol:
+  - TENANT con contrato activo → botón **"Gestiona tu habitación"**
+  - TENANT sin contrato → link "Buscar habitación"
+  - LANDLORD → "Mis propiedades"
+  - No logueado → "Publicar propiedad" + menú Login/Register
+- OAuth (Google/Facebook): **desactivado** — botones reemplazados por "Próximamente"
+- Login de TENANT redirige a `/${locale}` (home), no al dashboard
 
-**1. Mismatch en PaymentStatus**
-El schema define: `PAGADO | PENDIENTE | EN_PROCESO | VENCIDO`
-El código de `landlord/dashboard/page.tsx` usa: `'PENDING' | 'OVERDUE'`
-→ Las queries a DB devuelven 0 resultados. Corregir a `'PENDIENTE' | 'VENCIDO'`.
+---
 
-**2. Campo `kycStatus` no existe en User**
-`landlord/dashboard/page.tsx` hace `prisma.user.findMany({ where: { kycStatus: 'PENDING' } })`.
-El modelo `User` no tiene ese campo. KYC está en el modelo `KYCVerification` con relación 1:1.
-→ Cambiar la query para hacer join:
+## 10. Bugs conocidos y resueltos
+
+### Resueltos en esta sesión
+- ✅ `img { width: 100%; object-fit: cover; }` en globals.css rompía todos los iconos/banderas — ahora solo `img { display: block; }`
+- ✅ Botones con gradiente sin `text-white` visible — solucionado con `Button` component + inline styles
+- ✅ `LocationPin01Icon`, `SearchIcon`, `Phone01Icon`, `Edit01Icon`, `BedDoubleIcon` no existen en hugeicons — reemplazados
+- ✅ `/es/propiedades` daba 404 — creadas rutas locale en `app/[locale]/propiedades/`
+- ✅ Offset incorrecto en páginas públicas (`pt-[72px]`) — corregido a `pt-[112px]` para desktop
+- ✅ Filtro de propiedades solo aceptaba distritos exactos de Lima — cambiado a texto libre con búsqueda parcial
+- ✅ Clicks en "Explora por ubicación" no aplicaban el filtro — ahora se pasan via `searchParams` del server
+
+### Bugs aún abiertos
+- ⚠️ `PaymentStatus` inconsistente en algunos archivos legacy (`PENDING`/`OVERDUE` vs `PENDIENTE`/`VENCIDO`)
+- ⚠️ `Property.amenities` y `Property.images` son `Json?` — siempre castear a `string[]` al leer
+
+---
+
+## 11. Integraciones externas pendientes
+
+| Integración | Estado | Notas |
+|---|---|---|
+| Storage de imágenes (Cloudinary/R2) | ⚠️ Mock | `uploadImageAction` usa mock si no hay config |
+| Email transaccional (Resend) | ❌ Pendiente | Templates: bienvenida, contrato enviado/firmado, pago vencido |
+| OAuth Google / Facebook | ❌ Pendiente | Proveedores no configurados en `lib/auth.ts` |
+| Pasarela de pagos (Culqi / Niubiz) | ❌ Pendiente | MVP usa registro manual de pagos |
+
+---
+
+## 12. Consideraciones importantes
+
+### Decimales
+`Property.price`, `Contract.monthlyRent`, `Payment.amount` son `Decimal` en Prisma.
+**Siempre** convertir: `Number(property.price)` antes de pasar a componentes cliente.
+
+### Fechas
+Almacenar en UTC, presentar en `America/Lima` (UTC-5):
 ```ts
-prisma.user.findMany({
-  where: { kycVerification: { status: 'PENDIENTE' } },
-  include: { kycVerification: true }
-})
+new Date(iso).toLocaleDateString("es-PE", { timeZone: "America/Lima" })
 ```
 
-**3. Relación `contracts` incorrecta en User**
-El schema define `contractsAsTenant` y `contractsAsLandlord`, no `contracts`.
-Revisar cualquier query que use `user.contracts.*`.
+### OCC en contratos
+`counterSignAsLandlord` verifica `Property.version` antes de escribir. Si falla, mostrar:
+"La propiedad ya fue arrendada. Actualice la página."
 
-**4. Tenant dashboard con datos mock**
-`tenant/dashboard/dashboard-desktop.tsx` y `dashboard-mobile.tsx` tienen datos hardcodeados.
-`tenant/dashboard/page.tsx` no pasa datos reales. Necesita la misma estructura que admin/landlord.
+### AuditLog — nunca UPDATE ni DELETE
+Es evidencia legal del Clickwrap. Solo INSERT.
 
-### No críticos (UX issues)
-
-**5. `Property.amenities` y `Property.images` son `Json?`**
-Se tratan como `string[]` en toda la UI. Agregar cast explícito en todas las queries:
-```ts
-amenities: property.amenities as string[] ?? []
-images: property.images as string[] ?? []
-```
-
-**6. `publicar/page.tsx` no tiene formulario real**
-La ruta `publish-client.tsx` es una landing page de marketing. No hay formulario para publicar
-una propiedad. El botón "Publicar propiedad" redirige a `/register`, no a un formulario.
-
-**7. Botones OAuth sin backend**
-Los botones de Google y Facebook en login/register llaman `signIn('google')` / `signIn('facebook')`
-pero el proveedor no está configurado en `lib/auth.ts`. Deben ocultarse o implementarse.
+### Iconos confirmados en hugeicons-react
+Los siguientes NO existen: `LocationPin01Icon`, `SearchIcon` (usar `Search01Icon`), `Phone01Icon` (usar `SmartPhone02Icon`), `Edit01Icon`, `BedDoubleIcon` (usar `BedIcon`), `SlidersHorizontalIcon` (usar `FilterIcon`), `Home07Icon`, `Dashboard01Icon`.
 
 ---
 
-## 9. Vistas y funcionalidades pendientes — detalle
+## 13. Checklist de prioridades
 
-### 9.1 Formulario de publicación de propiedad
-**Ruta:** `/[locale]/publicar/formulario` (o `/landlord/properties/new`)
+### Alta — completadas ✅
+- [x] Motor LegalTech: createDraftContract, sign, counterSign + OCC
+- [x] Página Clickwrap `/contracts/[id]`
+- [x] Guards de autenticación por rol en middleware
+- [x] Formulario de publicación `/landlord/properties/new`
+- [x] Formulario de edición `/landlord/properties/[id]/edit` ← **nuevo**
+- [x] Panel inquilino rediseñado (sidebar + bottom tabs)
+- [x] Header público auth-aware con "Gestiona tu habitación"
+- [x] Rutas `/es/propiedades` y `/es/propiedades/[id]` funcionales
+- [x] Filtro de propiedades por texto libre (no solo distritos de Lima)
+- [x] `Button` component reutilizable con colores garantizados
+- [x] KYC admin (`/admin/kyc`) implementado
+- [x] Audit Trail admin (`/admin/audit`) implementado
 
-Multi-step form con:
-1. **Tipo y condición** — HABITACION / DEPARTAMENTO / CASA / OFICINA / LOCAL + SIN_MUEBLES / SEMI_AMOBLADO / AMOBLADO
-2. **Ubicación** — distrito, dirección (mapa opcional)
-3. **Características** — habitaciones, baños, área, estacionamientos, duración mínima, disponibilidad
-4. **Amenities** — lista de checkboxes (WiFi, agua caliente, seguridad, etc.)
-5. **Fotos** — upload de imágenes (mín. 1, máx. 10)
-6. **Precio** — precio mensual, depósito (N meses), perfil de inquilino ideal
-7. **Revisión** — preview y confirmación
+### Media — completadas ✅
+- [x] `/tenant/contract`, `/tenant/payments`, `/tenant/kyc`, `/tenant/favorites`, `/tenant/profile`
+- [x] `/landlord/properties`, `/landlord/tenants`, `/landlord/payments`, `/landlord/contracts`
+- [x] Notificaciones (modelo DB → bell → dropdown)
+- [x] Storage de imágenes (mock funcional, Cloudinary configurable)
+- [x] 2FA con TOTP
 
-Conecta con `POST /api/properties`.
-
-### 9.2 Vista y firma de contrato (Clickwrap)
-**Ruta:** `/contracts/[id]`
-
-Esta es la pantalla más crítica del Motor LegalTech:
-1. El server component hace `GET /api/contracts/[id]` — verifica que el usuario es parte del contrato
-2. Llama `recordContractView(contractId)` al cargar para registrar el AuditLog de VIEWED
-3. Muestra el HTML del contrato generado por `generatePeruvianLeaseAgreement`
-4. Botón "He leído y acepto" — llama `signContractAsTenant(contractId)` o `counterSignAsLandlord(contractId)` según el rol
-5. Muestra estado del contrato (quién firmó, quién falta)
-6. Si ACTIVE: muestra botón de descarga del contrato
-
-### 9.3 Panel del arrendador — rutas faltantes
-
-**`/landlord/properties`** — Lista de propiedades del arrendador con acciones:
-- Ver detalle, editar, archivar
-- Status (DISPONIBLE / OCUPADA / MANTENIMIENTO)
-- CTA para publicar nueva
-
-**`/landlord/contracts`** — Contratos del arrendador:
-- Lista con filtro por estado (DRAFT / PENDING_TENANT / PENDING_LANDLORD / ACTIVE / FINISHED)
-- Crear nuevo contrato: seleccionar propiedad + buscar inquilino por email
-- Ver estado de firma de cada parte
-- Botón "Contrafirmar" cuando esté en PENDING_LANDLORD
-
-**`/landlord/payments`** — Gestión de pagos:
-- Calendario de vencimientos del mes
-- Semáforo de pagos por inquilino (usa `PaymentTrafficLight` que ya existe)
-- Marcar pago como recibido
-- Historial mensual
-
-**`/landlord/tenants`** — Gestión de inquilinos:
-- Lista de inquilinos activos
-- Estado KYC de cada inquilino (usa `KYCReviewCard` que ya existe)
-- Historial de contratos por inquilino
-
-### 9.4 Panel del inquilino — rutas faltantes
-
-**`/tenant/contract`** — Mi contrato activo:
-- Detalles del contrato vigente
-- Próximos vencimientos de pago
-- Botón "Firmar" si está en PENDING_TENANT
-- Link para ver AuditTrail
-- Descarga del contrato
-
-**`/tenant/payments`** — Historial de pagos:
-- Lista de todos los pagos (PAGADO / PENDIENTE / VENCIDO)
-- Subir comprobante de pago
-
-**`/tenant/favorites`** — Propiedades guardadas:
-- Grid de propiedades favoritas
-- Quitar de favoritos
-- Link a detalle
-
-**`/tenant/kyc`** — Verificación de identidad:
-- Estado actual del KYC
-- Formulario para subir: DNI (frente y dorso), selfie, certificado de antecedentes
-- Estados: PENDIENTE → EN_REVISION → APROBADO / RECHAZADO
-
-### 9.5 Admin — rutas avanzadas
-
-**`/admin/kyc`** — Revisión de KYC pendientes:
-- Lista de usuarios en estado EN_REVISION
-- Ver documentos subidos
-- Botones Aprobar / Rechazar con nota
-- Usa `KYCReviewCard` que ya existe en `components/landlord/`
-
-**`/admin/audit`** — Audit Trail global:
-- Lista de todos los AuditLog filtrable por action, contrato, usuario, fecha
-- Exportar a CSV
-
-### 9.6 Notificaciones
-El modelo `Notification` existe. Falta todo:
-- Bell icon con badge en el header (ya hay un placeholder en `admin-navbar`)
-- Dropdown de notificaciones
-- Página `/notifications` para el historial
-- Lógica de creación de notificaciones (se deben crear en los Server Actions: al firmar, al aprobar KYC, al vencer un pago, etc.)
-
----
-
-## 10. Integraciones externas pendientes
-
-### Storage de imágenes
-Las propiedades y el KYC necesitan subir archivos. Opciones:
-- **Cloudflare R2** (recomendado para costo) + `@aws-sdk/client-s3`
-- **Cloudinary** (más fácil, tiene transforms de imagen)
-- **Vercel Blob** (si se despliega en Vercel)
-
-Las imágenes se guardan como URLs en `Property.images (Json)` y `KYCVerification.dniDocument`.
-
-### Email
-Para notificaciones transaccionales (confirmación de registro, contrato firmado, pago vencido):
-- **Resend** + `react-email` (recomendado)
-- Templates necesarios: bienvenida, contrato enviado, contrato firmado, pago próximo a vencer, KYC aprobado/rechazado
-
-### Pagos
-El contract engine ya define los proveedores: `Niubiz | Culqi | Izipay | BCP | Interbank | BBVA`.
-Para MVP: registro manual de pagos (el inquilino sube el comprobante).
-Para producción: integración con Culqi o Niubiz (pasarelas peruanas).
-
-### WhatsApp
-El `property-detail-desktop.tsx` tiene un botón "Contactar por WhatsApp".
-Implementar como `href="https://wa.me/51${phone}?text=..."` en el landlord.
-
----
-
-## 11. Internacionalización (i18n)
-
-**Locales soportados:** `es | en | pt | fr | de | it | ja | ko | zh`
-**Default:** `es`
-
-El middleware redirige automáticamente `/` → `/es/`.
-Las rutas `/admin`, `/landlord`, `/tenant` NO pasan por el middleware de locale (están excluidas).
-
-### Archivos de traducción
-**Ubicación esperada:** `lib/i18n.ts` + archivos de mensajes (revisar implementación actual).
-
-Las claves usadas en las vistas siguen el patrón `namespace.key`:
-- `register.title`, `register.welcome`, `register.role`, `register.tenant`, `register.landlord`, etc.
-- `publish.hero.badge`, `publish.hero.title`, `publish.features.kyc.title`, etc.
-- `home.*` para la página principal
-
-Verificar que todos los namespaces tengan traducciones completas en los 9 idiomas.
-
----
-
-## 12. Autenticación y autorización
-
-### Roles definidos
-
-| Rol | Acceso |
-|---|---|
-| `ADMIN` | Todo el panel `/admin/*`, puede ver y gestionar todo |
-| `LANDLORD` | Panel `/landlord/*`, solo sus propiedades y contratos |
-| `TENANT` | Panel `/tenant/*`, solo sus contratos y favoritos |
-
-### Guards pendientes de implementar
-El middleware actual solo maneja i18n. Falta agregar protección de rutas por rol:
-```
-/admin/*     → solo ADMIN
-/landlord/*  → solo LANDLORD
-/tenant/*    → solo TENANT
-```
-
-Actualmente solo el `tenant/dashboard/page.tsx` tiene `if (!session || session.user.role !== "TENANT") redirect("/login")`.
-Replicar para todas las rutas protegidas, idealmente en el middleware.
-
-### JWT extendido
-`types/next-auth.d.ts` extiende la sesión con `id` y `role`.
-Asegurarse de que todas las páginas que necesitan el rol lo lean de `session.user.role` y no de la DB.
-
----
-
-## 13. Consideraciones importantes para el desarrollo futuro
-
-### OCC (Optimistic Concurrency Control)
-`counterSignAsLandlord` implementa OCC con el campo `Property.version`.
-Si dos arrendadores intentan activar un contrato sobre la misma propiedad simultáneamente,
-el segundo recibe `ContractConcurrencyError`. La UI debe manejar este error mostrando
-un mensaje claro: "La propiedad ya fue arrendada. Actualice la página."
-
-### AuditLog es inmutable
-Nunca hacer UPDATE o DELETE sobre `AuditLog`. Solo INSERT.
-Es la prueba legal del Clickwrap Agreement.
-
-### Decimales en precios
-`Property.price`, `Contract.monthlyRent`, `Contract.deposit`, `Payment.amount` son `Decimal` en Prisma.
-Al pasar a componentes cliente, siempre convertir: `Number(property.price)`.
-Nunca pasar un `Decimal` directamente a un componente `'use client'` (no es serializable).
-
-### Fechas y timezone
-El servidor opera en UTC. La presentación al usuario debe ser UTC-5 (Lima).
-Usar `Intl.DateTimeFormat("es-PE", { timeZone: "America/Lima" })` para formatear fechas en la UI.
-El `contract-engine.ts` ya hace esto con `formatDateLima`.
-
-### Paginación
-Ninguna lista tiene paginación actualmente. Al conectar datos reales, agregar:
-- `take` / `skip` en las queries de Prisma
-- Cursor-based pagination para listas muy largas (AuditLog, payments)
-
-### Imágenes de propiedad
-`Property.images` es `Json?`. En las vistas se usa como `string[]`.
-Al guardar: `JSON.stringify(urls)`.
-Al leer: `Array.isArray(property.images) ? property.images as string[] : []`.
-
-### `publicar` vs `landlord/properties/new`
-La ruta `/[locale]/publicar` es la **landing page de marketing** para arrendadores.
-El **formulario real** de publicación debería estar en `/landlord/properties/new` (dentro del panel
-del arrendador, ya autenticado) para no mezclar flujo de marketing con flujo autenticado.
-
----
-
-## 14. Checklist de prioridades
-
-### Alta (bloquean el MVP)
-- [x] Conectar `tenant/dashboard` a datos reales (no hardcodeados) (hecho)
-- [x] Corregir bug de `kycStatus` en `landlord/dashboard/page.tsx` (arreglado)
-- [x] Corregir bug de PaymentStatus (`PENDING` → `PENDIENTE`, `OVERDUE` → `VENCIDO`) (arreglado)
-- [x] Implementar página de firma de contrato `/contracts/[id]` (Clickwrap) (hecho)
-- [x] Implementar `/landlord/contracts` con flujo de creación + firma (hecho)
-- [x] Guards de autenticación por rol en middleware (hecho)
-- [x] Formulario de publicación de propiedad (`/landlord/properties/new`) (hecho)
-
-### Media (completan el producto)
-- [x] `/tenant/contract` — ver y firmar contrato activo (hecho)
-- [x] `/tenant/payments` — historial + subir comprobante (hecho)
-- [x] `/tenant/kyc` — subir documentos (hecho)
-- [x] `/landlord/properties` — CRUD de propiedades (hecho)
-- [x] `/landlord/payments` — gestión de pagos con semáforo (hecho)
-- [x] `/admin/kyc` — revisión de verificaciones (hecho)
-- [x] Notificaciones (modelo DB → bell en header → dropdown) (hecho)
-- [x] Storage de imágenes (Cloudflare R2 o Cloudinary) (hecho)
-
-### Baja (mejoras)
-- [ ] Email transaccional (Resend)
-- [x] Integración WhatsApp en property detail (hecho)
-- [ ] OAuth Google/Facebook
-- [x] 2FA (campo `twoFactorEnabled` ya existe en User) (hecho)
-- [ ] Paginación en todos los listings
-- [x] `/admin/audit` — Audit Trail global (hecho)
-- [x] Búsqueda avanzada con filtros en `/propiedades` (hecho)
-- [x] Reviews reales (post-contrato) (hecho)
-- [ ] Pasarela de pagos (Culqi o Niubiz)
+### Pendientes reales
+- [x] `/contracts/[id]/audit` — página dedicada al Audit Trail (hecho)
+- [x] `/[locale]/publicar/formulario` — página con lógica de auth: LANDLORD → form, TENANT → aviso, no auth → register (hecho)
+- [x] Email transaccional (Resend) — welcome, contrato enviado/firmado/activo, KYC aprobado/rechazado (hecho — requiere `RESEND_API_KEY` en .env)
+- [x] OAuth Google / Facebook — proveedores configurados en `lib/auth.ts`, activos si `GOOGLE_CLIENT_ID` / `FACEBOOK_CLIENT_ID` están en .env (hecho)
+- [ ] Pasarela de pagos (Culqi o Niubiz) — requiere cuenta y credenciales de Culqi
+- [x] Paginación en listings de admin y landlord (ya estaba implementada)

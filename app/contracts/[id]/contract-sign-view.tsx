@@ -351,7 +351,15 @@ export function ContractSignView({ contract, currentUserId, currentUserRole }: C
             {/* Audit trail */}
             {contract.auditLogs.length > 0 && (
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                <h3 className="font-bold text-[#151c26] text-xs mb-3 uppercase tracking-wide">Audit Trail</h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold text-[#151c26] text-xs uppercase tracking-wide">Audit Trail</h3>
+                  <Link
+                    href={`/contracts/${contract.id}/audit`}
+                    className="text-[11px] font-semibold text-accent no-underline hover:underline"
+                  >
+                    Ver completo →
+                  </Link>
+                </div>
                 <div className="flex flex-col gap-2.5">
                   {contract.auditLogs.map((log) => (
                     <div key={log.id} className="flex items-start gap-2">
