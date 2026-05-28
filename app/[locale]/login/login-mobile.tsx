@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 
@@ -10,6 +10,8 @@ import { checkTwoFactorRequiredAction } from "@/app/actions/user-actions"
 
 export function LoginMobile() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const justRegistered = searchParams.get('registered') === 'true'
   const t = useTranslations('login')
   const locale = useLocale()
   const [formData, setFormData] = useState({ email: "", password: "" })
@@ -92,10 +94,10 @@ export function LoginMobile() {
               router.back()
             }
           }}
-          className="size-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-text-muted text-sm cursor-pointer shrink-0"
+          className="size-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-text-muted text-base font-bold cursor-pointer shrink-0"
           aria-label="Volver"
         >
-          ✕
+          ←
         </button>
         <h1 className="text-[0.9375rem] font-semibold text-text m-0">
           {require2FA ? "Autenticación 2FA" : t('title')}
@@ -118,6 +120,12 @@ export function LoginMobile() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 flex-1">
+          {justRegistered && (
+            <div className="flex items-start gap-2.5 p-3 px-3.5 bg-green-50 border border-green-200 rounded-lg text-green-700 text-[0.8125rem] leading-snug">
+              <span className="shrink-0">✓</span>
+              <span className="font-semibold">Cuenta creada exitosamente. Inicia sesión para continuar.</span>
+            </div>
+          )}
           {error && (
             <div className="flex items-start gap-2.5 p-3 px-3.5 bg-red-50 border border-red-200 rounded-lg text-red-600 text-[0.8125rem] leading-snug">
               <span className="shrink-0">⚠️</span>

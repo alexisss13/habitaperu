@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, KeyboardEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { useRouter, useParams, usePathname } from 'next/navigation'
 import { useTranslations } from '@/lib/i18n-context'
 import {
   Search01Icon, FavouriteIcon, StarIcon, Home01Icon,
@@ -100,10 +100,30 @@ function HScroll({ children }: { children: React.ReactNode }) {
 /* ─── Main component ──────────────────────────────────────────── */
 export function HomeClientMobile({ properties, stats }: Props) {
   const t = useTranslations('home')
+  const router = useRouter()
+  const params = useParams()
+  const locale = (params?.locale as string) || 'es'
   const pathname = usePathname()
   const [activeFilter, setActiveFilter] = useState('all')
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = () => {
+    const q = searchQuery.trim()
+    router.push(q
+      ? `/${locale}/propiedades?q=${encodeURIComponent(q)}`
+      : `/${locale}/propiedades`)
+  }
+
+  const handleFilterNav = (value: string) => {
+    const routes: Record<string, string> = {
+      habitacion:   `/${locale}/propiedades?type=HABITACION`,
+      departamento: `/${locale}/propiedades?type=DEPARTAMENTO`,
+      casa:         `/${locale}/propiedades?type=CASA`,
+      amoblado:     `/${locale}/propiedades?condition=AMOBLADO`,
+    }
+    router.push(routes[value] ?? `/${locale}/propiedades`)
+  }
 
   useEffect(() => {
     try {
@@ -188,17 +208,18 @@ export function HomeClientMobile({ properties, stats }: Props) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') handleSearch() }}
               placeholder={t('hero.searchPlaceholder')}
               className="flex-1 border-none outline-none text-sm text-[#151c26] bg-transparent placeholder:text-gray-400 min-w-0"
             />
           </div>
-          <Link
-            href={`/propiedades${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}
-            className="flex-shrink-0 px-4 py-2.5 rounded-xl !text-white text-sm font-bold no-underline flex items-center"
-            style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}
+          <button
+            onClick={handleSearch}
+            className="flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold border-none cursor-pointer flex items-center"
+            style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)', color: '#ffffff' }}
           >
             Buscar
-          </Link>
+          </button>
         </div>
 
         {/* Quick filters row */}
@@ -210,11 +231,8 @@ export function HomeClientMobile({ properties, stats }: Props) {
           ].map((f) => (
             <button
               key={f.value}
-              onClick={() => setActiveFilter(f.value === activeFilter ? 'all' : f.value)}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer transition-all
-                ${activeFilter === f.value
-                  ? 'bg-accent text-white border-accent'
-                  : 'bg-white text-gray-600 border-gray-200'}`}
+              onClick={() => handleFilterNav(f.value)}
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer transition-all bg-white text-gray-600 border-gray-200 hover:bg-accent hover:text-white hover:border-accent"
             >
               <f.Icon size={13} />
               {f.label}
@@ -253,7 +271,7 @@ export function HomeClientMobile({ properties, stats }: Props) {
           {TABS.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveFilter(tab.key)}
+              onClick={() => tab.key === 'all' ? setActiveFilter('all') : handleFilterNav(tab.key)}
               className={`flex-shrink-0 px-4 py-1.5 rounded-lg text-xs font-semibold border cursor-pointer transition-all
                 ${activeFilter === tab.key
                   ? 'bg-accent text-white border-accent'

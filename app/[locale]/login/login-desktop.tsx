@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 
@@ -10,13 +10,15 @@ import { checkTwoFactorRequiredAction } from "@/app/actions/user-actions"
 
 export function LoginDesktop() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const justRegistered = searchParams.get('registered') === 'true'
   const t = useTranslations('login')
   const locale = useLocale()
   const [formData, setFormData] = useState({ email: "", password: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
-  
+
   // 2FA States
   const [require2FA, setRequire2FA] = useState(false)
   const [totpCode, setTotpCode] = useState("")
@@ -105,10 +107,10 @@ export function LoginDesktop() {
                   router.back()
                 }
               }}
-              className="size-9 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-text-muted cursor-pointer transition-all hover:bg-gray-100 hover:border-accent hover:text-accent"
+              className="size-9 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-text-muted cursor-pointer transition-all hover:bg-gray-100 hover:border-accent hover:text-accent text-base font-bold"
               aria-label="Volver"
             >
-              ✕
+              ←
             </button>
             <h1 className="text-base font-semibold text-text m-0">
               {require2FA ? "Autenticación de doble factor" : t('title')}
@@ -129,6 +131,11 @@ export function LoginDesktop() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {justRegistered && (
+              <div className="flex items-center gap-2.5 p-3 px-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm font-semibold">
+                ✓ Cuenta creada exitosamente. Inicia sesión para continuar.
+              </div>
+            )}
             {error && (
               <div className="flex items-center gap-2.5 p-3 px-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm font-semibold">
                 ⚠️ {error}

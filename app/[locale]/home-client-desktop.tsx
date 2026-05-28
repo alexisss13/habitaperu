@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, KeyboardEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter, useParams } from 'next/navigation'
 import { useTranslations } from '@/lib/i18n-context'
 import {
   Search01Icon, FavouriteIcon, StarIcon, ArrowRightDoubleIcon,
@@ -72,9 +73,36 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
 
 export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientProps) {
   const t = useTranslations('home')
+  const router = useRouter()
+  const params = useParams()
+  const locale = (params?.locale as string) || 'es'
   const [activeFilter, setActiveFilter] = useState('all')
   const [visibleProperties, setVisibleProperties] = useState(properties)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const handleSearch = () => {
+    const q = searchQuery.trim()
+    if (q) {
+      router.push(`/${locale}/propiedades?q=${encodeURIComponent(q)}`)
+    } else {
+      router.push(`/${locale}/propiedades`)
+    }
+  }
+
+  const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSearch()
+  }
+
+  const handleQuickFilter = (value: string) => {
+    const routes: Record<string, string> = {
+      HABITACION:   `/${locale}/propiedades?type=HABITACION`,
+      DEPARTAMENTO: `/${locale}/propiedades?type=DEPARTAMENTO`,
+      wifi:         `/${locale}/propiedades`,
+      AMOBLADO:     `/${locale}/propiedades?condition=AMOBLADO`,
+    }
+    router.push(routes[value] ?? `/${locale}/propiedades`)
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -90,13 +118,13 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
     if (filter === 'all') {
       setVisibleProperties(properties)
     } else {
-      setVisibleProperties(properties.filter((p) => {
-        if (filter === 'habitacion') return p.type === 'HABITACION'
-        if (filter === 'departamento') return p.type === 'DEPARTAMENTO'
-        if (filter === 'casa') return p.type === 'CASA'
-        if (filter === 'amoblado') return p.condition === 'AMOBLADO'
-        return true
-      }))
+      const typeRoutes: Record<string, string> = {
+        habitacion:   `/${locale}/propiedades?type=HABITACION`,
+        departamento: `/${locale}/propiedades?type=DEPARTAMENTO`,
+        casa:         `/${locale}/propiedades?type=CASA`,
+        amoblado:     `/${locale}/propiedades?condition=AMOBLADO`,
+      }
+      router.push(typeRoutes[filter] ?? `/${locale}/propiedades`)
     }
   }
 
@@ -145,10 +173,14 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
                     <input
                       type="text"
                       placeholder={t('hero.searchPlaceholder')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleSearchKeyDown}
                       className="flex-1 border-none outline-none text-[0.95rem] text-[#151c26] bg-transparent font-normal"
                     />
                   </div>
                   <button
+                    onClick={handleSearch}
                     className="py-3.5 px-7 text-white border-none rounded-xl text-[0.95rem] font-semibold cursor-pointer transition-all whitespace-nowrap shrink-0 hover:scale-[1.02] hover:shadow-[0_4px_16px_rgba(15,52,87,0.3)]"
                     style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}
                   >
@@ -161,13 +193,14 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
               <div className="flex items-center gap-2.5 flex-wrap">
                 <span className="text-[0.8rem] text-gray-400 font-medium">{t('hero.filters')}:</span>
                 {[
-                  { value: 'habitacion', labelKey: 'filters.room', Icon: BedIcon },
-                  { value: 'departamento', labelKey: 'filters.apartment', Icon: Building03Icon },
+                  { value: 'HABITACION', labelKey: 'filters.room', Icon: BedIcon },
+                  { value: 'DEPARTAMENTO', labelKey: 'filters.apartment', Icon: Building03Icon },
                   { value: 'wifi', labelKey: 'filters.wifi', Icon: Wifi01Icon },
-                  { value: 'amoblado', labelKey: 'filters.furnished', Icon: Sofa01Icon }
+                  { value: 'AMOBLADO', labelKey: 'filters.furnished', Icon: Sofa01Icon }
                 ].map((filter, i) => (
                   <button
                     key={i}
+                    onClick={() => handleQuickFilter(filter.value)}
                     className="flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-[0.8rem] font-medium text-gray-500 cursor-pointer transition-all hover:bg-accent hover:text-white hover:border-accent"
                   >
                     <filter.Icon size={14} />

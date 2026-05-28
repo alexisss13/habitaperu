@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export default async function PropiedadesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ district?: string; type?: string; sort?: string }>
+  searchParams: Promise<{ district?: string; type?: string; sort?: string; condition?: string; q?: string }>
 }) {
   const params = await searchParams
 
@@ -27,6 +27,7 @@ export default async function PropiedadesPage({
       id: p.id,
       title: p.title,
       type: p.type,
+      condition: p.condition,
       district: p.district,
       price: Number(p.price),
       rooms: p.rooms,
@@ -42,9 +43,11 @@ export default async function PropiedadesPage({
   return (
     <PropiedadesView
       properties={mapped}
+      initialSearchQuery={params.q ?? ''}
       initialDistrict={params.district ?? ''}
       initialType={params.type ?? ''}
       initialSort={params.sort ?? 'recent'}
+      initialCondition={params.condition ?? ''}
     />
   )
 }

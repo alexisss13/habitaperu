@@ -3,7 +3,12 @@ import { PropiedadesView } from './propiedades-view'
 
 export const dynamic = 'force-dynamic'
 
-export default async function PropiedadesPage() {
+export default async function PropiedadesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; district?: string; type?: string; sort?: string; condition?: string }>
+}) {
+  const params = await searchParams
   const properties = await prisma.property.findMany({
     where: { status: 'DISPONIBLE' },
     include: {
@@ -21,6 +26,7 @@ export default async function PropiedadesPage() {
       id: p.id,
       title: p.title,
       type: p.type,
+      condition: p.condition,
       district: p.district,
       price: Number(p.price),
       rooms: p.rooms,
@@ -33,5 +39,14 @@ export default async function PropiedadesPage() {
     }
   })
 
-  return <PropiedadesView properties={mapped} />
+  return (
+    <PropiedadesView
+      properties={mapped}
+      initialSearchQuery={params.q ?? ''}
+      initialDistrict={params.district ?? ''}
+      initialType={params.type ?? ''}
+      initialSort={params.sort ?? 'recent'}
+      initialCondition={params.condition ?? ''}
+    />
+  )
 }

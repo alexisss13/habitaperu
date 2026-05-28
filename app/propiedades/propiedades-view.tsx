@@ -11,6 +11,7 @@ export interface PropertyListing {
   id: string
   title: string
   type: string
+  condition: string
   district: string
   price: number
   rooms: number
@@ -37,6 +38,8 @@ interface ViewProps {
   initialDistrict?: string
   initialType?: string
   initialSort?: string
+  initialCondition?: string
+  initialSearchQuery?: string
 }
 
 export function PropiedadesView({
@@ -44,11 +47,12 @@ export function PropiedadesView({
   initialDistrict = '',
   initialType = '',
   initialSort = 'recent',
+  initialCondition = '',
+  initialSearchQuery = '',
 }: ViewProps) {
   const { isMobile, isLoading } = useResponsive()
 
-  // Initialise states from URL params (so /propiedades?district=Lima works)
-  const [searchQuery, setSearchQuery]       = useState("")
+  const [searchQuery, setSearchQuery]       = useState(initialSearchQuery)
   const [selectedTypes, setSelectedTypes]   = useState<string[]>(
     initialType ? [TYPE_PARAM_MAP[initialType] ?? initialType] : []
   )
@@ -57,6 +61,7 @@ export function PropiedadesView({
   const [districtSearch, setDistrictSearch] = useState(initialDistrict)
   const [minRooms, setMinRooms]             = useState<number>(0)
   const [sortBy, setSortBy]                 = useState(initialSort)
+  const [conditionFilter, setConditionFilter] = useState(initialCondition)
 
   const handleClearFilters = () => {
     setSearchQuery("")
@@ -66,6 +71,7 @@ export function PropiedadesView({
     setDistrictSearch("")
     setMinRooms(0)
     setSortBy("recent")
+    setConditionFilter("")
   }
 
   // ── Filter logic ──────────────────────────────────────────────────────────
@@ -90,6 +96,9 @@ export function PropiedadesView({
       const mapped = selectedTypes.map(t => typeMap[t] ?? t)
       if (!mapped.includes(p.type)) return false
     }
+
+    // Condition filter (e.g. AMOBLADO)
+    if (conditionFilter && p.condition !== conditionFilter) return false
 
     // Price filter
     if (minPrice !== "" && p.price < minPrice) return false
@@ -118,7 +127,7 @@ export function PropiedadesView({
   const pageSize = isMobile ? 8 : 12
   const pagination = usePagination(sorted, pageSize, [
     searchQuery, selectedTypes.join(','), minPrice, maxPrice,
-    districtSearch, minRooms, sortBy,
+    districtSearch, minRooms, sortBy, conditionFilter,
   ])
 
   if (isLoading) return <LoadingScreen message="Cargando propiedades..." />
