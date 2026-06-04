@@ -18,6 +18,9 @@ export interface TenantContractItem {
   terms: string | null
   landlordSignedAt: string | null
   tenantSignedAt: string | null
+  reviewEligible: boolean
+  reviewDaysRemaining: number
+  alreadyReviewed: boolean
   property: {
     id: string
     title: string

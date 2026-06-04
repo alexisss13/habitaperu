@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useLocale } from "@/lib/i18n-context"
 
 export function Footer() {
@@ -11,11 +12,14 @@ export function Footer() {
       <div className="container">
         <div className="footer-inner">
           <div className="footer-brand">
-            <Link href={`/${locale}`} className="logo">
-              <i className="fa-solid fa-house-chimney logo-icon"></i>
-              <span className="logo-text">
-                Habita <span className="logo-accent">Perú</span>
-              </span>
+            <Link href={`/${locale}`} className="no-underline">
+              <Image
+                src="/habita-logo-horizontal.svg"
+                alt="Habita Perú"
+                width={180}
+                height={48}
+                className="h-11 w-auto"
+              />
             </Link>
             <p>La plataforma de arrendamiento más confiable del Perú. Gestiona tus propiedades con seguridad y transparencia.</p>
           </div>

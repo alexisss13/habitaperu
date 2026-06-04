@@ -31,6 +31,11 @@ import {
 } from "@/lib/exceptions/contract-errors"
 import { createDocumentHash, generatePeruvianLeaseAgreement } from "@/lib/services/contract-engine"
 import { createNotificationHelper } from "@/lib/notifications"
+import {
+  waSendContratoEnviado,
+  waSendInquilinoFirmo,
+  waSendContratoActivo,
+} from "@/lib/whatsapp"
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tipos de retorno de Server Actions
@@ -205,11 +210,11 @@ export async function signContractAsTenant(
     // ── 4. Revalidar cache del dashboard del tenant ───────────────────────────
     revalidatePath("/tenant/dashboard")
 
-    // ── 5. Notificar al arrendador por email (non-blocking) ──────────────────
+    // ── 5. Notificar al arrendador por email + WhatsApp (non-blocking) ──────────────────
     prisma.contract.findUnique({
       where: { id: contractId },
       select: {
-        landlord: { select: { email: true, firstName: true, lastName: true } },
+        landlord: { select: { email: true, firstName: true, lastName: true, phone: true } },
         property: { select: { title: true } },
       },
     }).then(c => {
@@ -220,6 +225,14 @@ export async function signContractAsTenant(
           c.property.title,
           contractId,
         ).catch(() => {})
+        if (c.landlord.phone) {
+          waSendInquilinoFirmo(
+            c.landlord.phone,
+            `${c.landlord.firstName} ${c.landlord.lastName}`,
+            c.property.title,
+            `${process.env.NEXT_PUBLIC_URL ?? "https://habitaperu.pe"}/contracts/${contractId}`,
+          ).catch(() => {})
+        }
       }
     }).catch(() => {})
 
@@ -431,12 +444,12 @@ export async function counterSignAsLandlord(
     revalidatePath("/landlord/dashboard")
     revalidatePath("/propiedades")
 
-    // ── 5. Emails de contrato activo a ambas partes (non-blocking) ───────────
+    // ── 5. Emails + WhatsApp de contrato activo a ambas partes (non-blocking) ──
     prisma.contract.findUnique({
       where: { id: updatedContract.id },
       select: {
-        landlord: { select: { email: true, firstName: true, lastName: true } },
-        tenant:   { select: { email: true, firstName: true, lastName: true } },
+        landlord: { select: { email: true, firstName: true, lastName: true, phone: true } },
+        tenant:   { select: { email: true, firstName: true, lastName: true, phone: true } },
         property: { select: { title: true } },
       },
     }).then(c => {
@@ -449,6 +462,12 @@ export async function counterSignAsLandlord(
           c.property.title,
           updatedContract.id,
         ).catch(() => {})
+        if (c.landlord.phone) {
+          waSendContratoActivo(c.landlord.phone, `${c.landlord.firstName}`, c.property.title).catch(() => {})
+        }
+        if (c.tenant.phone) {
+          waSendContratoActivo(c.tenant.phone, `${c.tenant.firstName}`, c.property.title).catch(() => {})
+        }
       }
     }).catch(() => {})
 
@@ -746,7 +765,7 @@ export async function createDraftContract(input: {
     // Notificar al inquilino por email (non-blocking)
     prisma.user.findUnique({
       where: { id: input.tenantId },
-      select: { email: true, firstName: true, lastName: true },
+      select: { email: true, firstName: true, lastName: true, phone: true },
     }).then(tenant => {
       if (tenant) {
         prisma.property.findUnique({
@@ -760,6 +779,14 @@ export async function createDraftContract(input: {
               property.title,
               contract.id,
             ).catch(() => {})
+            if (tenant.phone) {
+              waSendContratoEnviado(
+                tenant.phone,
+                `${tenant.firstName} ${tenant.lastName}`,
+                property.title,
+                `${process.env.NEXT_PUBLIC_URL ?? "https://habitaperu.pe"}/contracts/${contract.id}`,
+              ).catch(() => {})
+            }
           }
         }).catch(() => {})
       }

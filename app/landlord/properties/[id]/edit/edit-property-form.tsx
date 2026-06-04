@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   ArrowLeft01Icon, ArrowRight01Icon, CheckmarkCircle01Icon,
-  AlertCircleIcon, Cancel01Icon
+  AlertCircleIcon, Cancel01Icon, Target01Icon,
 } from "hugeicons-react"
 import { uploadImageAction } from "@/app/actions/upload-actions"
 
-const DISTRICTS = [
-  "Miraflores","San Isidro","Santiago de Surco","San Borja","La Molina",
-  "Lince","Jesús María","Magdalena del Mar","Barranco","San Miguel",
-  "Pueblo Libre","Surquillo",
+const PERU_CITIES = [
+  "Lima","Trujillo","Chiclayo","Arequipa","Piura","Cusco",
+  "Ica","Tacna","Huancayo","Iquitos","Cajamarca","Puno",
 ]
 
 const AMENITIES_LIST = [
@@ -33,6 +32,7 @@ interface PropertyData {
   rooms: string; bathrooms: string; parking: string
   price: string; deposit: string; minDuration: string
   amenities: string[]; images: string[]; conditions: string
+  lat: number | null; lng: number | null
 }
 
 export function EditPropertyForm({ property }: { property: PropertyData }) {
@@ -62,9 +62,35 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
   const [uploading1, setUploading1] = useState(false)
   const [uploading2, setUploading2] = useState(false)
   const [uploading3, setUploading3] = useState(false)
+  const [city, setCity]             = useState(() => PERU_CITIES.find(c => property.district.includes(c)) ?? "")
+  const [lat, setLat]               = useState(property.lat?.toString() ?? "")
+  const [lng, setLng]               = useState(property.lng?.toString() ?? "")
+  const [locLoading, setLocLoading] = useState(false)
+  const [locError, setLocError]     = useState<string | null>(null)
   const [title, setTitle]           = useState(property.title)
   const [description, setDescription] = useState(property.description)
   const [conditions, setConditions] = useState(property.conditions)
+
+  const handleGetLocation = () => {
+    setLocError(null)
+    if (!navigator.geolocation) {
+      setLocError("Tu dispositivo no soporta geolocalización.")
+      return
+    }
+    setLocLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude.toFixed(6))
+        setLng(pos.coords.longitude.toFixed(6))
+        setLocLoading(false)
+      },
+      () => {
+        setLocError("No se pudo detectar tu ubicación. Asegúrate de dar permiso al navegador.")
+        setLocLoading(false)
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
 
   const toggleAmenity = (id: string) =>
     setSelectedAmenities(prev =>
@@ -132,6 +158,8 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
           amenities:   selectedAmenities,
           images:      images.length > 0 ? images : undefined,
           conditions:  conditions || undefined,
+          lat:         lat ? Number(lat) : undefined,
+          lng:         lng ? Number(lng) : undefined,
         }),
       })
 
@@ -258,28 +286,72 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
           {/* STEP 2: Ubicación */}
           {step === 2 && (
             <div className="space-y-5">
-              <div>
-                <label className={labelCls}>Distrito</label>
-                <select value={district} onChange={e => setDistrict(e.target.value)}
-                  className={inputCls + " cursor-pointer"}>
-                  <option value="">-- Selecciona --</option>
-                  {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-                <p className="text-[10px] text-text-muted mt-1">
-                  ¿Tu distrito no aparece? Escríbelo directamente:
-                </p>
-                <input
-                  type="text"
-                  value={district}
-                  onChange={e => setDistrict(e.target.value)}
-                  placeholder="Ej: Arequipa, Trujillo, Cusco…"
-                  className={inputCls + " mt-2"}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={labelCls}>Ciudad</label>
+                  <select
+                    className={inputCls + " cursor-pointer"}
+                    value={city}
+                    onChange={e => {
+                      setCity(e.target.value)
+                      setDistrict(e.target.value)
+                    }}
+                  >
+                    <option value="">-- Selecciona --</option>
+                    {PERU_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Distrito / Barrio</label>
+                  <input
+                    type="text"
+                    value={district}
+                    onChange={e => setDistrict(e.target.value)}
+                    placeholder="Ej: El Porvenir, Miraflores…"
+                    className={inputCls}
+                  />
+                </div>
               </div>
               <div>
                 <label className={labelCls}>Dirección exacta</label>
                 <input type="text" value={address} onChange={e => setAddress(e.target.value)}
-                  placeholder="Av. Larco 456, Dpto 502" className={inputCls} />
+                  placeholder="Av. España 123, Dpto 202" className={inputCls} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-text mb-2 uppercase tracking-wider">
+                  Ubicación exacta <span className="text-text-muted font-normal normal-case">(opcional)</span>
+                </p>
+                {lat && lng ? (
+                  <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                    <div>
+                      <p className="text-xs font-bold text-emerald-700 flex items-center gap-1.5"><CheckmarkCircle01Icon size={13} className="text-emerald-500" /> Ubicación registrada</p>
+                      <p className="text-[10px] text-emerald-600 mt-0.5">{lat}, {lng}</p>
+                    </div>
+                    <button type="button" onClick={() => { setLat(""); setLng("") }}
+                      className="text-[10px] font-bold text-emerald-600 border border-emerald-300 rounded-lg px-2.5 py-1 cursor-pointer bg-white">
+                      Cambiar
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={handleGetLocation}
+                      disabled={locLoading}
+                      className="w-full h-12 border-2 border-dashed border-accent/40 rounded-xl text-sm font-bold text-accent flex items-center justify-center gap-2.5 cursor-pointer bg-accent/5 hover:bg-accent/10 transition-colors disabled:opacity-60"
+                    >
+                      {locLoading ? (
+                        <><div className="size-4 border-2 border-accent border-t-transparent rounded-full animate-spin" /> Detectando ubicación…</>
+                      ) : (
+                        <><Target01Icon size={16} /> Detectar mi ubicación actual</>
+                      )}
+                    </button>
+                    {locError && <p className="text-[11px] text-red-500 font-medium">{locError}</p>}
+                    <p className="text-[10px] text-text-muted">
+                      Al pulsar el botón, el navegador pedirá permiso para usar tu ubicación. Activa el filtro &quot;Cerca de universidad&quot;.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}

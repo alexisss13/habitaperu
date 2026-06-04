@@ -13,13 +13,17 @@ import {
 } from "hugeicons-react"
 import { submitKYCVerification } from "@/app/actions/kyc-actions"
 import { uploadImageAction } from "@/app/actions/upload-actions"
+import { processKycFee } from "@/app/actions/culqi-actions"
+import { PaymentModal } from "@/components/ui/payment-modal"
 import type { KYCVerificationData } from "./kyc-view"
 
 interface Props {
   verification: KYCVerificationData | null
+  kycFeePaid: boolean
+  isMockPayment: boolean
 }
 
-export function TenantKYCDesktop({ verification }: Props) {
+export function TenantKYCDesktop({ verification, kycFeePaid, isMockPayment }: Props) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -33,6 +37,10 @@ export function TenantKYCDesktop({ verification }: Props) {
   // State for re-submission if rejected
   const [isReSubmitting, setIsReSubmitting] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [feePaid, setFeePaid] = useState(kycFeePaid)
+  const [showKycFeeModal, setShowKycFeeModal] = useState(
+    verification?.status === "APROBADO" && !kycFeePaid
+  )
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -422,32 +430,61 @@ export function TenantKYCDesktop({ verification }: Props) {
         {/* 3. STATE: APROBADO */}
         {activeStatus === "APROBADO" && (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
-            <div className="size-20 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/20">
+            <div className={`size-20 rounded-full flex items-center justify-center mx-auto shadow-xl ${feePaid ? "bg-emerald-500 text-white shadow-emerald-500/20" : "bg-amber-500 text-white shadow-amber-500/20"}`}>
               <CheckmarkCircle01Icon size={44} />
             </div>
             <div>
-              <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold px-2.5 py-0.5 inline-block mb-3">
-                Cuenta Verificada ✓
+              <span className={`text-[10px] rounded font-bold px-2.5 py-0.5 inline-block mb-3 border ${feePaid ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
+                {feePaid ? "Perfil Verificado Activo ✓" : "Identidad Verificada — Pago Pendiente"}
               </span>
-              <h3 className="text-lg font-bold text-text mb-2">¡Felicidades, estás Verificado!</h3>
+              <h3 className="text-lg font-bold text-text mb-2">
+                {feePaid ? "¡Tu perfil está completamente activo!" : "¡Tu identidad fue verificada!"}
+              </h3>
               <p className="text-xs font-medium text-text-muted leading-relaxed max-w-sm mx-auto">
-                Tu identidad digital ha sido respaldada mediante nuestro motor LegalTech. Ya posees los permisos necesarios para firmar contratos de arrendamiento vinculantes con validez jurídica en la plataforma.
+                {feePaid
+                  ? "Ya puedes contactar arrendadores y firmar contratos con validez jurídica en la plataforma."
+                  : "El último paso es activar tu perfil verificado (S/ 9.90 único) para poder contactar arrendadores."}
               </p>
               {verification?.verifiedAt && (
-                <p className="text-[10px] text-text-muted mt-3">Fecha de Verificación: {formatLocalDate(verification.verifiedAt)}</p>
+                <p className="text-[10px] text-text-muted mt-3">Verificado el {formatLocalDate(verification.verifiedAt)}</p>
               )}
             </div>
 
-            <div className="pt-6 border-t border-slate-100">
-              <Link 
+            <div className="pt-6 border-t border-slate-100 flex flex-col items-center gap-3">
+              {!feePaid && (
+                <button
+                  onClick={() => setShowKycFeeModal(true)}
+                  className="inline-flex h-12 items-center justify-center px-8 rounded-xl text-sm font-bold text-white transition-all cursor-pointer border-0"
+                  style={{ background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" }}
+                >
+                  Activar perfil verificado — S/ 9.90
+                </button>
+              )}
+              <Link
                 href="/tenant/dashboard"
-                className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold text-white transition-all no-underline bg-[#151c26] hover:bg-slate-800"
+                className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold transition-all no-underline text-slate-500 hover:text-text"
               >
-                Volver al Panel Principal
+                {feePaid ? "Ir al Panel Principal →" : "Hacerlo después"}
               </Link>
             </div>
           </div>
         )}
+
+        {/* Modal de KYC fee */}
+        <PaymentModal
+          isOpen={showKycFeeModal}
+          onClose={() => setShowKycFeeModal(false)}
+          onSuccess={() => {
+            setFeePaid(true)
+            setShowKycFeeModal(false)
+          }}
+          amount={9.90}
+          title="Activar perfil verificado"
+          description="Acceso para contactar arrendadores verificados"
+          ctaLabel="Pagar S/ 9.90"
+          isMockMode={isMockPayment}
+          onProcessPayment={(token) => processKycFee(token)}
+        />
 
         {/* 4. STATE: RECHAZADO */}
         {activeStatus === "RECHAZADO" && (

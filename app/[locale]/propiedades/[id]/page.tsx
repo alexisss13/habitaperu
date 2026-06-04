@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 import { PropertyDetailView } from '@/app/propiedades/[id]/property-detail-view'
 import { auth } from "@/lib/auth"
+import { incrementPropertyView } from "@/app/actions/property-actions"
 
 export const dynamic = 'force-dynamic'
 
@@ -95,6 +96,9 @@ export default async function PropertyDetailPage({ params }: Props) {
   ])
 
   if (!property) notFound()
+
+  // Incrementar vistas (no bloquea el render — fire and forget)
+  incrementPropertyView(id).catch(() => {})
 
   // KYC gate: solo mostrar el teléfono del arrendador si el tenant tiene KYC aprobado
   let ownerPhoneVisible = false

@@ -18,14 +18,22 @@ export default async function ContractsPage() {
   const mapped = contracts.map(c => ({
     ...c,
     monthlyRent: Number(c.monthlyRent),
-    property: { ...c.property, price: Number(c.property.price) }
+    deposit: Number(c.deposit),
+    createdAt: c.createdAt.toISOString(),
+    updatedAt: c.updatedAt.toISOString(),
+    startDate: c.startDate.toISOString(),
+    endDate: c.endDate.toISOString(),
+    landlordSignedAt: c.landlordSignedAt?.toISOString() ?? null,
+    tenantSignedAt: c.tenantSignedAt?.toISOString() ?? null,
+    successFeePaidAt: c.successFeePaidAt?.toISOString() ?? null,
+    property: { ...c.property, price: Number(c.property.price) },
   }))
 
   const stats = {
     total: mapped.length,
     activo: mapped.filter(c => c.status === 'ACTIVE').length,
     vencido: mapped.filter(c => c.status === 'FINISHED' || c.status === 'BREACHED_CANCELLED').length,
-    totalValue: mapped.filter(c => c.status === 'ACTIVE').reduce((sum, c) => sum + c.monthlyRent, 0)
+    totalValue: mapped.filter(c => c.status === 'ACTIVE').reduce((sum, c) => sum + c.monthlyRent, 0),
   }
 
   return <ContractsView data={{ contracts: mapped, stats }} />

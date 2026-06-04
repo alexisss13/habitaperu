@@ -2,41 +2,26 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { 
-  Home01Icon, 
-  Add01Icon, 
-  BedIcon, 
-  Bathtub02Icon, 
-  SquareIcon, 
-  Location01Icon 
+import {
+  Home01Icon, Add01Icon, BedIcon, Bathtub02Icon,
+  SquareIcon, Location01Icon, FlashIcon, StarIcon, CheckmarkCircle01Icon
 } from "hugeicons-react"
-
-interface PropertyInfo {
-  id: string
-  title: string
-  description: string
-  type: "HABITACION" | "DEPARTAMENTO" | "CASA" | "OFICINA" | "LOCAL"
-  condition: "SIN_MUEBLES" | "SEMI_AMOBLADO" | "AMOBLADO"
-  status: "DISPONIBLE" | "OCUPADA" | "MANTENIMIENTO"
-  district: string
-  address?: string | null
-  area?: number | null
-  rooms: number
-  bathrooms: number
-  parking: number
-  price: number
-  deposit: number
-  minDuration: number
-  images?: any
-  createdAt: string
-}
+import { PaymentModal } from "@/components/ui/payment-modal"
+import { processFeaturedListing } from "@/app/actions/culqi-actions"
+import type { PropertyInfo } from "./properties-view"
 
 interface Props {
   properties: PropertyInfo[]
+  isMockPayment: boolean
 }
 
-export function PropertiesMobile({ properties }: Props) {
+export function PropertiesMobile({ properties, isMockPayment }: Props) {
   const [filter, setFilter] = useState<string>("TODAS")
+  const [featuredModal, setFeaturedModal] = useState<{
+    propertyId: string
+    propertyTitle: string
+    days: 7 | 15 | 30
+  } | null>(null)
 
   const filteredProperties = properties.filter(p => {
     if (filter === "TODAS") return true
@@ -159,20 +144,36 @@ export function PropertiesMobile({ properties }: Props) {
                       <span className="text-sm font-extrabold text-[#151c26]">S/ {Number(p.price).toLocaleString()}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/landlord/properties/${p.id}/edit`}
-                        className="text-xs font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg no-underline"
-                      >
-                        Editar
-                      </Link>
-                      <Link
-                        href={`/propiedades/${p.id}`}
-                        className="text-xs font-bold text-gray-400 no-underline"
-                      >
-                        Ver →
-                      </Link>
+                      <Link href={`/landlord/properties/${p.id}/edit`} className="text-xs font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg no-underline">Editar</Link>
+                      <Link href={`/propiedades/${p.id}`} className="text-xs font-bold text-gray-400 no-underline">Ver →</Link>
                     </div>
                   </div>
+
+                  {/* Botón destacar */}
+                  {p.status === "DISPONIBLE" && (
+                    p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
+                      <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-[10px] font-semibold text-amber-700">
+                        <CheckmarkCircle01Icon size={12} className="text-amber-500" />
+                        Destacada hasta {new Date(p.featuredUntil).toLocaleDateString("es-PE")}
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        {([
+                          { days: 7 as const, label: "7d", price: "S/15" },
+                          { days: 15 as const, label: "15d", price: "S/25" },
+                          { days: 30 as const, label: "30d", price: "S/45" },
+                        ]).map(opt => (
+                          <button key={opt.days}
+                            onClick={() => setFeaturedModal({ propertyId: p.id, propertyTitle: p.title, days: opt.days })}
+                            className="flex-1 py-2 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer border-none flex flex-col items-center gap-0.5">
+                            <FlashIcon size={11} />
+                            <span>{opt.label}</span>
+                            <span className="text-amber-500">{opt.price}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )
@@ -185,6 +186,22 @@ export function PropertiesMobile({ properties }: Props) {
           </div>
         )}
       </div>
+
+      {featuredModal && (
+        <PaymentModal
+          isOpen
+          onClose={() => setFeaturedModal(null)}
+          onSuccess={() => setFeaturedModal(null)}
+          amount={featuredModal.days === 7 ? 15 : featuredModal.days === 15 ? 25 : 45}
+          title={`Destacar ${featuredModal.days} días`}
+          description={featuredModal.propertyTitle}
+          ctaLabel={`Pagar S/ ${featuredModal.days === 7 ? "15" : featuredModal.days === 15 ? "25" : "45"}.00`}
+          isMockMode={isMockPayment}
+          onProcessPayment={(token) =>
+            processFeaturedListing(featuredModal.propertyId, featuredModal.days, token)
+          }
+        />
+      )}
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation"
 import { generatePeruvianLeaseAgreement } from "@/lib/services/contract-engine"
 import { recordContractView } from "@/app/actions/contract-actions"
 import { ContractClient } from "./contract-client"
+import { CULQI_IS_MOCK } from "@/lib/culqi"
 
 export const dynamic = 'force-dynamic'
 
@@ -145,6 +146,7 @@ export default async function ContractPage({ params }: Props) {
       isLandlord={isLandlord}
       isTenant={isTenant}
       locale={locale}
+      isMockPayment={CULQI_IS_MOCK}
     />
   )
 }

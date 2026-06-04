@@ -16,7 +16,11 @@ export default async function PropiedadesPage({
       owner: { select: { firstName: true, lastName: true, verified: true } },
       reviews: { select: { rating: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [
+      // Featured activas primero — nulls LAST (por defecto DESC pone nulls first en PostgreSQL)
+      { featuredUntil: { sort: 'desc', nulls: 'last' } },
+      { createdAt: 'desc' },
+    ],
   })
 
   const mapped = properties.map(p => {
@@ -37,6 +41,9 @@ export default async function PropiedadesPage({
       avgRating: Math.round(avgRating * 10) / 10,
       reviewCount: p.reviews.length,
       status: p.status,
+      featuredUntil: p.featuredUntil?.toISOString() ?? null,
+      lat: p.lat ?? null,
+      lng: p.lng ?? null,
     }
   })
 

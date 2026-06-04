@@ -20,6 +20,7 @@ interface PropertyCardProps {
   avgRating?: number
   reviewCount?: number
   status: string
+  featuredUntil?: string | null
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -49,7 +50,10 @@ export function PropertyCard({
   avgRating = 0,
   reviewCount = 0,
   status,
+  featuredUntil,
 }: PropertyCardProps) {
+  const isCurrentlyFeatured =
+    !!featuredUntil && new Date(featuredUntil) > new Date()
   const [isFavorite, setIsFavorite] = useState(false)
   const [imgErr, setImgErr] = useState(false)
 
@@ -93,8 +97,13 @@ export function PropertyCard({
             </div>
           )}
 
-          {/* Top-left: type + status badges */}
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+          {/* Top-left: type + status + featured badges */}
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+            {isCurrentlyFeatured && (
+              <span className="text-[11px] font-bold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                ★ Destacado
+              </span>
+            )}
             <span className="text-[11px] font-semibold bg-white/92 text-[#151c26] px-2 py-0.5 rounded-full shadow-sm">
               {TYPE_LABEL[type] ?? type}
             </span>

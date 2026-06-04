@@ -2,16 +2,17 @@
 
 import { useState } from "react"
 import { StarIcon, Cancel01Icon, CheckmarkCircle01Icon } from "hugeicons-react"
-import { createReviewAction } from "@/app/actions/review-actions"
+import { createPropertyReview } from "@/app/actions/review-actions"
 
 interface WriteReviewModalProps {
   propertyId: string
+  contractId: string
   propertyTitle: string
   onClose: () => void
   onSuccess?: () => void
 }
 
-export function WriteReviewModal({ propertyId, propertyTitle, onClose, onSuccess }: WriteReviewModalProps) {
+export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClose, onSuccess }: WriteReviewModalProps) {
   const [rating, setRating] = useState(5)
   const [hoverRating, setHoverRating] = useState<number | null>(null)
   const [comment, setComment] = useState("")
@@ -30,10 +31,11 @@ export function WriteReviewModal({ propertyId, propertyTitle, onClose, onSuccess
     setError("")
 
     try {
-      const res = await createReviewAction({
+      const res = await createPropertyReview({
         propertyId,
+        contractId,
         rating,
-        comment
+        comment,
       })
 
       if (res.success) {
@@ -42,6 +44,8 @@ export function WriteReviewModal({ propertyId, propertyTitle, onClose, onSuccess
           if (onSuccess) onSuccess()
           onClose()
         }, 2000)
+      } else {
+        setError(res.error || "Ocurrió un error al enviar la calificación.")
       }
     } catch (err: any) {
       console.error(err)

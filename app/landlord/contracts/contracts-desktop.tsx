@@ -17,6 +17,8 @@ import {
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
 import { createDraftContract } from "@/app/actions/contract-actions"
+import { createTenantReview } from "@/app/actions/review-actions"
+import { StarIcon } from "hugeicons-react"
 
 interface LandlordInfo {
   id: string
@@ -76,6 +78,14 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
   const [step, setStep] = useState(1)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [tenantReviewModal, setTenantReviewModal] = useState<{
+    contractId: string
+    tenantName: string
+  } | null>(null)
+  const [tenantReviewRating, setTenantReviewRating] = useState(5)
+  const [tenantReviewComment, setTenantReviewComment] = useState("")
+  const [tenantReviewLoading, setTenantReviewLoading] = useState(false)
+  const [tenantReviewDone, setTenantReviewDone] = useState<string[]>([])
 
   // Form states
   const [selectedPropertyId, setSelectedPropertyId] = useState("")
@@ -269,16 +279,30 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                       {getStatusBadge(c.status)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link
-                        href={`/contracts/${c.id}`}
-                        className={`inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-lg border transition-all no-underline ${
-                          c.status === "PENDING_LANDLORD"
-                            ? "bg-accent border-accent text-white hover:brightness-110"
-                            : "bg-white border-slate-200 text-text-muted hover:border-slate-300 hover:text-text"
-                        }`}
-                      >
-                        {c.status === "PENDING_LANDLORD" ? "Contrafirmar" : "Ver Contrato"}
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        {c.status === "ACTIVE" && !tenantReviewDone.includes(c.id) && (
+                          <button
+                            onClick={() => setTenantReviewModal({
+                              contractId: c.id,
+                              tenantName: `${c.tenant.firstName} ${c.tenant.lastName}`,
+                            })}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors cursor-pointer"
+                          >
+                            <StarIcon size={11} />
+                            Calificar
+                          </button>
+                        )}
+                        <Link
+                          href={`/contracts/${c.id}`}
+                          className={`inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-lg border transition-all no-underline ${
+                            c.status === "PENDING_LANDLORD"
+                              ? "bg-accent border-accent text-white hover:brightness-110"
+                              : "bg-white border-slate-200 text-text-muted hover:border-slate-300 hover:text-text"
+                          }`}
+                        >
+                          {c.status === "PENDING_LANDLORD" ? "Contrafirmar" : "Ver Contrato"}
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -305,6 +329,68 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
           totalItems={pagination.totalItems}
           itemLabel="contratos"
         />
+      )}
+
+      {/* Modal: calificar inquilino */}
+      {tenantReviewModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+              <h3 className="text-base font-bold text-text">Calificar a {tenantReviewModal.tenantName}</h3>
+              <button onClick={() => setTenantReviewModal(null)} className="text-slate-400 hover:text-text bg-transparent border-0 cursor-pointer p-1">
+                <Cancel01Icon size={20} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Calificación</p>
+                <div className="flex gap-2">
+                  {[1,2,3,4,5].map(s => (
+                    <button key={s} type="button" onClick={() => setTenantReviewRating(s)}
+                      className="p-1 bg-transparent border-none cursor-pointer text-2xl">
+                      <span className={s <= tenantReviewRating ? "text-amber-400" : "text-slate-200"}>★</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Comentario</p>
+                <textarea rows={3} value={tenantReviewComment} onChange={e => setTenantReviewComment(e.target.value)}
+                  placeholder="Puntualidad de pagos, cuidado del inmueble, comunicación..."
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm resize-none focus:border-accent outline-none" />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button onClick={() => setTenantReviewModal(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-500 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 cursor-pointer">
+                  Cancelar
+                </button>
+                <button
+                  disabled={tenantReviewLoading || !tenantReviewComment.trim()}
+                  onClick={async () => {
+                    if (!tenantReviewComment.trim()) return
+                    setTenantReviewLoading(true)
+                    const res = await createTenantReview({
+                      contractId: tenantReviewModal.contractId,
+                      rating: tenantReviewRating,
+                      comment: tenantReviewComment,
+                    })
+                    setTenantReviewLoading(false)
+                    if (res.success) {
+                      setTenantReviewDone(prev => [...prev, tenantReviewModal.contractId])
+                      setTenantReviewModal(null)
+                      setTenantReviewComment("")
+                      setTenantReviewRating(5)
+                    }
+                  }}
+                  className="px-4 py-2 text-xs font-bold text-white rounded-lg cursor-pointer border-none disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" }}
+                >
+                  {tenantReviewLoading ? "Enviando..." : "Publicar calificación"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Creation Modal */}

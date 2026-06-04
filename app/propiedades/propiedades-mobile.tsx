@@ -28,6 +28,10 @@ interface MobileProps {
   setSortBy: (s: string) => void
   onClearFilters: () => void
   pagination: PaginationData
+  nearUniversityId: string
+  setNearUniversityId: (id: string) => void
+  nearRadiusKm: number
+  setNearRadiusKm: (km: number) => void
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -66,9 +70,16 @@ function NativePropCard({ p }: { p: PropertyListing }) {
               <Building03Icon size={40} className="text-gray-300" />
             </div>
           )}
-          <span className="absolute top-2.5 left-2.5 text-[11px] font-semibold bg-white/90 text-[#151c26] px-2.5 py-0.5 rounded-full shadow-sm">
-            {TYPE_LABEL[p.type] ?? p.type}
-          </span>
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1">
+            {p.featuredUntil && new Date(p.featuredUntil) > new Date() && (
+              <span className="text-[11px] font-bold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full shadow-sm">
+                ★ Destacado
+              </span>
+            )}
+            <span className="text-[11px] font-semibold bg-white/90 text-[#151c26] px-2.5 py-0.5 rounded-full shadow-sm">
+              {TYPE_LABEL[p.type] ?? p.type}
+            </span>
+          </div>
           {p.avgRating > 0 && (
             <div className="absolute top-2.5 right-2.5 flex items-center gap-1 bg-black/50 text-white text-[11px] font-semibold px-2 py-0.5 rounded-full">
               <StarIcon size={10} />
@@ -84,7 +95,7 @@ function NativePropCard({ p }: { p: PropertyListing }) {
           </h3>
           <div className="flex items-center gap-1 text-gray-400 text-xs mb-3">
             <Location01Icon size={11} />
-            <span>{p.district}, Lima</span>
+            <span>{p.district}</span>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-base font-extrabold text-accent">
@@ -122,6 +133,8 @@ export function PropiedadesMobile({
   setSortBy,
   onClearFilters,
   pagination,
+  nearUniversityId,
+  setNearUniversityId,
 }: MobileProps) {
   const handlePillClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     if (filter.type === "clear") {

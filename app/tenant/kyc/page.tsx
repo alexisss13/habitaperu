@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
 import { TenantKYCView } from "./kyc-view"
+import { CULQI_IS_MOCK } from "@/lib/culqi"
 
 export const dynamic = "force-dynamic"
 
@@ -13,18 +14,24 @@ export default async function TenantKYCPage() {
 
   const userId = session.user.id
 
-  const verification = await prisma.kYCVerification.findUnique({
-    where: { userId },
-    select: {
-      status: true,
-      dniDocument: true,
-      dniVerified: true,
-      biometricVerified: true,
-      backgroundCheck: true,
-      reviewNotes: true,
-      verifiedAt: true,
-    },
-  })
+  const [verification, user] = await Promise.all([
+    prisma.kYCVerification.findUnique({
+      where: { userId },
+      select: {
+        status: true,
+        dniDocument: true,
+        dniVerified: true,
+        biometricVerified: true,
+        backgroundCheck: true,
+        reviewNotes: true,
+        verifiedAt: true,
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { kycFeePaid: true },
+    }),
+  ])
 
   const mappedVerification = verification ? {
     status: verification.status,
@@ -36,5 +43,11 @@ export default async function TenantKYCPage() {
     verifiedAt: verification.verifiedAt ? verification.verifiedAt.toISOString() : null,
   } : null
 
-  return <TenantKYCView verification={mappedVerification} />
+  return (
+    <TenantKYCView
+      verification={mappedVerification}
+      kycFeePaid={user?.kycFeePaid ?? false}
+      isMockPayment={CULQI_IS_MOCK}
+    />
+  )
 }

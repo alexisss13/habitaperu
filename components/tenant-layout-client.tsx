@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
   Home01Icon, FileValidationIcon, Wallet01Icon,
@@ -54,9 +55,17 @@ export function TenantLayoutClient({ children, session }: TenantLayoutClientProp
         <div className="flex flex-col flex-grow bg-white border-r border-slate-200 overflow-y-auto">
 
           {/* Brand */}
-          <div className="flex items-center gap-3 px-6 h-16 border-b border-slate-100 shrink-0">
-            <Home01Icon size={26} className="text-accent" />
-            <span className="text-xl font-bold text-[#151c26] tracking-tight">Habita Perú</span>
+          <div className="flex items-center px-6 h-16 border-b border-slate-100 shrink-0">
+            <Link href="/tenant/dashboard" className="no-underline">
+              <Image
+                src="/habita-logo-horizontal.svg"
+                alt="Habita Perú"
+                width={180}
+                height={48}
+                className="h-11 w-auto"
+                priority
+              />
+            </Link>
           </div>
 
           {/* Label */}
@@ -125,7 +134,15 @@ export function TenantLayoutClient({ children, session }: TenantLayoutClientProp
         {/* Sticky top header */}
         <header className="sticky top-0 bg-white border-b border-slate-200 h-14 flex items-center justify-between px-4 md:px-6 z-30 shrink-0">
           {/* Mobile: brand */}
-          <span className="text-base font-bold text-[#151c26] md:hidden">Habita Perú</span>
+          <Link href="/tenant/dashboard" className="no-underline md:hidden">
+            <Image
+              src="/habita-logo-horizontal.svg"
+              alt="Habita Perú"
+              width={160}
+              height={40}
+              className="h-9 w-auto"
+            />
+          </Link>
           {/* Desktop: page context (empty, sidebar has nav) */}
           <div className="hidden md:block" />
 

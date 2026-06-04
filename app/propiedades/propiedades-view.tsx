@@ -6,6 +6,7 @@ import { usePagination } from '@/hooks/use-pagination'
 import { LoadingScreen } from '@/components/ui/loading-screen'
 import { PropiedadesDesktop } from './propiedades-desktop'
 import { PropiedadesMobile } from './propiedades-mobile'
+import { UNIVERSITIES, haversineKm } from '@/lib/universities'
 
 export interface PropertyListing {
   id: string
@@ -21,6 +22,9 @@ export interface PropertyListing {
   avgRating: number
   reviewCount: number
   status: string
+  featuredUntil?: string | null
+  lat?: number | null
+  lng?: number | null
 }
 
 // Maps URL type param → display label used in the type filter
@@ -62,6 +66,8 @@ export function PropiedadesView({
   const [minRooms, setMinRooms]             = useState<number>(0)
   const [sortBy, setSortBy]                 = useState(initialSort)
   const [conditionFilter, setConditionFilter] = useState(initialCondition)
+  const [nearUniversityId, setNearUniversityId] = useState<string>("")
+  const [nearRadiusKm, setNearRadiusKm]     = useState<number>(2)
 
   const handleClearFilters = () => {
     setSearchQuery("")
@@ -72,6 +78,8 @@ export function PropiedadesView({
     setMinRooms(0)
     setSortBy("recent")
     setConditionFilter("")
+    setNearUniversityId("")
+    setNearRadiusKm(2)
   }
 
   // ── Filter logic ──────────────────────────────────────────────────────────
@@ -113,11 +121,32 @@ export function PropiedadesView({
     // Rooms filter
     if (minRooms > 0 && p.rooms < minRooms) return false
 
+    // Filtro "cerca de universidad"
+    if (nearUniversityId) {
+      const uni = UNIVERSITIES.find(u => u.id === nearUniversityId)
+      if (uni && p.lat != null && p.lng != null) {
+        const km = haversineKm(p.lat, p.lng, uni.lat, uni.lng)
+        if (km > nearRadiusKm) return false
+      } else if (uni && (p.lat == null || p.lng == null)) {
+        // Propiedad sin coordenadas → excluir del filtro universitario
+        return false
+      }
+    }
+
     return true
   })
 
   // ── Sort ──────────────────────────────────────────────────────────────────
+  const now = new Date()
+  const isFeatured = (p: PropertyListing) =>
+    !!p.featuredUntil && new Date(p.featuredUntil) > now
+
   const sorted = [...filtered].sort((a, b) => {
+    // Featured siempre primero, sin importar el criterio de orden
+    const fa = isFeatured(a) ? 1 : 0
+    const fb = isFeatured(b) ? 1 : 0
+    if (fa !== fb) return fb - fa
+
     if (sortBy === 'price_asc')   return a.price - b.price
     if (sortBy === 'price_desc')  return b.price - a.price
     if (sortBy === 'rating_desc') return b.avgRating - a.avgRating
@@ -147,6 +176,10 @@ export function PropiedadesView({
       setSortBy={setSortBy}
       onClearFilters={handleClearFilters}
       pagination={pagination}
+      nearUniversityId={nearUniversityId}
+      setNearUniversityId={setNearUniversityId}
+      nearRadiusKm={nearRadiusKm}
+      setNearRadiusKm={setNearRadiusKm}
     />
   ) : (
     <PropiedadesDesktop
@@ -169,6 +202,10 @@ export function PropiedadesView({
       setSortBy={setSortBy}
       onClearFilters={handleClearFilters}
       pagination={pagination}
+      nearUniversityId={nearUniversityId}
+      setNearUniversityId={setNearUniversityId}
+      nearRadiusKm={nearRadiusKm}
+      setNearRadiusKm={setNearRadiusKm}
     />
   )
 }

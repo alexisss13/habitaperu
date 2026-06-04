@@ -42,6 +42,8 @@ export default async function EditPropertyPage({
     amenities:    (Array.isArray(property.amenities) ? property.amenities : []) as string[],
     images:       (Array.isArray(property.images) ? property.images : []) as string[],
     conditions:   property.conditions ?? "",
+    lat:          property.lat ?? null,
+    lng:          property.lng ?? null,
   }
 
   return <EditPropertyForm property={data} />

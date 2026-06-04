@@ -17,9 +17,11 @@ export interface KYCVerificationData {
 
 interface Props {
   verification: KYCVerificationData | null
+  kycFeePaid: boolean
+  isMockPayment: boolean
 }
 
-export function TenantKYCView({ verification }: Props) {
+export function TenantKYCView({ verification, kycFeePaid, isMockPayment }: Props) {
   const { isMobile, isLoading } = useResponsive()
 
   if (isLoading) {
@@ -27,8 +29,8 @@ export function TenantKYCView({ verification }: Props) {
   }
 
   return isMobile ? (
-    <TenantKYCMobile verification={verification} />
+    <TenantKYCMobile verification={verification} kycFeePaid={kycFeePaid} isMockPayment={isMockPayment} />
   ) : (
-    <TenantKYCDesktop verification={verification} />
+    <TenantKYCDesktop verification={verification} kycFeePaid={kycFeePaid} isMockPayment={isMockPayment} />
   )
 }

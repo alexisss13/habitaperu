@@ -3,7 +3,8 @@
 import { PropertyCard } from "@/components/property-card"
 import { Pagination } from "@/components/ui/pagination"
 import type { PropertyListing } from './propiedades-view'
-import { Search01Icon, FilterIcon } from "hugeicons-react"
+import { Search01Icon, FilterIcon, School01Icon } from "hugeicons-react"
+import { UNIVERSITIES } from "@/lib/universities"
 
 interface PaginationData {
   currentPage: number
@@ -34,6 +35,10 @@ interface DesktopProps {
   setSortBy: (s: string) => void
   onClearFilters: () => void
   pagination: PaginationData
+  nearUniversityId: string
+  setNearUniversityId: (id: string) => void
+  nearRadiusKm: number
+  setNearRadiusKm: (km: number) => void
 }
 
 const TYPES = ['Departamento', 'Habitación', 'Casa']
@@ -71,6 +76,10 @@ export function PropiedadesDesktop({
   setSortBy,
   onClearFilters,
   pagination,
+  nearUniversityId,
+  setNearUniversityId,
+  nearRadiusKm,
+  setNearRadiusKm,
 }: DesktopProps) {
   const handleTypeChange = (t: string) =>
     setSelectedTypes(prev =>
@@ -259,6 +268,44 @@ export function PropiedadesDesktop({
                   </div>
                 </div>
 
+                <div className="h-px bg-gray-100" />
+
+                {/* Cerca de universidad */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
+                    <School01Icon size={12} />
+                    Cerca de universidad
+                  </p>
+                  <select
+                    value={nearUniversityId}
+                    onChange={e => setNearUniversityId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 outline-none focus:border-accent bg-white cursor-pointer mb-2"
+                  >
+                    <option value="">Cualquier ubicación</option>
+                    {UNIVERSITIES.map(u => (
+                      <option key={u.id} value={u.id}>
+                        {u.shortName} — {u.city}
+                      </option>
+                    ))}
+                  </select>
+                  {nearUniversityId && (
+                    <div>
+                      <p className="text-[10px] text-gray-400 font-semibold mb-1.5">
+                        Radio: {nearRadiusKm} km
+                      </p>
+                      <input
+                        type="range" min={0.5} max={5} step={0.5}
+                        value={nearRadiusKm}
+                        onChange={e => setNearRadiusKm(Number(e.target.value))}
+                        className="w-full accent-accent cursor-pointer"
+                      />
+                      <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                        <span>0.5 km</span><span>5 km</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
           </aside>
@@ -315,6 +362,7 @@ export function PropiedadesDesktop({
                     avgRating={p.avgRating}
                     reviewCount={p.reviewCount}
                     status={p.status}
+                    featuredUntil={p.featuredUntil}
                   />
                 ))}
               </div>

@@ -1,14 +1,15 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, useRef, Fragment } from "react"
 import { useSession } from "next-auth/react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 import {
-  Home01Icon, UserCircleIcon, SecurityCheckIcon,
+  UserCircleIcon, SecurityCheckIcon,
   FileValidationIcon, CustomerSupportIcon, Logout01Icon,
-  Building03Icon
+  Building03Icon, Home01Icon
 } from "hugeicons-react"
 import { LanguageSwitcher } from "./language-switcher"
 
@@ -71,12 +72,15 @@ export function Header() {
         <div className="flex items-center justify-between h-14 md:h-[72px] px-5 md:px-10 max-w-[1400px] mx-auto">
 
           {/* Logo */}
-          <Link href={`/${locale}`} className="flex items-center gap-2 no-underline">
-            <Home01Icon size={22} className="text-accent md:hidden" />
-            <Home01Icon size={28} className="text-accent hidden md:block" />
-            <span className="text-lg md:text-2xl font-extrabold text-[#151c26] tracking-tight">
-              Habita Perú
-            </span>
+          <Link href={`/${locale}`} className="flex items-center no-underline">
+            <Image
+              src="/habita-logo-horizontal.svg"
+              alt="Habita Perú"
+              width={180}
+              height={48}
+              className="h-9 w-auto md:h-12"
+              priority
+            />
           </Link>
 
           {/* ── Desktop right nav ── */}

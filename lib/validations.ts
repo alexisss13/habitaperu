@@ -33,6 +33,8 @@ export const propertySchema = z.object({
   images: z.array(z.string()).optional(),
   tenantProfile: z.array(z.string()).optional(),
   conditions: z.string().optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
 })
 
 export const contractSchema = z.object({

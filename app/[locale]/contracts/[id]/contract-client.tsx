@@ -12,6 +12,8 @@ import {
   LeftToRightListNumberIcon
 } from "hugeicons-react"
 import { signContractAsTenant, counterSignAsLandlord } from "@/app/actions/contract-actions"
+import { processSuccessFee } from "@/app/actions/culqi-actions"
+import { PaymentModal } from "@/components/ui/payment-modal"
 import Link from "next/link"
 
 interface UserFields {
@@ -37,6 +39,7 @@ interface ContractData {
   tenantSignedAt: string | null
   monthlyRent: number
   deposit: number
+  successFeePaid: boolean
   landlord: UserFields
   tenant: UserFields
   property: PropertyFields
@@ -48,15 +51,19 @@ interface Props {
   isLandlord: boolean
   isTenant: boolean
   locale: string
+  isMockPayment: boolean
 }
 
-export function ContractClient({ contract: initialContract, html, isLandlord, isTenant, locale }: Props) {
+export function ContractClient({ contract: initialContract, html, isLandlord, isTenant, locale, isMockPayment }: Props) {
   const router = useRouter()
   const [contract, setContract] = useState<ContractData>(initialContract)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [isSigning, setIsSigning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [showSuccessFeeModal, setShowSuccessFeeModal] = useState(
+    initialContract.status === "ACTIVE" && isLandlord && !initialContract.successFeePaid
+  )
 
   const handleSign = async () => {
     if (!acceptedTerms) {
@@ -85,11 +92,15 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
         const res = await counterSignAsLandlord(contract.id)
         if (res.success && res.data) {
           setSuccess("¡Contrato contrafirmado y activado con éxito!")
-          setContract(prev => ({ 
-            ...prev, 
+          setContract(prev => ({
+            ...prev,
             status: res.data!.status,
-            landlordSignedAt: new Date().toISOString()
+            landlordSignedAt: new Date().toISOString(),
           }))
+          // Abrir modal de success fee automáticamente al activar
+          if (res.data.status === "ACTIVE") {
+            setTimeout(() => setShowSuccessFeeModal(true), 800)
+          }
           router.refresh()
         } else {
           setError(res.error?.message || "Ocurrió un error al contrafirmar el contrato.")
@@ -122,6 +133,7 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
   const statusInfo = getStatusLabel(contract.status)
 
   return (
+    <>
     <div className="min-h-screen bg-slate-100 flex flex-col">
       {/* Top Navbar */}
       <header className="bg-white border-b border-slate-200 h-16 shrink-0 flex items-center justify-between px-6 md:px-10 sticky top-0 z-50">
@@ -321,8 +333,28 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
               </div>
             )}
 
-            {/* Active download section */}
-            {contract.status === "ACTIVE" && (
+            {/* Active: success fee pendiente (landlord) */}
+            {contract.status === "ACTIVE" && isLandlord && !contract.successFeePaid && (
+              <div className="space-y-3">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <p className="text-xs font-bold text-amber-800 mb-1">Pago pendiente — S/ 29.00</p>
+                  <p className="text-xs text-amber-700 leading-relaxed">
+                    Tu contrato está activo. Completa el pago para registrarlo oficialmente en Habita Perú.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowSuccessFeeModal(true)}
+                  className="w-full h-11 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 border-none cursor-pointer hover:brightness-110 transition-all"
+                  style={{ background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" }}
+                >
+                  <SecurityCheckIcon size={16} />
+                  Completar pago — S/ 29.00
+                </button>
+              </div>
+            )}
+
+            {/* Active: contrato completamente pagado */}
+            {contract.status === "ACTIVE" && (!isLandlord || contract.successFeePaid) && (
               <button
                 onClick={handleDownloadPdf}
                 className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all duration-200 shadow-sm flex items-center justify-center gap-2"
@@ -351,5 +383,23 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
         </aside>
       </div>
     </div>
+
+    {/* Modal de success fee */}
+    <PaymentModal
+      isOpen={showSuccessFeeModal}
+      onClose={() => setShowSuccessFeeModal(false)}
+      onSuccess={() => {
+        setContract(prev => ({ ...prev, successFeePaid: true }))
+        setSuccess("¡Pago completado! Tu contrato está completamente registrado.")
+        setShowSuccessFeeModal(false)
+      }}
+      amount={29}
+      title="Registrar contrato en Habita Perú"
+      description="Pago único por contrato firmado exitosamente"
+      ctaLabel="Pagar S/ 29.00"
+      isMockMode={isMockPayment}
+      onProcessPayment={(token) => processSuccessFee(contract.id, token)}
+    />
+    </>
   )
 }

@@ -5,7 +5,7 @@ import { LoadingScreen } from "@/components/ui/loading-screen"
 import { PropertiesDesktop } from "./properties-desktop"
 import { PropertiesMobile } from "./properties-mobile"
 
-interface PropertyInfo {
+export interface PropertyInfo {
   id: string
   title: string
   description: string
@@ -22,14 +22,17 @@ interface PropertyInfo {
   deposit: number
   minDuration: number
   images?: any
+  views: number
+  featuredUntil?: string | null
   createdAt: string
 }
 
 interface PropertiesViewProps {
   properties: PropertyInfo[]
+  isMockPayment: boolean
 }
 
-export function PropertiesView({ properties }: PropertiesViewProps) {
+export function PropertiesView({ properties, isMockPayment }: PropertiesViewProps) {
   const { isMobile, isLoading } = useResponsive()
 
   if (isLoading) {
@@ -37,8 +40,8 @@ export function PropertiesView({ properties }: PropertiesViewProps) {
   }
 
   return isMobile ? (
-    <PropertiesMobile properties={properties} />
+    <PropertiesMobile properties={properties} isMockPayment={isMockPayment} />
   ) : (
-    <PropertiesDesktop properties={properties} />
+    <PropertiesDesktop properties={properties} isMockPayment={isMockPayment} />
   )
 }

@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
-import { Home01Icon, UserMultiple02Icon, FileValidationIcon, Wallet01Icon, Settings02Icon, Building03Icon } from 'hugeicons-react'
+import { UserMultiple02Icon, FileValidationIcon, Wallet01Icon, Settings02Icon, Building03Icon, Home01Icon } from 'hugeicons-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
@@ -37,8 +38,16 @@ export default async function LandlordLayout({ children }: LandlordLayoutProps) 
       <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
         <div className="flex flex-col flex-grow bg-white border-r border-slate-200 pt-5 pb-4 overflow-y-auto">
           <div className="flex items-center shrink-0 px-6 mb-8">
-            <Home01Icon size={32} className="text-accent" />
-            <span className="ml-3 text-xl font-bold tracking-tight text-text">Habita Perú</span>
+            <Link href="/landlord/dashboard" className="no-underline">
+              <Image
+                src="/habita-logo-horizontal.svg"
+                alt="Habita Perú"
+                width={180}
+                height={48}
+                className="h-11 w-auto"
+                priority
+              />
+            </Link>
           </div>
 
           <nav className="flex-1 px-3 space-y-1">
@@ -82,7 +91,15 @@ export default async function LandlordLayout({ children }: LandlordLayoutProps) 
         {/* Top Header */}
         <header className="sticky top-0 bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 z-40">
           <div className="flex items-center gap-4">
-            <span className="text-[#151c26] font-bold text-lg md:hidden">Habita Perú</span>
+            <Link href="/landlord/dashboard" className="no-underline md:hidden">
+              <Image
+                src="/habita-logo-horizontal.svg"
+                alt="Habita Perú"
+                width={160}
+                height={40}
+                className="h-9 w-auto"
+              />
+            </Link>
           </div>
           
           <div className="flex items-center gap-4">

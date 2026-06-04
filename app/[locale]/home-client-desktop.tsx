@@ -273,7 +273,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
 
           <div className="text-center mt-12">
             <Link href="/propiedades"
-              className="inline-flex items-center gap-2 py-3.5 px-8 bg-transparent border-[1.5px] border-accent rounded-xl text-[0.9rem] font-semibold text-accent no-underline transition-all hover:bg-accent hover:text-white"
+              className="inline-flex items-center gap-2 py-3.5 px-8 bg-transparent border-[1.5px] border-accent rounded-xl text-[0.9rem] font-semibold text-accent no-underline transition-all hover:bg-accent hover:!text-white"
             >
               <ArrowRightDoubleIcon size={20} /> {t('featured.viewAll')}
             </Link>
@@ -600,7 +600,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
 
             <div className="shrink-0">
               <Link href="/publicar"
-                className="inline-flex items-center gap-3 py-[18px] px-10 text-white text-base font-bold rounded-2xl no-underline transition-all border-2 border-cream/20 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(143,130,114,0.5)]"
+                className="inline-flex items-center gap-3 py-[18px] px-10 !text-white text-base font-bold rounded-2xl no-underline transition-all border-2 border-cream/20 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(143,130,114,0.5)]"
                 style={{ background: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)', boxShadow: '0 8px 32px rgba(143,130,114,0.4)' }}
               >
                 <PlusSignCircleIcon size={24} />

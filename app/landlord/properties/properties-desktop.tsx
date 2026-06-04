@@ -2,45 +2,29 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { 
-  Home01Icon, 
-  Add01Icon, 
-  BedIcon, 
-  Bathtub02Icon, 
-  SquareIcon, 
-  Location01Icon, 
-  FileValidationIcon,
-  Tag01Icon
+import {
+  Home01Icon, Add01Icon, BedIcon, Bathtub02Icon, SquareIcon,
+  Location01Icon, Tag01Icon, StarIcon, EyeIcon, FlashIcon,
+  CheckmarkCircle01Icon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
-
-interface PropertyInfo {
-  id: string
-  title: string
-  description: string
-  type: "HABITACION" | "DEPARTAMENTO" | "CASA" | "OFICINA" | "LOCAL"
-  condition: "SIN_MUEBLES" | "SEMI_AMOBLADO" | "AMOBLADO"
-  status: "DISPONIBLE" | "OCUPADA" | "MANTENIMIENTO"
-  district: string
-  address?: string | null
-  area?: number | null
-  rooms: number
-  bathrooms: number
-  parking: number
-  price: number
-  deposit: number
-  minDuration: number
-  images?: any
-  createdAt: string
-}
+import { PaymentModal } from "@/components/ui/payment-modal"
+import { processFeaturedListing } from "@/app/actions/culqi-actions"
+import type { PropertyInfo } from "./properties-view"
 
 interface Props {
   properties: PropertyInfo[]
+  isMockPayment: boolean
 }
 
-export function PropertiesDesktop({ properties }: Props) {
+export function PropertiesDesktop({ properties, isMockPayment }: Props) {
   const [filter, setFilter] = useState<string>("TODAS")
+  const [featuredModal, setFeaturedModal] = useState<{
+    propertyId: string
+    propertyTitle: string
+    days: 7 | 15 | 30
+  } | null>(null)
 
   // Calculate quick metrics
   const total = properties.length
@@ -168,17 +152,30 @@ export function PropertiesDesktop({ properties }: Props) {
                 {/* Property Image */}
                 <div className="relative h-48 bg-slate-100 shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img 
-                    src={firstImage} 
+                  <img
+                    src={firstImage}
                     alt={p.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-4 left-4 z-10">
+                  <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5">
                     {getStatusBadge(p.status)}
+                    {p.featuredUntil && new Date(p.featuredUntil) > new Date() && (
+                      <span className="flex items-center gap-1 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <StarIcon size={9} />
+                        Destacada
+                      </span>
+                    )}
                   </div>
                   <div className="absolute top-4 right-4 z-10 bg-slate-900/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">
                     {getTypeLabel(p.type)}
                   </div>
+                  {/* Vistas */}
+                  {p.views > 0 && (
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                      <EyeIcon size={10} />
+                      {p.views} vistas
+                    </div>
+                  )}
                 </div>
 
                 {/* Property Details */}
@@ -217,31 +214,45 @@ export function PropertiesDesktop({ properties }: Props) {
 
                   <div className="h-px bg-slate-100 my-2" />
 
-                  <div className="mt-auto pt-3 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider block">Precio mensual</span>
-                      <span className="text-lg font-extrabold text-[#151c26]">
-                        S/ {Number(p.price).toLocaleString()}
-                      </span>
+                  <div className="mt-auto pt-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider block">Precio mensual</span>
+                        <span className="text-lg font-extrabold text-[#151c26]">
+                          S/ {Number(p.price).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/landlord/properties/${p.id}/edit`}
+                          className="text-xs font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg hover:bg-accent/5 no-underline transition-colors"
+                        >
+                          Editar
+                        </Link>
+                        <Link
+                          href={`/propiedades/${p.id}`}
+                          className="text-xs font-bold text-gray-500 hover:text-[#151c26] no-underline"
+                        >
+                          Ver →
+                        </Link>
+                      </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-medium">
-                        {getConditionLabel(p.condition)}
-                      </span>
-                      <Link
-                        href={`/landlord/properties/${p.id}/edit`}
-                        className="text-xs font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg hover:bg-accent/5 no-underline transition-colors"
-                      >
-                        Editar
-                      </Link>
-                      <Link
-                        href={`/propiedades/${p.id}`}
-                        className="text-xs font-bold text-gray-500 hover:text-[#151c26] no-underline"
-                      >
-                        Ver →
-                      </Link>
-                    </div>
+
+                    {/* Botón destacar */}
+                    {p.status === "DISPONIBLE" && (
+                      p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
+                        <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-xs font-semibold text-amber-700">
+                          <CheckmarkCircle01Icon size={13} className="text-amber-500" />
+                          Destacada hasta {new Date(p.featuredUntil).toLocaleDateString("es-PE")}
+                        </div>
+                      ) : (
+                        <FeaturedButton
+                          propertyId={p.id}
+                          propertyTitle={p.title}
+                          onSelect={(days) => setFeaturedModal({ propertyId: p.id, propertyTitle: p.title, days })}
+                        />
+                      )
+                    )}
                   </div>
                 </div>
 
@@ -277,6 +288,68 @@ export function PropertiesDesktop({ properties }: Props) {
           totalItems={pagination.totalItems}
           itemLabel="propiedades"
         />
+      )}
+
+      {/* Modal de Featured Listing */}
+      {featuredModal && (
+        <PaymentModal
+          isOpen
+          onClose={() => setFeaturedModal(null)}
+          onSuccess={() => setFeaturedModal(null)}
+          amount={featuredModal.days === 7 ? 15 : featuredModal.days === 15 ? 25 : 45}
+          title={`Destacar propiedad ${featuredModal.days} días`}
+          description={featuredModal.propertyTitle}
+          ctaLabel={`Pagar S/ ${featuredModal.days === 7 ? "15" : featuredModal.days === 15 ? "25" : "45"}.00`}
+          isMockMode={isMockPayment}
+          onProcessPayment={(token) =>
+            processFeaturedListing(featuredModal.propertyId, featuredModal.days, token)
+          }
+        />
+      )}
+    </div>
+  )
+}
+
+// Sub-componente: selector de duración para destacar
+function FeaturedButton({
+  onSelect,
+}: {
+  propertyId: string
+  propertyTitle: string
+  onSelect: (days: 7 | 15 | 30) => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-bold px-3 py-2 rounded-xl border-none cursor-pointer transition-all"
+      >
+        <FlashIcon size={13} />
+        Destacar propiedad
+      </button>
+
+      {open && (
+        <div className="absolute bottom-full mb-2 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl z-20 overflow-hidden">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pt-3 pb-1">
+            Elige duración
+          </p>
+          {([
+            { days: 7, price: "S/ 15", label: "7 días" },
+            { days: 15, price: "S/ 25", label: "15 días" },
+            { days: 30, price: "S/ 45", label: "30 días" },
+          ] as const).map(opt => (
+            <button
+              key={opt.days}
+              onClick={() => { setOpen(false); onSelect(opt.days) }}
+              className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold text-slate-700 hover:bg-amber-50 border-none cursor-pointer transition-colors text-left"
+            >
+              <span>{opt.label}</span>
+              <span className="font-bold text-amber-600">{opt.price}</span>
+            </button>
+          ))}
+        </div>
       )}
     </div>
   )

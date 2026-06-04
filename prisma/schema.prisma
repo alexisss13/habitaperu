@@ -169,6 +169,10 @@ model Property {
   views       Int               @default(0)
   favorites   Int               @default(0)
 
+  /// Coordenadas geográficas para filtro "cerca de universidad"
+  lat         Float?
+  lng         Float?
+
   /// Destaca la propiedad en resultados de búsqueda hasta esta fecha
   featuredUntil  DateTime?
   featuredPaidAt DateTime?
@@ -343,6 +347,12 @@ model Review {
   targetId   String
   target     User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
 
+  /// PROPERTY_REVIEW = tenant califica propiedad | TENANT_REVIEW = landlord califica inquilino
+  reviewType String   @default("PROPERTY_REVIEW")
+
+  /// Contrato al que pertenece esta reseña (para verificación y contexto)
+  contractId String?
+
   rating     Int
   comment    String
 
@@ -352,6 +362,7 @@ model Review {
   @@index([propertyId])
   @@index([authorId])
   @@index([targetId])
+  @@index([contractId])
 }
 
 model Notification {

@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { redirect } from "next/navigation"
 import { PropertiesView } from "./properties-view"
+import { CULQI_IS_MOCK } from "@/lib/culqi"
 
 export const dynamic = 'force-dynamic'
 
@@ -15,15 +16,11 @@ export default async function LandlordPropertiesPage() {
   const landlordId = session.user.id
 
   const properties = await prisma.property.findMany({
-    where: {
-      ownerId: landlordId,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
+    where: { ownerId: landlordId },
+    orderBy: { createdAt: 'desc' },
   })
 
   const serializedProperties = JSON.parse(JSON.stringify(properties))
 
-  return <PropertiesView properties={serializedProperties} />
+  return <PropertiesView properties={serializedProperties} isMockPayment={CULQI_IS_MOCK} />
 }

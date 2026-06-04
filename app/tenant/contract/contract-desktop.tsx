@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function TenantContractDesktop({ contracts }: Props) {
-  const [reviewingProperty, setReviewingProperty] = useState<{ id: string; title: string } | null>(null)
+  const [reviewingProperty, setReviewingProperty] = useState<{ id: string; title: string; contractId: string } | null>(null)
 
   // Find active, pending, or past contracts
   const activeContract = contracts.find(c => c.status === "ACTIVE")
@@ -163,12 +163,27 @@ export function TenantContractDesktop({ contracts }: Props) {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
-                  <button
-                    onClick={() => setReviewingProperty({ id: activeContract.property.id, title: activeContract.property.title })}
-                    className="px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    ⭐ Escribir Reseña del Inmueble
-                  </button>
+                  {activeContract.alreadyReviewed ? (
+                    <span className="px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                      <CheckmarkCircle01Icon size={14} />
+                      Reseña enviada
+                    </span>
+                  ) : activeContract.reviewEligible ? (
+                    <button
+                      onClick={() => setReviewingProperty({
+                        id: activeContract.property.id,
+                        title: activeContract.property.title,
+                        contractId: activeContract.id,
+                      })}
+                      className="px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      ⭐ Escribir Reseña del Inmueble
+                    </button>
+                  ) : (
+                    <span className="px-4 py-2 bg-slate-50 text-slate-400 border border-slate-200 rounded-xl text-xs font-medium">
+                      Podrás reseñar en {activeContract.reviewDaysRemaining} días
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -441,6 +456,7 @@ export function TenantContractDesktop({ contracts }: Props) {
       {reviewingProperty && (
         <WriteReviewModal
           propertyId={reviewingProperty.id}
+          contractId={reviewingProperty.contractId}
           propertyTitle={reviewingProperty.title}
           onClose={() => setReviewingProperty(null)}
         />
