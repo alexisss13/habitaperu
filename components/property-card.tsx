@@ -134,7 +134,7 @@ export function PropertyCard({
 
           <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
             <Location01Icon size={11} />
-            <span>{district}, Lima</span>
+            <span>{district}</span>
           </div>
 
           {/* Stats */}

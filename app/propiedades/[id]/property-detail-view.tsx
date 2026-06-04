@@ -22,6 +22,8 @@ export interface PropertyDetail {
   avgRating: number
   owner: { id: string; firstName: string; lastName: string; phone: string | null; verified: boolean; avatar: string | null }
   reviews: Array<{ id: string; rating: number; comment: string; author: { firstName: string; lastName: string; avatar: string | null } }>
+  ownerPhoneVisible: boolean
+  isAuthenticated: boolean
 }
 
 export function PropertyDetailView({ property }: { property: PropertyDetail }) {

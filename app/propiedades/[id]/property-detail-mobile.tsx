@@ -5,7 +5,8 @@ import Link from "next/link"
 import {
   Location01Icon, FavouriteIcon, CheckmarkCircle02Icon,
   StarIcon, WhatsappIcon, SecurityCheckIcon, ArrowLeft01Icon,
-  Calendar03Icon, MoneyBag02Icon, MessageMultiple02Icon, Cancel01Icon
+  Calendar03Icon, MoneyBag02Icon, MessageMultiple02Icon, Cancel01Icon,
+  LockPasswordIcon, UserCheck01Icon
 } from "hugeicons-react"
 import type { PropertyDetail } from './property-detail-view'
 
@@ -91,7 +92,36 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
               </button>
             </div>
 
-            {formSent ? (
+            {!p.isAuthenticated ? (
+              <div className="py-4 text-center">
+                <LockPasswordIcon size={36} className="text-slate-400 mx-auto mb-3" />
+                <p className="font-bold text-[#151c26] text-sm mb-1">Inicia sesión para contactar</p>
+                <p className="text-xs text-gray-400 mb-4">Necesitas una cuenta para ver el contacto del arrendador.</p>
+                <Link
+                  href="/login"
+                  onClick={() => setContactOpen(false)}
+                  className="block w-full py-3 text-white rounded-xl font-bold text-sm text-center no-underline"
+                  style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
+                >
+                  Iniciar sesión
+                </Link>
+              </div>
+            ) : !p.ownerPhoneVisible ? (
+              <div className="py-4 text-center">
+                <UserCheck01Icon size={36} className="text-amber-500 mx-auto mb-3" />
+                <p className="font-bold text-[#151c26] text-sm mb-1">Verifica tu identidad</p>
+                <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                  Completa tu verificación KYC para contactar al arrendador. Tarda menos de 2 minutos.
+                </p>
+                <Link
+                  href="/tenant/kyc"
+                  onClick={() => setContactOpen(false)}
+                  className="block w-full py-3 bg-amber-500 text-white rounded-xl font-bold text-sm text-center no-underline"
+                >
+                  Verificar identidad — S/ 9.90
+                </Link>
+              </div>
+            ) : formSent ? (
               <div className="py-6 text-center">
                 <CheckmarkCircle02Icon size={44} className="text-green mx-auto mb-3" />
                 <p className="font-bold text-[#151c26] mb-1">¡Consulta enviada!</p>
@@ -151,7 +181,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
                   style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                 >
                   <MessageMultiple02Icon size={16} />
-                  Enviar consulta
+                  Enviar consulta por WhatsApp
                 </button>
               </form>
             )}
@@ -227,7 +257,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
         <div className="flex items-center gap-3 flex-wrap mb-4">
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <Location01Icon size={12} />
-            <span>{p.district}, Lima</span>
+            <span>{p.district}</span>
           </div>
           {p.avgRating > 0 ? (
             <div className="flex items-center gap-1 text-xs">
@@ -372,32 +402,45 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
-          <button
-            onClick={() => setContactOpen(true)}
-            className="px-4 py-2.5 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap"
-            style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
-          >
-            <MessageMultiple02Icon size={14} />
-            Consultar
-          </button>
-          {p.owner.phone ? (
-            <a
-              href={`https://wa.me/51${p.owner.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${p.owner.firstName}, vi tu anuncio "${p.title}" en Habita Perú. ¿Sigue disponible?`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline cursor-pointer whitespace-nowrap"
+          {!p.isAuthenticated ? (
+            <Link
+              href="/login"
+              className="px-4 py-2.5 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline whitespace-nowrap"
+              style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
             >
-              <WhatsappIcon size={14} />
-              WhatsApp
-            </a>
+              <LockPasswordIcon size={14} />
+              Iniciar sesión
+            </Link>
+          ) : !p.ownerPhoneVisible ? (
+            <Link
+              href="/tenant/kyc"
+              className="px-4 py-2.5 bg-amber-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline whitespace-nowrap"
+            >
+              <UserCheck01Icon size={14} />
+              Verificar identidad
+            </Link>
           ) : (
-            <button
-              onClick={() => setContactOpen(true)}
-              className="px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap"
-            >
-              <WhatsappIcon size={14} />
-              WhatsApp
-            </button>
+            <>
+              <button
+                onClick={() => setContactOpen(true)}
+                className="px-4 py-2.5 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 border-none cursor-pointer whitespace-nowrap"
+                style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
+              >
+                <MessageMultiple02Icon size={14} />
+                Consultar
+              </button>
+              {p.owner.phone && (
+                <a
+                  href={`https://wa.me/51${p.owner.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${p.owner.firstName}, vi tu anuncio "${p.title}" en Habita Perú. ¿Sigue disponible?`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline cursor-pointer whitespace-nowrap"
+                >
+                  <WhatsappIcon size={14} />
+                  WhatsApp
+                </a>
+              )}
+            </>
           )}
         </div>
       </div>

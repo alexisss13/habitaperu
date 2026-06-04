@@ -98,6 +98,14 @@ model User {
   district           String?
   verified           Boolean   @default(false)
   twoFactorEnabled   Boolean   @default(false)
+
+  /// Plan de suscripción activo (FREE, PRO, BUSINESS)
+  subscriptionPlan    String    @default("FREE")
+  subscriptionEndsAt  DateTime?
+  /// Pago único de verificación KYC del tenant (S/9.90)
+  kycFeePaid          Boolean   @default(false)
+  kycFeePaidAt        DateTime?
+
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -161,6 +169,10 @@ model Property {
   views       Int               @default(0)
   favorites   Int               @default(0)
 
+  /// Destaca la propiedad en resultados de búsqueda hasta esta fecha
+  featuredUntil  DateTime?
+  featuredPaidAt DateTime?
+
   /// Campo de versión para Optimistic Concurrency Control (OCC).
   /// Antes de marcar OCUPADA, se verifica que version == version_leída.
   /// Si difiere, otro proceso ya modificó el registro → ContractConcurrencyError.
@@ -206,6 +218,10 @@ model Contract {
 
   /// SHA-256 del HTML exacto que vio el usuario al firmar (Clickwrap / Ley 30201)
   documentHash String?      @unique
+
+  /// Success fee S/29 cobrado al landlord cuando el contrato se activa
+  successFeePaid   Boolean   @default(false)
+  successFeePaidAt DateTime?
 
   terms       String?
 
@@ -273,6 +289,8 @@ model Payment {
   paidDate    DateTime?
   status      PaymentStatus @default(PENDIENTE)
 
+  /// RENT | SUCCESS_FEE | KYC_FEE | FEATURED | SUBSCRIPTION
+  type          String        @default("RENT")
   paymentMethod String?
   receipt       String?
   notes         String?

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Baloo_2, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider"
+import { TawkWidget } from "@/components/tawk-widget"
 
 // Baloo 2 → Para títulos (más gruesa y amigable)
 const baloo2 = Baloo_2({ 
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className={mPlusRounded.className}>
         <AuthProvider>
           {children}
+          <TawkWidget />
         </AuthProvider>
       </body>
     </html>

@@ -7,7 +7,7 @@ import {
   StarIcon, WhatsappIcon, SecurityCheckIcon, ArrowRight01Icon,
   Share08Icon, Maximize01Icon, Calendar03Icon, MoneyBag02Icon,
   Clock05Icon, MessageMultiple02Icon, Cancel01Icon, Building03Icon,
-  ArrowLeft01Icon
+  ArrowLeft01Icon, LockPasswordIcon, UserCheck01Icon
 } from "hugeicons-react"
 import type { PropertyDetail } from './property-detail-view'
 
@@ -181,7 +181,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
               <span className="text-gray-200">·</span>
               <div className="flex items-center gap-1 text-gray-500">
                 <Location01Icon size={14} />
-                <span className="font-medium">{p.district}, Lima</span>
+                <span className="font-medium">{p.district}</span>
               </div>
             </div>
           </div>
@@ -398,7 +398,41 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                 <div className="h-px bg-gray-100 mb-5" />
 
                 {/* Contact form */}
-                {formState === 'sent' ? (
+                {/* KYC gate — solo usuarios verificados pueden contactar */}
+                {!p.isAuthenticated ? (
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center mb-4">
+                    <LockPasswordIcon size={32} className="text-slate-400 mx-auto mb-3" />
+                    <p className="font-bold text-[#151c26] text-sm mb-1">
+                      Inicia sesión para contactar
+                    </p>
+                    <p className="text-xs text-gray-400 mb-4 leading-relaxed">
+                      Necesitas una cuenta para ver el contacto del arrendador.
+                    </p>
+                    <Link
+                      href="/login"
+                      className="block w-full py-2.5 text-white rounded-xl font-bold text-sm text-center no-underline hover:opacity-90 transition-opacity"
+                      style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
+                    >
+                      Iniciar sesión
+                    </Link>
+                  </div>
+                ) : !p.ownerPhoneVisible ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center mb-4">
+                    <UserCheck01Icon size={32} className="text-amber-500 mx-auto mb-3" />
+                    <p className="font-bold text-[#151c26] text-sm mb-1">
+                      Verifica tu identidad
+                    </p>
+                    <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                      Para contactar al arrendador necesitas completar tu verificación KYC. El proceso toma menos de 2 minutos.
+                    </p>
+                    <Link
+                      href="/tenant/kyc"
+                      className="block w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm text-center no-underline transition-colors"
+                    >
+                      Completar verificación — S/ 9.90
+                    </Link>
+                  </div>
+                ) : formState === 'sent' ? (
                   <div className="py-8 text-center">
                     <CheckmarkCircle02Icon size={40} className="text-green mx-auto mb-3" />
                     <p className="font-bold text-[#151c26] mb-1">¡Consulta enviada!</p>
@@ -458,7 +492,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                       style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                     >
                       <MessageMultiple02Icon size={18} />
-                      Enviar consulta
+                      Enviar consulta por WhatsApp
                     </button>
                     {p.owner.phone && (
                       <a
@@ -468,7 +502,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                         className="w-full py-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 no-underline cursor-pointer transition-colors"
                       >
                         <WhatsappIcon size={18} />
-                        Contactar por WhatsApp
+                        Abrir WhatsApp directo
                       </a>
                     )}
                   </form>

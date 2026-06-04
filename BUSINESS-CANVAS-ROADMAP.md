@@ -1,5 +1,7 @@
 # Habita Perú — Roadmap del Business Model Canvas
-> Análisis técnico + opinión de flujo de negocio por cada componente pendiente.
+> Plan de implementación definitivo. Las recomendaciones ya están incorporadas
+> como decisiones tomadas, no como opciones. Adaptado para equipo de 3 estudiantes
+> con lanzamiento inicial en **Trujillo**.
 
 ---
 
@@ -8,164 +10,209 @@
 2. [Relación con Clientes](#2-relación-con-clientes)
 3. [Canales](#3-canales)
 4. [Socios Clave](#4-socios-clave)
-5. [Opinión general del flujo de negocio](#5-opinión-general-del-flujo-de-negocio)
+5. [Flujo de adquisición y expansión](#5-flujo-de-adquisición-y-expansión)
 
 ---
 
 ## 1. Fuentes de Ingreso
 
-### 1.1 — Planes de Suscripción / Membresía para Arrendadores
+### 1.1 — Success Fee por Contrato Firmado ⭐ PRIMERA FUENTE DE INGRESO
 
-#### ¿Cómo se trabajará?
-Se creará un sistema de planes con tres niveles:
+**Decisión tomada:** No se cobra suscripción mensual al inicio. Se cobra
+una tarifa única por cada contrato que se completa exitosamente (ambas
+partes firman). El landlord solo paga cuando consiguió inquilino.
 
-| Plan | Propiedades | Precio | Beneficios |
-|---|---|---|---|
-| **Gratis** | 1 propiedad | S/ 0 | Contrato básico, KYC básico |
-| **Pro** | Hasta 5 propiedades | S/ 49/mes | Contratos ilimitados, analytics, soporte prioritario |
-| **Business** | Ilimitadas | S/ 129/mes | Todo Pro + anuncios destacados incluidos, API access |
+**Precio:** S/ 29 por contrato completado
+
+**Por qué este modelo y no la suscripción:**
+- El arrendador peruano promedio desconfía de compromisos mensuales
+  por software que aún no conoce
+- La suscripción crea presión de "tengo que recuperar lo que pagué"
+  antes de haber usado el producto
+- El success fee alinea el incentivo de Habita con el del landlord:
+  ambos ganan cuando se concreta el alquiler
+- Menor fricción para el primer pago = mayor conversión
 
 **Flujo técnico:**
 ```
-Landlord se registra
-  → Inicia en plan Gratis (sin tarjeta requerida)
-  → Al intentar agregar la 2ª propiedad → modal de upgrade
-  → Selecciona plan → pago con Culqi (tarjeta/Yape/Plin)
-  → Webhook de Culqi confirma pago
-  → DB actualiza user.subscriptionPlan + subscriptionEndsAt
-  → Cron job diario revisa vencimientos y degrada/notifica
+Contrato llega a estado ACTIVE (ambas partes firmaron)
+  → Sistema genera cobro automático al landlord vía Culqi
+  → Landlord recibe notificación: "Tu contrato está activo. S/29 cobrados."
+  → Si el pago falla → 3 reintentos automáticos en 24h
+  → Si sigue fallando → contrato queda activo pero landlord en estado
+    "pago pendiente" (no se bloquea el contrato, se gestiona offline)
 ```
 
 **Tablas DB necesarias:**
-- `SubscriptionPlan` (enum: FREE, PRO, BUSINESS)
-- `Payment` ya existe → añadir campo `type: SUBSCRIPTION | RENT | FEATURED`
-- `user.subscriptionPlan`, `user.subscriptionEndsAt`
+- `Payment` ya existe → añadir `type: SUCCESS_FEE | FEATURED | SUBSCRIPTION`
+- `contract.successFeePaid Boolean @default(false)`
+- `contract.successFeePaidAt DateTime?`
 
-#### ¿Es correcto este flujo?
-⚠️ **Observación importante:** El canvas dice "planes para quienes gestionan múltiples habitaciones o edificios". En Perú, la mayoría de arrendadores tienen 1 o 2 cuartos. Si el plan gratis solo permite 1 propiedad, la conversión a pago será muy baja al inicio.
-
-**Recomendación:** Empezar con gratis ilimitado los primeros 6 meses (growth hacking), luego introducir el límite cuando ya haya base de usuarios. El umbral correcto para cobrar debería ser a partir de 3 propiedades, no 2.
+**Copy que se usará (no mencionar "comisión"):**
+> *"Tu contrato legal verificado, con firma digital, hash criptográfico y
+> registro ante Habita Perú: S/ 29 una sola vez."*
 
 ---
 
-### 1.2 — Anuncios Destacados (Featured Listings)
+### 1.2 — Tarifa de Verificación KYC al Tenant ⭐ SEGUNDA FUENTE DE INGRESO
 
-#### ¿Cómo se trabajará?
-Los arrendadores podrán pagar para que su propiedad aparezca en los primeros resultados de búsqueda con una etiqueta "Destacado".
+**Decisión tomada:** El tenant paga S/ 9.90 una sola vez para completar
+su verificación de identidad. Este cobro cumple dos funciones:
+1. Filtra inquilinos no serios (quien paga S/9.90 está comprometido)
+2. Financia el costo del proceso KYC
 
-**Flujo:**
+**Importante:** Este pago es por verificación de identidad, no por usar
+la plataforma. Una vez verificado, el tenant puede postular a todas las
+propiedades que quiera sin pagar nada más.
+
+**Flujo técnico:**
 ```
-Landlord entra a su propiedad
-  → Botón "Destacar propiedad" → modal de duración
-  → Elige: 7 días (S/15), 15 días (S/25), 30 días (S/45)
-  → Pago con Culqi
-  → DB: property.featuredUntil = Date.now() + duración
-  → Query de búsqueda ordena: ORDER BY featuredUntil DESC NULLS LAST, createdAt DESC
-  → Frontend muestra badge "Destacado" en tarjeta
-  → Cron job diario limpia propiedades cuyo featuredUntil expiró
+Tenant completa el formulario KYC (DNI + selfie)
+  → Sistema procesa la verificación
+  → Si aprobado → modal de pago: "Tu identidad fue verificada.
+    Activa tu perfil por S/ 9.90"
+  → Pago con Culqi (Yape, Plin o tarjeta)
+  → user.kycVerified = true
+  → Badge "Verificado" visible para landlords
+  → Acceso desbloqueado para contactar arrendadores
 ```
+
+**Tablas DB necesarias:**
+- `user.kycVerified Boolean @default(false)`
+- `user.kycVerifiedAt DateTime?`
+- `user.kycFeePaid Boolean @default(false)`
+
+---
+
+### 1.3 — Anuncios Destacados (Featured Listings) ⭐ TERCERA FUENTE DE INGRESO
+
+**Decisión tomada:** Esta es la primera feature de pago visible para el
+landlord. Se implementa antes que las suscripciones porque es pago único,
+sin compromiso, y el beneficio es inmediato y medible.
+
+**Precios:**
+| Duración | Precio | Equivale a... |
+|---|---|---|
+| 7 días | S/ 15 | Una llamada a un agente inmobiliario |
+| 15 días | S/ 25 | Un café diario |
+| 30 días | S/ 45 | Un tanque de gas |
+
+**Flujo técnico:**
+```
+Landlord entra al detalle de su propiedad
+  → Ve estadísticas de vistas de los últimos 7 días
+  → Botón "Destacar esta propiedad" con comparativa de vistas
+    promedio: normal vs destacada
+  → Selecciona duración → pago con Culqi
+  → property.featuredUntil = ahora + duración elegida
+  → Query de búsqueda: ORDER BY featuredUntil DESC NULLS LAST
+  → Badge "Destacado" visible en tarjeta de propiedad
+  → Al vencer: notificación "Tu destacado venció, ¿renovar?"
+```
+
+**Regla de negocio importante:**
+No ofrecer featured en zonas con menos de 5 búsquedas en los últimos
+7 días. Si no hay demanda en esa zona, el featured no servirá y el
+landlord pedirá reembolso. Mejor no venderlo que venderlo mal.
 
 **Tablas DB necesarias:**
 - `property.featuredUntil DateTime?`
 - `property.featuredPaidAt DateTime?`
-
-#### ¿Es correcto este flujo?
-✅ **Flujo correcto y probado en el mercado.** Airbnb, Mercado Libre, OLX usan exactamente este modelo. Es la fuente de ingreso más rápida de implementar y la que genera conversión más inmediata porque el landlord ve el beneficio directo (más visitas a su propiedad).
-
-**Recomendación:** Implementar esto PRIMERO antes que las suscripciones. Menor fricción, pago único sin compromiso mensual.
+- `property.totalViews Int @default(0)` (para mostrar estadísticas)
 
 ---
 
-### 1.3 — Venta de Contratos (Descarga en PDF)
+### 1.4 — Planes de Suscripción (desde mes 6 en adelante)
 
-#### ¿Cómo se trabajará?
-Actualmente el contrato se genera en HTML y se visualiza en el browser. Se añadirá descarga en PDF como feature premium.
+**Decisión tomada:** Las suscripciones se introducen DESPUÉS de que el
+landlord ya experimentó el valor del producto. No antes. El trigger para
+presentar el plan es cuando el landlord tiene su segunda propiedad activa.
 
-**Flujo:**
+**Estructura de planes:**
+| Plan | Propiedades | Precio | Diferenciador real |
+|---|---|---|---|
+| **Gratis** | Hasta 3 | S/ 0 | Contratos + KYC básico |
+| **Pro** | Hasta 10 | S/ 49/mes | Analytics, descarga PDF, soporte prioritario, featured mensual incluido |
+| **Business** | Ilimitadas | S/ 129/mes | Todo Pro + onboarding asistido, badge "Arrendador Verificado" |
+
+**Por qué el límite gratis es 3 y no 1 o 2:**
+La mayoría de arrendadores en Trujillo tienen 1–3 cuartos o propiedades.
+Si el límite gratis es 1, casi nadie necesita pagar porque la mayoría
+tiene 1 sola propiedad. Con límite en 3, se captura suficiente valor
+gratis para generar adopción, y el landlord que crece naturalmente
+supera ese límite y tiene razón orgánica para pagar.
+
+**Flujo técnico:**
 ```
-Ambas partes firman el contrato digitalmente
-  → Estado pasa a ACTIVE
-  → Botón "Descargar PDF" aparece en la vista del contrato
-  → Si landlord es plan Gratis → modal de pago único (S/ 9.90)
-  → Si landlord es plan Pro/Business → descarga directa sin costo adicional
-  → Backend genera PDF con Puppeteer o react-pdf
-  → PDF incluye: hash SHA-256, timestamps de firma, QR de verificación
-  → Se guarda en Cloudinary/S3 y se envía por email a ambas partes
+Landlord intenta publicar la 4ª propiedad
+  → Modal: "Has llegado al límite del plan Gratis (3 propiedades).
+    Pasa a Pro por S/49/mes y gestiona hasta 10."
+  → Comparativa visual de planes
+  → Pago con Culqi Subscriptions (recurrente mensual)
+  → user.subscriptionPlan = PRO
+  → user.subscriptionEndsAt = ahora + 30 días
+  → Cron job diario revisa vencimientos y notifica 5 días antes
 ```
-
-**Dependencias técnicas:**
-- `@react-pdf/renderer` o Puppeteer para generación
-- Cloudinary/S3 para almacenamiento
-- Endpoint API: `GET /api/contracts/[id]/download`
-  *(este endpoint ya existe en el codebase: `app/api/contracts/[id]/download/route.ts`)*
-
-#### ¿Es correcto este flujo?
-⚠️ **Flujo parcialmente correcto, pero con un problema de percepción.** Si el contrato ya se puede leer en pantalla y ambas partes ya firmaron, cobrar por descargarlo puede generar fricción y sensación de abuso. Los usuarios en Perú son sensibles a "cobros inesperados" post-firma.
-
-**Recomendación:** No cobrar el PDF individualmente. En su lugar, incluirlo como diferenciador del plan Pro ("contratos con descarga PDF + QR de verificación legal"). El PDF se convierte en argumento de venta del plan, no en cobro aislado.
-
----
-
-### 1.4 — Comisiones por Servicios (Mudanza, Limpieza, Mantenimiento)
-
-#### ¿Cómo se trabajará?
-Marketplace de servicios complementarios al alquiler. Proveedores verificados ofrecen servicios; Habita Perú cobra comisión por cada contratación.
-
-**Flujo:**
-```
-Tenant firma contrato activo
-  → Dashboard muestra sección "Servicios para tu mudanza"
-  → Listado de proveedores verificados por categoría
-  → Tenant contacta/contrata proveedor desde la plataforma
-  → Pago procesado por Culqi (Habita retiene 10-15% de comisión)
-  → Proveedor recibe pago neto + notificación
-  → Tenant puede dejar reseña del servicio
-```
-
-**Modelo de comisión:**
-- Mudanza: 12% sobre precio del servicio
-- Limpieza: 15% (ticket pequeño, más frecuente)
-- Mantenimiento: 10%
 
 **Tablas DB necesarias:**
-- `ServiceProvider` (nombre, categoría, teléfono, precio base, rating)
-- `ServiceBooking` (tenantId, providerId, precio, comisión, estado)
-- `ServiceCategory` (enum: MUDANZA, LIMPIEZA, MANTENIMIENTO, INTERNET)
-
-#### ¿Es correcto este flujo?
-❌ **No es conveniente implementarlo en esta etapa.** Este es un negocio dentro de otro negocio. Requiere:
-- Conseguir proveedores verificados (operación offline)
-- Sistema de calificaciones propio
-- Resolución de disputas entre usuarios y proveedores
-- Capital operativo para garantías
-
-**Recomendación:** Posponer para la versión 2.0 cuando la plataforma ya tenga tracción. En su lugar, iniciar con una versión simple: mostrar directorio de proveedores recomendados con link externo (WhatsApp del proveedor), sin sistema de pago integrado. Genera goodwill sin la complejidad operativa.
+- `user.subscriptionPlan String @default("FREE")`
+- `user.subscriptionEndsAt DateTime?`
+- `user.subscriptionCulqiId String?` (ID del cliente en Culqi para recurrencia)
 
 ---
 
-### 1.5 — Publicidad Especializada (Muebles, Seguros, Internet)
+### 1.5 — Descarga PDF del Contrato (incluida en planes, no cobro aislado)
 
-#### ¿Cómo se trabajará?
-Banners y espacios publicitarios dentro del dashboard del tenant, orientados a empresas relacionadas con el hogar.
+**Decisión tomada:** El PDF NO se cobra por separado. Hacerlo generaría
+sensación de abuso ("ya firmé y ahora me cobran por descargarlo"). En
+cambio, la descarga PDF es el beneficiador más tangible del plan Pro.
 
 **Flujo:**
 ```
-Empresa anunciante contacta a Habita Perú (proceso offline)
-  → Acuerdo de CPM (costo por mil impresiones) o CPC (clic)
-  → Admin sube creativo + URL destino desde panel admin
-  → Sistema muestra ad en slots definidos del dashboard
-  → Analytics de impresiones/clics exportable para el anunciante
+Contrato en estado ACTIVE
+  → Plan Gratis: puede ver el contrato en pantalla, no puede descargar PDF
+    → Banner: "Descarga el PDF legal de tu contrato con el plan Pro"
+  → Plan Pro/Business: botón "Descargar PDF" disponible directamente
+    → Backend genera PDF (react-pdf o Puppeteer)
+    → PDF incluye: hash SHA-256, timestamps de firma, QR de verificación
+    → Se envía por email a ambas partes automáticamente
 ```
 
-**Slots sugeridos:**
-- Banner lateral en dashboard del tenant (después de firmar contrato)
-- Email transaccional: footer de emails con "Servicios recomendados"
-- Página de confirmación de contrato activo
+**Nota técnica:** El endpoint `app/api/contracts/[id]/download/route.ts`
+ya existe en el codebase. Solo falta implementar la generación real del PDF
+y la verificación del plan del usuario.
 
-#### ¿Es correcto este flujo?
-⚠️ **Viable a largo plazo, prematuro ahora.** Para que los anunciantes paguen CPM/CPC necesitas tráfico demostrable (mínimo 50,000 visitas/mes). Con una plataforma nueva, ninguna empresa de muebles o seguros pagará por publicidad sin data de audiencia.
+---
 
-**Recomendación:** Comenzar con "acuerdos de intercambio": descuentos exclusivos de empresas aliadas para los tenants de Habita (partnership, no cobro). Genera valor percibido al usuario sin requerir tráfico masivo. Convertir a publicidad paga cuando tengas las métricas.
+### 1.6 — Directorio de Servicios (sin cobro, sin marketplace complejo)
+
+**Decisión tomada:** NO se implementa marketplace de servicios con pagos
+integrados. Es un negocio dentro de otro negocio que requiere operación
+offline y resolución de disputas.
+
+**Lo que SÍ se implementa:** Un directorio simple de proveedores
+recomendados en Trujillo (mudanza, limpieza, mantenimiento, internet)
+con botón "Contactar por WhatsApp". Sin cobro, sin intermediación de pago.
+
+**Valor para el usuario:** El tenant que firma su primer contrato
+recibe en su dashboard una sección "Para tu mudanza" con contactos
+locales verificados manualmente por el equipo de Habita.
+
+**Valor para Habita:** Genera goodwill y diferenciación sin complejidad.
+Cuando haya tráfico suficiente (mes 12+), estos proveedores pagarán
+por aparecer primero en el directorio. Eso es la monetización futura.
+
+---
+
+### 1.7 — Publicidad Especializada (postergada a año 2)
+
+**Decisión tomada:** No se implementa hasta tener ≥ 50,000 visitas/mes
+demostrables. Sin esa métrica, ninguna empresa pagará por publicidad.
+
+**Acción inmediata en su lugar:** Acuerdos de intercambio con empresas
+locales de Trujillo (tiendas de muebles, proveedores de internet como
+Claro/Movistar) para ofrecer descuentos exclusivos a los tenants de
+Habita. Sin cobro. Genera valor al usuario sin requerir tráfico masivo.
 
 ---
 
@@ -173,258 +220,307 @@ Empresa anunciante contacta a Habita Perú (proceso offline)
 
 ### 2.1 — Sistema de Reseñas Verificadas
 
-#### ¿Cómo se trabajará?
-Solo usuarios con contratos ACTIVE o FINISHED podrán dejar reseñas. Elimina reviews falsos.
+**Estado:** Implementar en Sprint 3 (meses 4–6)
+
+**Reglas definitivas:**
+- Solo contratos en estado `ACTIVE` con ≥ 30 días de antigüedad, o `FINISHED`
+- Ambas partes califican: tenant califica propiedad + landlord, landlord califica tenant
+- Publicación después de 48h (tiempo para que la otra parte responda si quiere)
+- Las reseñas del tenant son visibles solo para landlords (no públicas)
+- Las reseñas de propiedades son públicas en el listing
 
 **Flujo:**
 ```
-Contrato pasa a estado FINISHED (o después de 30 días en ACTIVE)
-  → Notificación automática a tenant: "¿Cómo fue tu experiencia?"
-  → Tenant califica: propiedad (1-5 estrellas) + texto
-  → Landlord califica: tenant (puntualidad de pago, cuidado del inmueble)
-  → Reviews se publican después de 48h (ambas partes pueden responder)
-  → Rating promedio aparece en:
-      - Perfil público de la propiedad
-      - Perfil del landlord
-      - Perfil del tenant (visible solo para landlords)
+Contrato cumple 30 días en ACTIVE
+  → Notificación automática a ambas partes (email + WhatsApp)
+  → Tenant: "¿Cómo fue tu experiencia con [propiedad]? Califica ahora"
+  → Landlord: "¿Cómo fue [nombre tenant] como inquilino?"
+  → Formulario: 1–5 estrellas + texto libre (mín. 20 caracteres)
+  → Ambas reseñas se publican juntas después de 48h
+  → Rating promedio impacta posición en búsqueda
 ```
 
-**Tablas DB necesarias:**
-- `Review` ya existe en el schema → revisar si tiene los campos completos
-- `tenantRating` en perfil de usuario para landlords que evalúan tenants
-
-#### ¿Es correcto este flujo?
-✅ **Flujo correcto y crítico para el negocio.** La "Comunidad confiable con reseñas reales" es un diferenciador clave del canvas. Sin reviews verificados, Habita Perú es indistinguible de OLX o Facebook Marketplace.
-
-**Recomendación:** Implementar junto con los anuncios destacados (prioridad media-alta). El rating de propiedades debería impactar directamente en el algoritmo de búsqueda.
+**Protección anti-manipulación:**
+- Reseña solo desde IP diferente a la del landlord de esa propiedad
+- Máximo 1 reseña por contrato
+- Contratos DRAFT o sin pago de success fee no generan reseñas
 
 ---
 
-### 2.2 — Chat Interno Landlord ↔ Tenant
+### 2.2 — Contacto Landlord ↔ Tenant
 
-#### ¿Cómo se trabajará?
-Mensajería interna para coordinar visitas y resolver dudas antes y durante el contrato.
+**Decisión tomada:** NO se construye chat interno en esta etapa.
+WhatsApp es el estándar en Perú y construir un chat propio tardaría
+3–4 semanas que se invierten mejor en features que generan ingreso.
 
-**Flujo:**
+**Lo que se implementa (1 día de trabajo):**
 ```
-Tenant encuentra propiedad → botón "Consultar al arrendador"
-  → Se abre hilo de chat vinculado a la propiedad
-  → Mensajes en tiempo real (WebSocket con Pusher o Ably)
-  → Notificación push/email cuando hay mensaje nuevo
-  → Chat se archiva automáticamente si el contrato termina
-  → Landlord puede bloquear usuarios
+Tenant interesado en propiedad
+  → Botón "Consultar al arrendador"
+  → Se abre WhatsApp con mensaje predefinido:
+    "Hola, vi tu propiedad en Habita Perú: [título propiedad].
+     ¿Sigue disponible? Me gustaría coordinar una visita."
+  → El número del landlord nunca se muestra en el listado público
+    (se revela solo cuando el tenant tiene KYC verificado)
 ```
 
-**Stack técnico:**
-- Pusher / Ably para WebSockets (más simple que implementar propio)
-- `Message` model en DB (senderId, receiverId, propertyId, content, readAt)
-
-#### ¿Es correcto este flujo?
-⚠️ **Correcto en concepto, pero evaluar si es necesario en etapa temprana.** WhatsApp es omnipresente en Perú y la mayoría de coordinaciones ya ocurren ahí. Un chat interno solo agrega valor si tiene funciones que WhatsApp no tiene (como mostrar el historial de mensajes vinculado al contrato para efectos legales).
-
-**Recomendación:** Versión 1.0: botón "Contactar por WhatsApp" que abre wa.me con mensaje predefinido. Versión 2.0: chat interno propio con historial legal. Esto ahorra 3-4 semanas de desarrollo en esta etapa.
+**Por qué revelar el número solo con KYC verificado:**
+Esto obliga al tenant a completar el KYC (y pagar los S/9.90) antes de
+poder contactar al landlord. Es el gate de monetización correcto: el
+tenant ve la propiedad, se interesa, y para dar el siguiente paso debe
+verificar su identidad. Natural, no forzado.
 
 ---
 
-### 2.3 — Soporte Técnico / Asesoría Legal Automatizada
+### 2.3 — Soporte al Usuario
 
-#### ¿Cómo se trabajará?
-Widget de soporte con FAQ inteligente + escalado a humano.
+**Decisión tomada:** Usar **Tawk.to** (100% gratuito, sin límite de
+conversaciones). Se integra en 30 minutos con un script en el layout.
 
-**Flujo:**
+**Flujo de soporte:**
 ```
-Usuario hace clic en ícono de soporte
-  → Chatbot responde preguntas frecuentes (FAQ estático con búsqueda)
-  → Si no resuelve → formulario de ticket (email a soporte@habitaperu.com)
-  → SLA: respuesta en 24h laborables
-  → Para preguntas legales: link a recursos PDF (Ley 30201, Ley 30933)
+Usuario tiene problema → ícono de chat en esquina inferior derecha
+  → FAQ automático cubre: ¿Cómo funciona el contrato?, ¿Cómo verifico
+    mi identidad?, ¿Cómo firmo digitalmente?, ¿Es legal este contrato?
+  → Si no resuelve → chat en vivo con el equipo (horario: 9am–9pm)
+  → Fuera de horario → mensaje queda guardado, respuesta en < 12h
 ```
 
-**Implementación simple:** Crisp.chat o Tawk.to (gratuitos), se integran en 1 día.
-
-#### ¿Es correcto este flujo?
-✅ **Correcto. No construir chatbot propio en esta etapa.** Usar herramienta externa es la decisión correcta para un MVP. Construir un chatbot de IA legal requiere entrenamiento con jurisprudencia peruana, validación legal, y mantenimiento continuo — demasiado costo para el valor que agrega ahora.
+**Recursos legales gratuitos a enlazar:**
+- Texto de Ley 30201 (disponible en leyes.congreso.gob.pe)
+- Texto de Ley 30933 (desalojo express)
+- Guía "¿Qué hacer si mi inquilino no paga?" (redactarla en el equipo)
 
 ---
 
 ## 3. Canales
 
-### 3.1 — Integración WhatsApp Business
+### 3.1 — WhatsApp Business para Notificaciones
 
-#### ¿Cómo se trabajará?
-Notificaciones clave enviadas por WhatsApp además de email.
+**Estado:** Implementar en Sprint 2 (mes 3–4). Alta prioridad.
 
-**Flujo:**
-```
-Evento ocurre en plataforma (contrato enviado, pago registrado, firma pendiente)
-  → Backend llama a WhatsApp Business API (Meta Cloud API)
-  → Mensaje de template aprobado enviado al número del usuario
-  → Usuario puede responder "1" para confirmar o hacer preguntas básicas
-```
+**Mensajes a implementar (en orden de prioridad):**
 
-**Mensajes clave:**
-- "Tienes un contrato pendiente de firma. Ver aquí: [link]"
-- "Tu pago de alquiler de [mes] fue registrado ✓"
-- "El inquilino firmó el contrato. Tu contrafirma activa el contrato."
+| Evento | Mensaje | Para quién |
+|---|---|---|
+| Contrato enviado al tenant | "Tienes un contrato pendiente de firma en Habita Perú. Revísalo aquí: [link]" | Tenant |
+| Tenant firmó | "El inquilino firmó el contrato. Tu contrafirma lo activa. Firma aquí: [link]" | Landlord |
+| Contrato activo | "Tu contrato de alquiler está activo desde hoy. Ver detalles: [link]" | Ambos |
+| Pago de renta registrado | "Tu pago de [mes] fue registrado ✓. Ver comprobante: [link]" | Tenant |
+| Recordatorio de pago (3 días antes) | "Tu pago de alquiler vence en 3 días. Monto: S/[X]" | Tenant |
+| KYC aprobado | "Tu identidad fue verificada ✓. Ya puedes contactar arrendadores." | Tenant |
 
-**Costo:** Meta Cloud API — primeras 1,000 conversaciones/mes gratis, luego ~$0.04/conversación.
-
-#### ¿Es correcto este flujo?
-✅ **Muy correcto y alta prioridad para Perú.** La tasa de apertura de WhatsApp es 98% vs 20% del email. Para un mercado como Perú donde WhatsApp es el canal principal de comunicación, esto no es opcional, es casi obligatorio para buena experiencia de usuario.
-
-**Recomendación:** Implementar antes del sistema de suscripciones. ROI inmediato en retención de usuarios.
+**Reglas para no ser marcado como spam:**
+- Máximo 2 mensajes/semana por usuario
+- Siempre con opción de responder "STOP" para opt-out
+- Solo mensajes transaccionales (no marketing)
+- Templates pre-aprobados por Meta antes de usar en producción
 
 ---
 
-### 3.2 — Social Sharing de Propiedades
+### 3.2 — Open Graph + Social Sharing
 
-#### ¿Cómo se trabajará?
-Botones para compartir propiedades en redes sociales + Open Graph para preview rico.
+**Estado:** Implementar en Sprint 1 (semana 1–2). Es 1–2 días de trabajo.
 
-**Flujo:**
+**Qué se implementa:**
 ```
-Landlord publica propiedad
-  → Página de detalle tiene meta tags OG (título, imagen, precio, distrito)
-  → Botones: "Compartir en Facebook", "Compartir en WhatsApp", copiar link
-  → Al compartir en grupos de Facebook → preview con imagen y precio
-  → UTM params en links para rastrear conversiones por canal
+Cada propiedad tiene su propia URL pública:
+  habitaperu.pe/propiedades/[id]
+
+Meta tags Open Graph en esa página:
+  og:title    → "Cuarto en Urb. California, Trujillo - S/450/mes"
+  og:description → "2 hab, 1 baño, amoblado. Arrendador verificado."
+  og:image    → Primera foto de la propiedad (optimizada para preview)
+  og:url      → URL canónica de la propiedad
+
+Botones en la página de detalle:
+  → "Compartir en WhatsApp" (abre wa.me con link + descripción)
+  → "Compartir en Facebook" (abre sharer con link)
+  → "Copiar enlace" (clipboard API)
+  → UTM: ?utm_source=whatsapp&utm_medium=share&utm_campaign=property
 ```
 
-**Implementación técnica:** Solo meta tags OG en `layout.tsx` de cada propiedad + botones de share nativos (Web Share API). 1-2 días de trabajo.
-
-#### ¿Es correcto este flujo?
-✅ **Correcto y fácil de implementar.** El canvas menciona grupos de Facebook e Instagram como canal de captación. El OG correcto hace que cada propiedad compartida sea en sí misma un anuncio gratuito en redes sociales.
+**Por qué es importante para Trujillo:**
+Los grupos de Facebook de alquileres en Trujillo tienen decenas de miles
+de miembros. Cuando un landlord comparte su propiedad desde Habita, el
+preview rico (imagen + precio + ubicación) es mucho más efectivo que
+solo pegar el link en texto plano.
 
 ---
 
 ## 4. Socios Clave
 
-### 4.1 — Integración Real de Pagos (Culqi / Niubiz / Izipay)
+### 4.1 — Culqi (Pagos)
 
-#### ¿Cómo se trabajará?
-Actualmente los pagos de arrendamiento se registran manualmente. Se integrará Culqi para pagos reales dentro de la plataforma.
+**Decisión tomada:** Culqi es el único procesador de pagos a integrar
+en la primera etapa. Niubiz e Izipay se evalúan en año 2.
 
-**Flujo de pago de arrendamiento:**
+**Plan de activación:**
 ```
-Tenant entra a su dashboard de pagos
-  → Ve cuota del mes con estado PENDIENTE
-  → Botón "Pagar ahora" → modal de pago
-  → Ingresa tarjeta / elige Yape o Plin (Culqi lo soporta)
-  → Culqi tokeniza la tarjeta (nunca pasa por nuestros servidores)
-  → Backend recibe token → llama a Culqi API para cobrar
-  → Culqi confirma → webhook actualiza Payment.status = PAID
-  → Email + WhatsApp de confirmación a landlord y tenant
+Semana 1: Registrar cuenta en culqi.com (modo test, sin empresa requerida)
+Semana 2–6: Desarrollo e integración con API de test
+Semana 6–8: Registrar RUC en SUNAT (persona natural con negocio)
+Semana 8: Solicitar activación de cuenta Culqi en modo producción
+Semana 10: Primer cobro real en producción
 ```
 
-**Flujo de pago de suscripción/featured:**
-```
-(Mismo flujo, diferente concepto de pago)
-  → Culqi Subscriptions API para pagos recurrentes
-```
+**Métodos de pago a activar (en orden de prioridad):**
+1. **Yape** — el más usado en Trujillo, especialmente estudiantes
+2. **Plin** — segundo más usado, BCP/BBVA/Interbank/Scotiabank
+3. **Tarjeta débito** — para arrendadores que no usan billeteras digitales
+4. **Tarjeta crédito** — para plan Business y pagos de mayor monto
 
-**Credenciales necesarias:**
-- Culqi API Key (modo test ya disponible en culqi.com)
-- Webhook secret para validar eventos
-- Variables de entorno: CULQI_PUBLIC_KEY, CULQI_SECRET_KEY
+**Implementación técnica (idempotencia obligatoria):**
+```typescript
+// Cada intento de pago genera una key única
+const idempotencyKey = `${userId}-${conceptType}-${Date.now()}`
 
-#### ¿Es correcto este flujo?
-✅ **Es la integración más crítica de toda la plataforma.** Sin pagos reales integrados, Habita Perú no puede cobrar por ninguna de sus fuentes de ingreso. Todo lo demás depende de esto.
+// Se envía en el header de cada request a Culqi
+headers: { 'Idempotency-Key': idempotencyKey }
 
-**Recomendación:** Culqi primero (es peruano, soporte local, acepta Yape/Plin que es clave para el mercado). Niubiz e Izipay como alternativas secundarias. No intentar integrar los tres al mismo tiempo.
-
----
-
-### 4.2 — Convenios con Universidades
-
-#### ¿Cómo se trabajará?
-Página de landing especializada por universidad + código de acceso para estudiantes verificados.
-
-**Flujo:**
-```
-Universidad firma convenio con Habita Perú (proceso offline/legal)
-  → Se crea página: habitaperu.com/universidad/pucp
-  → Estudiante ingresa con email institucional (@pucp.edu.pe)
-  → Verificación automática del dominio → badge "Estudiante verificado"
-  → Acceso a propiedades filtradas por cercanía a esa universidad
-  → Landlords que quieren llegar a esa universidad pueden pagar featured en esa landing
-```
-
-**DB necesaria:**
-- `University` (nombre, dominio email, ubicación lat/lng)
-- `user.universityId` (FK opcional)
-- `user.studentVerified Boolean`
-
-#### ¿Es correcto este flujo?
-⚠️ **Correcto en concepto pero los convenios universitarios son lentos en Perú.** Los procesos administrativos de universidades pueden tomar 3-6 meses. 
-
-**Recomendación:** Versión 1.0 sin convenio: simplemente un filtro de búsqueda "Cerca de mi universidad" con selector de universidad y radio de distancia. No requiere convenio, genera el mismo valor al estudiante, y cuando venga el convenio la base técnica ya está. La verificación de email institucional puede implementarse en paralelo sin depender del convenio.
-
----
-
-## 5. Opinión General del Flujo de Negocio
-
-### Lo que está bien planteado ✅
-
-**El core del producto es sólido.** KYC + contratos legales + firma digital es un diferenciador real en el mercado peruano donde el 80% de alquileres se hacen "de palabra" o con contratos informales. Eso resuelve un dolor real.
-
-**La secuencia lógica es correcta:** Primero formalizar el mercado (contratos + KYC), luego monetizar sobre la confianza generada.
-
----
-
-### Lo que cambiaría del flujo ⚠️
-
-**Problema 1 — Dos clientes, una sola experiencia de monetización.**
-El canvas apunta a cobrarle principalmente al landlord (suscripciones, featured). Pero el tenant también se beneficia (contratos seguros, KYC como garantía). Actualmente el tenant no paga nada. Considerar: cobrar al tenant una pequeña tarifa de "verificación de identidad" (S/ 9.90 única vez) que financia el KYC y filtra inquilinos no serios.
-
-**Problema 2 — Dependencia de pagos de suscripción en mercado con baja cultura de SaaS.**
-En Perú, los arrendadores pequeños son reacios a pagar suscripciones mensuales por software. El modelo de pago por uso (pay-per-use) puede funcionar mejor: cobrar S/ 29 por cada contrato firmado exitosamente (success fee) en lugar de S/ 49/mes fijo. Alineación de incentivos: Habita solo cobra cuando el arrendador consigue inquilino.
-
-**Problema 3 — Sin estrategia de red bidireccional.**
-La plataforma necesita landlords Y tenants simultáneamente para funcionar. Si hay propiedades pero no tenants, o tenants pero no propiedades, el marketplace muere. El canvas no define claramente cómo romper el "cold start problem". 
-
-**Recomendación de flujo de adquisición:**
-```
-Fase 1 (0-3 meses): Captar landlords con propiedades GRATIS
-  → Conseguir inventario de propiedades sin cobrar nada
-  → Meta: 200 propiedades activas en Lima
-  
-Fase 2 (3-6 meses): Atraer tenants con propiedades verificadas
-  → El inventario verificado atrae tenants orgánicamente
-  → Meta: 500 búsquedas activas/mes
-  
-Fase 3 (6-12 meses): Monetizar sobre base activa
-  → Introducir featured listings (menor fricción)
-  → Introducir planes cuando landlords ya ven el valor
+// Si el mismo request llega dos veces (doble clic, retry)
+// Culqi retorna el resultado del primero sin cobrar dos veces
 ```
 
 ---
 
-### Prioridad de implementación recomendada
+### 4.2 — Universidades de Trujillo (sin convenio formal al inicio)
+
+**Decisión tomada:** No esperar convenios formales. Implementar
+filtro de búsqueda "Cerca de mi universidad" sin necesidad de
+acuerdo institucional.
+
+**Lo que se implementa ahora:**
+```
+En el buscador de propiedades:
+  → Selector: "Buscar cerca de..." con opciones:
+    UNT, UCV, UPAO, UPN, ULADECH, UTELESUP
+  → Radio configurable: 500m, 1km, 2km, 5km
+  → Geolocalización de propiedades vs coordenadas de campus
+  → Resultados ordenados por distancia al campus seleccionado
+```
+
+**Lo que se hace offline en paralelo:**
+- Presentar el producto en ferias de emprendimiento de UNT/UCV/UPAO
+- Hablar directamente con la Oficina de Bienestar Universitario
+  (son ellos quienes reciben consultas de estudiantes sobre alojamiento)
+- Ofrecer que recomienden Habita Perú a estudiantes que buscan cuarto
+- No requiere convenio formal: solo una recomendación informal
+
+**Cuándo buscar el convenio formal:**
+Cuando haya ≥ 20 contratos firmados por estudiantes de esa universidad.
+Con datos reales, la conversación con la universidad es diferente:
+"Tenemos 20 estudiantes tuyos que alquilaron a través de nuestra plataforma"
+tiene mucho más peso que "queremos hacer un convenio".
+
+---
+
+### 4.3 — Incubadora Universitaria (recurso gratuito)
+
+**Acción inmediata:** Inscribirse en el programa de la incubadora
+de la universidad de alguno de los tres integrantes del equipo.
+
+**Qué se obtiene gratis:**
+- Revisión del contrato generado por abogados de la clínica jurídica
+- Mentoría de emprendedores con experiencia en el mercado local
+- Acceso a red de contactos (posibles landlords early adopters)
+- Espacio de trabajo y reuniones si lo necesitan
+- Credibilidad ante primeros usuarios ("proyecto de la universidad")
+
+---
+
+## 5. Flujo de Adquisición y Expansión
+
+### Secuencia definitiva de ciudades
 
 ```
-Sprint 1 (2-3 semanas)
-  ├── Integración Culqi (pagos reales)
-  └── Open Graph + Social sharing
+Meses 0–6   → Trujillo (validar modelo con ventaja de fundador local)
+Meses 6–9   → Chiclayo (mismo perfil universitario/industrial, cerca)
+Meses 9–12  → Piura (tercer mercado antes de Lima)
+Mes 12–18   → Lima (con modelo probado en 3 ciudades)
+Mes 18–24   → Arequipa + consolidación nacional
+```
 
-Sprint 2 (2-3 semanas)
-  ├── Anuncios destacados (featured listings)
-  └── WhatsApp Business API (notificaciones clave)
+**Por qué este orden:**
+Chiclayo y Piura tienen el mismo perfil que Trujillo: ciudades
+universitarias con mercado de alquiler informal y sin plataforma dominante.
+El equipo ya sabe cómo adquirir usuarios en ese tipo de ciudad. Lima
+requiere más recursos y tiene más competencia. Llegar a Lima con 3 ciudades
+validadas es una narrativa mucho más fuerte que llegar directo.
 
-Sprint 3 (3-4 semanas)
+### Flujo de adquisición de los primeros 50 landlords en Trujillo
+
+**Esta es la tarea más importante de los primeros 2 meses. Sin este paso,
+todo lo demás no tiene sentido.**
+
+```
+Semana 1–2: Identificar landlords en OLX Trujillo
+  → Buscar propiedades activas en OLX con anuncios de cuartos/depas
+  → Crear lista de 50 contactos (nombre, teléfono, zona, precio)
+  → Contactar por WhatsApp con mensaje específico:
+
+  "Hola [nombre], vi tu anuncio en OLX. Soy [nombre] de Habita Perú,
+   una plataforma de Trujillo para alquileres seguros. Te ofrecemos
+   publicar tu propiedad gratis + verificamos la identidad de los
+   inquilinos antes de que te contacten. ¿Te interesa que te ayude
+   a cargar tu propiedad esta semana? Sin costo."
+
+Semana 3–4: Onboarding asistido de los primeros 10
+  → Hacer videollamada o visita presencial
+  → Cargar la propiedad juntos (no mandarlos solos)
+  → El primer landlord satisfecho recomienda a otro
+  → Meta: 10 propiedades publicadas en semana 4
+
+Semana 5–8: Conseguir los primeros tenants
+  → Publicar en grupos de Facebook universitarios de Trujillo
+  → Volantes QR en campus de UNT, UCV, UPAO
+  → Mensaje en grupos de WhatsApp de estudiantes
+
+Meta mes 3: 50 propiedades publicadas + 100 tenants registrados
+```
+
+### Métricas por etapa para decidir si continuar o pivotar
+
+| Etapa | Métrica mínima | Si no se cumple... |
+|---|---|---|
+| Mes 3 | 50 propiedades + 100 tenants | Revisar propuesta de valor, no escalar |
+| Mes 6 | 10 success fees cobrados | Revisar el proceso de contrato, simplificar |
+| Mes 9 | MRR ≥ S/ 500 | Evaluar si el mercado de Trujillo es suficiente |
+| Mes 12 | MRR ≥ S/ 2,000 | Evaluar expansión vs profundizar en Trujillo |
+
+---
+
+## Sprint de implementación técnica (orden definitivo)
+
+```
+Sprint 1 — Semanas 1–3 (base funcional)
+  ├── Corregir todos los bugs actuales (errores Zod, modales, contratos)
+  ├── Open Graph en páginas de propiedades
+  ├── Botón "Contactar por WhatsApp" en listings (con KYC gate)
+  └── Tawk.to integrado en el layout
+
+Sprint 2 — Semanas 4–6 (monetización inicial)
+  ├── Integración Culqi (success fee + KYC fee tenant)
+  ├── Featured listings con estadísticas de vistas
+  └── Activar Culqi en producción (RUC + cuenta bancaria)
+
+Sprint 3 — Semanas 7–10 (retención y confianza)
+  ├── WhatsApp Business API (notificaciones clave)
   ├── Sistema de reseñas verificadas
-  └── Planes de suscripción (freemium)
+  └── Filtro "Cerca de universidad" con geolocalizción
 
-Sprint 4 (4-5 semanas)
-  ├── Descarga PDF de contratos
-  ├── Filtro "Cerca de universidad"
-  └── Soporte con Crisp/Tawk.to
+Sprint 4 — Semanas 11–14 (monetización avanzada)
+  ├── Planes Pro y Business con Culqi Subscriptions
+  ├── Descarga PDF de contratos (solo plan Pro+)
+  └── Analytics básico de vistas por propiedad
 
-Sprint 5 (futuro — v2.0)
-  ├── Chat interno
-  ├── Marketplace de servicios
-  └── Publicidad especializada
+Sprint 5 — Mes 4+ (escala)
+  ├── Directorio de servicios locales (sin pago integrado)
+  ├── Preparación para lanzamiento en Chiclayo
+  └── Postulación a Startup Perú con métricas reales
 ```
 
 ---
 
-*Generado el 2026-06-04 — Revisión pendiente con equipo legal y de producto.*
+*Actualizado el 2026-06-04. Decisiones incorporadas como plan definitivo.*
+*Equipo: 3 estudiantes. Ciudad inicial: Trujillo. Capital inicial: S/ 0.*
