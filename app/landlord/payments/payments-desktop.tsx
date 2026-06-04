@@ -347,7 +347,7 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
       {/* MODAL 1: Revisar Comprobante (Aprobar / Rechazar) */}
       {reviewPayment && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden">
             
             {/* Header */}
             <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
@@ -481,7 +481,7 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
       {/* MODAL 2: Ver Comprobante Verificado */}
       {viewPayment && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden">
             
             {/* Header */}
             <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
@@ -557,7 +557,7 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
       {/* MODAL 3: Recordatorio de Pago */}
       {reminderPayment && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl max-w-md w-full overflow-hidden">
             
             {/* Header */}
             <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">

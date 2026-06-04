@@ -29,7 +29,7 @@ import {
   isKnownLegalError,
   type SerializedError,
 } from "@/lib/exceptions/contract-errors"
-import { createDocumentHash } from "@/lib/services/contract-engine"
+import { createDocumentHash, generatePeruvianLeaseAgreement } from "@/lib/services/contract-engine"
 import { createNotificationHelper } from "@/lib/notifications"
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -578,7 +578,11 @@ export async function createDraftContract(input: {
   startDate: Date
   endDate: Date
   paymentDay: number
-  documentHtml: string
+  paymentAccount: {
+    provider: "Niubiz" | "Culqi" | "Izipay" | "BCP" | "Interbank" | "BBVA"
+    accountNumber: string
+    accountHolder: string
+  }
 }): Promise<ActionResult<{ contractId: string }>> {
   try {
     const session = await auth()
@@ -594,10 +598,19 @@ export async function createDraftContract(input: {
       throw new UnauthorizedLegalActionError(userId, "createDraftContract", Role.LANDLORD)
     }
 
-    // Verificar que la propiedad pertenece al landlord autenticado
+    // Verificar propiedad y obtener datos para generación de HTML
     const property = await prisma.property.findUnique({
       where: { id: input.propertyId },
-      select: { ownerId: true, status: true },
+      select: {
+        ownerId: true,
+        status: true,
+        address: true,
+        district: true,
+        type: true,
+        area: true,
+        rooms: true,
+        bathrooms: true,
+      },
     })
 
     if (!property) {
@@ -622,22 +635,26 @@ export async function createDraftContract(input: {
       }
     }
 
-    // Calcular hash del documento HTML del contrato
-    const documentHash = createDocumentHash(input.documentHtml)
+    // Obtener datos de landlord y tenant para generación del documento
+    const [landlordData, tenantData] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { firstName: true, lastName: true, dni: true, email: true, phone: true, district: true },
+      }),
+      prisma.user.findUnique({
+        where: { id: input.tenantId },
+        select: { firstName: true, lastName: true, dni: true, email: true, phone: true, district: true },
+      }),
+    ])
 
-    // Verificar que no exista ya un contrato con el mismo hash (idempotencia)
-    const existingContract = await prisma.contract.findUnique({
-      where: { documentHash },
-      select: { id: true },
-    })
-
-    if (existingContract) {
+    if (!landlordData || !tenantData) {
       return {
-        success: true,
-        data: { contractId: existingContract.id },
+        success: false,
+        error: { code: "USER_NOT_FOUND", message: "No se encontraron los datos de las partes.", statusHint: 404 },
       }
     }
 
+    // Paso 1: Crear contrato para obtener el ID real (cuid) antes de generar el HTML
     const contract = await prisma.contract.create({
       data: {
         propertyId: input.propertyId,
@@ -650,9 +667,78 @@ export async function createDraftContract(input: {
         startDate: input.startDate,
         endDate: input.endDate,
         paymentDay: input.paymentDay,
-        documentHash,
       },
       select: { id: true },
+    })
+
+    // Paso 2: Generar HTML en el servidor con el ID real del contrato
+    const toAddress = (district: string | null) => {
+      const d = district ?? "Lima"
+      return d.length >= 5 ? d : `${d}, Perú`
+    }
+
+    let documentHash: string
+    try {
+      const html = generatePeruvianLeaseAgreement({
+        contractId: contract.id,
+        landlord: {
+          fullName: `${landlordData.firstName} ${landlordData.lastName}`,
+          dni: landlordData.dni ?? "00000000",
+          email: landlordData.email,
+          phone: landlordData.phone ?? "No registrado",
+          address: toAddress(landlordData.district),
+          district: landlordData.district ?? "Lima",
+        },
+        tenant: {
+          fullName: `${tenantData.firstName} ${tenantData.lastName}`,
+          dni: tenantData.dni ?? "00000000",
+          email: tenantData.email,
+          phone: tenantData.phone ?? "No registrado",
+          address: toAddress(tenantData.district),
+          district: tenantData.district ?? "Lima",
+        },
+        property: {
+          id: input.propertyId,
+          address: property.address ?? "Dirección no registrada",
+          district: property.district,
+          type: (property.type as "HABITACION" | "DEPARTAMENTO" | "CASA" | "OFICINA" | "LOCAL") ?? "DEPARTAMENTO",
+          area: property.area ?? undefined,
+          rooms: property.rooms ?? 1,
+          bathrooms: property.bathrooms ?? 1,
+        },
+        monthlyRent: input.monthlyRent,
+        currency: input.currency,
+        deposit: input.deposit,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        paymentDay: input.paymentDay,
+        paymentAccount: input.paymentAccount,
+      })
+      documentHash = createDocumentHash(html)
+    } catch (genError) {
+      // Si la generación falla, limpiar el contrato huérfano y relanzar
+      await prisma.contract.delete({ where: { id: contract.id } }).catch(() => {})
+      throw genError
+    }
+
+    // Idempotencia: si ya existe un contrato con el mismo hash, devolver ese
+    const existingContract = await prisma.contract.findFirst({
+      where: { documentHash, id: { not: contract.id } },
+      select: { id: true },
+    })
+
+    if (existingContract) {
+      await prisma.contract.delete({ where: { id: contract.id } }).catch(() => {})
+      return { success: true, data: { contractId: existingContract.id } }
+    }
+
+    // Paso 3: Actualizar contrato con hash y datos de cuenta bancaria
+    await prisma.contract.update({
+      where: { id: contract.id },
+      data: {
+        documentHash,
+        terms: JSON.stringify({ paymentAccount: input.paymentAccount }),
+      },
     })
 
     revalidatePath("/landlord/dashboard")

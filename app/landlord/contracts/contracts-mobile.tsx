@@ -13,7 +13,6 @@ import {
   AlertCircleIcon
 } from "hugeicons-react"
 import { createDraftContract } from "@/app/actions/contract-actions"
-import { generatePeruvianLeaseAgreement } from "@/lib/services/contract-engine"
 
 interface LandlordInfo {
   id: string
@@ -136,36 +135,9 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
     setError(null)
 
     try {
-      const selectedProperty = properties.find(p => p.id === selectedPropertyId)!
-      const selectedTenant = tenants.find(t => t.id === selectedTenantId)!
-
-      const contractData = {
-        contractId: "DRAFT-TEMP",
-        landlord: {
-          fullName: `${landlord.firstName} ${landlord.lastName}`,
-          dni: landlord.dni || "00000000",
-          email: landlord.email,
-          phone: landlord.phone || "No registrado",
-          address: landlord.district || "Lima",
-          district: landlord.district || "Lima",
-        },
-        tenant: {
-          fullName: `${selectedTenant.firstName} ${selectedTenant.lastName}`,
-          dni: selectedTenant.dni || "00000000",
-          email: selectedTenant.email,
-          phone: selectedTenant.phone || "No registrado",
-          address: selectedTenant.district || "Lima",
-          district: selectedTenant.district || "Lima",
-        },
-        property: {
-          id: selectedProperty.id,
-          address: selectedProperty.address || "Dirección no registrada",
-          district: selectedProperty.district,
-          type: selectedProperty.type || "DEPARTAMENTO",
-          area: selectedProperty.area || undefined,
-          rooms: selectedProperty.rooms || 1,
-          bathrooms: selectedProperty.bathrooms || 1,
-        },
+      const res = await createDraftContract({
+        propertyId: selectedPropertyId,
+        tenantId: selectedTenantId,
         monthlyRent: Number(monthlyRent),
         currency: currency as "PEN" | "USD",
         deposit: Number(deposit),
@@ -176,21 +148,7 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
           provider: bankProvider,
           accountNumber: bankAccountNumber,
           accountHolder: bankAccountHolder,
-        }
-      }
-
-      const html = generatePeruvianLeaseAgreement(contractData)
-
-      const res = await createDraftContract({
-        propertyId: selectedPropertyId,
-        tenantId: selectedTenantId,
-        monthlyRent: Number(monthlyRent),
-        currency: currency as "PEN" | "USD",
-        deposit: Number(deposit),
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        paymentDay: Number(paymentDay),
-        documentHtml: html,
+        },
       })
 
       if (res.success) {
@@ -323,7 +281,7 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
       {/* Creation Modal for Mobile */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[150] flex items-center justify-center p-3 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-sm max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-sm max-h-[90vh] flex flex-col overflow-hidden">
             
             <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
               <div>

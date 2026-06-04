@@ -103,7 +103,7 @@ export function PropertiesDesktop({ properties }: Props) {
         </div>
         <Link
           href="/landlord/properties/new"
-          className="h-12 px-5 rounded-xl text-sm font-bold text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer no-underline"
+          className="h-12 px-5 rounded-xl text-sm font-bold !text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer no-underline"
           style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
         >
           <Add01Icon size={18} />
@@ -258,7 +258,7 @@ export function PropertiesDesktop({ properties }: Props) {
           </p>
           <Link
             href="/landlord/properties/new"
-            className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold text-white transition-colors no-underline"
+            className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold !text-white transition-colors no-underline"
             style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
           >
             Publicar mi primer anuncio

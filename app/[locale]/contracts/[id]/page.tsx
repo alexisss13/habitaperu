@@ -82,18 +82,18 @@ export default async function ContractPage({ params }: Props) {
     contractId: contract.id,
     landlord: {
       fullName: `${contract.landlord.firstName} ${contract.landlord.lastName}`,
-      dni: contract.landlord.dni ?? "No registrado",
+      dni: /^\d{8}$/.test(contract.landlord.dni ?? "") ? contract.landlord.dni! : "00000000",
       email: contract.landlord.email,
       phone: contract.landlord.phone ?? "No registrado",
-      address: contract.landlord.district ?? "Lima",
+      address: (() => { const d = contract.landlord.district ?? "Lima"; return d.length >= 5 ? d : `${d}, Perú` })(),
       district: contract.landlord.district ?? "Lima",
     },
     tenant: {
       fullName: `${contract.tenant.firstName} ${contract.tenant.lastName}`,
-      dni: contract.tenant.dni ?? "No registrado",
+      dni: /^\d{8}$/.test(contract.tenant.dni ?? "") ? contract.tenant.dni! : "00000000",
       email: contract.tenant.email,
       phone: contract.tenant.phone ?? "No registrado",
-      address: contract.tenant.district ?? "Lima",
+      address: (() => { const d = contract.tenant.district ?? "Lima"; return d.length >= 5 ? d : `${d}, Perú` })(),
       district: contract.tenant.district ?? "Lima",
     },
     property: {

@@ -307,7 +307,7 @@ export function AdminKYCDesktop({ verifications }: Props) {
       {/* MODAL 1: Evaluar Expediente (Aprobar / Rechazar) */}
       {selectedKyc && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-          <div className="bg-admin-card-bg border border-admin-border shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-admin-card-bg border border-admin-border shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden">
             
             {/* Header */}
             <div className="bg-admin-bg border-b border-admin-border px-6 py-4 flex items-center justify-between">
@@ -434,7 +434,7 @@ export function AdminKYCDesktop({ verifications }: Props) {
       {/* MODAL 2: Ver Detalles */}
       {viewKyc && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-          <div className="bg-admin-card-bg border border-admin-border shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-admin-card-bg border border-admin-border shadow-2xl rounded-2xl max-w-lg w-full overflow-hidden">
             
             {/* Header */}
             <div className="bg-admin-bg border-b border-admin-border px-6 py-4 flex items-center justify-between">

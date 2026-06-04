@@ -266,7 +266,7 @@ export function TenantKYCDesktop({ verification }: Props) {
                           <p className="text-xs font-bold tracking-widest text-cyan-300 animate-pulse z-10 mt-20">ESCANEANDO ROSTRO...</p>
                         </>
                       ) : scanSuccess ? (
-                        <div className="space-y-3 z-10 animate-in fade-in zoom-in duration-200">
+                        <div className="space-y-3 z-10">
                           <div className="size-16 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
                             <CheckmarkCircle01Icon size={32} />
                           </div>

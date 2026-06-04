@@ -17,7 +17,6 @@ import {
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
 import { createDraftContract } from "@/app/actions/contract-actions"
-import { generatePeruvianLeaseAgreement } from "@/lib/services/contract-engine"
 
 interface LandlordInfo {
   id: string
@@ -140,37 +139,9 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
     setError(null)
 
     try {
-      const selectedProperty = properties.find(p => p.id === selectedPropertyId)!
-      const selectedTenant = tenants.find(t => t.id === selectedTenantId)!
-
-      // 1. Construct parameters for contract document generation
-      const contractData = {
-        contractId: "DRAFT-TEMP", // Will be replaced by real DB ID on create
-        landlord: {
-          fullName: `${landlord.firstName} ${landlord.lastName}`,
-          dni: landlord.dni || "00000000",
-          email: landlord.email,
-          phone: landlord.phone || "No registrado",
-          address: landlord.district || "Lima",
-          district: landlord.district || "Lima",
-        },
-        tenant: {
-          fullName: `${selectedTenant.firstName} ${selectedTenant.lastName}`,
-          dni: selectedTenant.dni || "00000000",
-          email: selectedTenant.email,
-          phone: selectedTenant.phone || "No registrado",
-          address: selectedTenant.district || "Lima",
-          district: selectedTenant.district || "Lima",
-        },
-        property: {
-          id: selectedProperty.id,
-          address: selectedProperty.address || "Dirección no registrada",
-          district: selectedProperty.district,
-          type: selectedProperty.type || "DEPARTAMENTO",
-          area: selectedProperty.area || undefined,
-          rooms: selectedProperty.rooms || 1,
-          bathrooms: selectedProperty.bathrooms || 1,
-        },
+      const res = await createDraftContract({
+        propertyId: selectedPropertyId,
+        tenantId: selectedTenantId,
         monthlyRent: Number(monthlyRent),
         currency: currency as "PEN" | "USD",
         deposit: Number(deposit),
@@ -181,23 +152,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
           provider: bankProvider,
           accountNumber: bankAccountNumber,
           accountHolder: bankAccountHolder,
-        }
-      }
-
-      // Generate HTML locally so we can hash it
-      const html = generatePeruvianLeaseAgreement(contractData)
-
-      // 2. Call transactional server action
-      const res = await createDraftContract({
-        propertyId: selectedPropertyId,
-        tenantId: selectedTenantId,
-        monthlyRent: Number(monthlyRent),
-        currency: currency as "PEN" | "USD",
-        deposit: Number(deposit),
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        paymentDay: Number(paymentDay),
-        documentHtml: html,
+        },
       })
 
       if (res.success) {
@@ -355,7 +310,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       {/* Creation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[150] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
             
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">

@@ -253,7 +253,7 @@ export function TenantKYCMobile({ verification }: Props) {
                         <p className="text-[10px] font-bold tracking-widest text-cyan-300 animate-pulse mt-12">ESCANEANDO...</p>
                       </>
                     ) : scanSuccess ? (
-                      <div className="space-y-2 animate-in fade-in zoom-in duration-200">
+                      <div className="space-y-2">
                         <div className="size-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
                           <CheckmarkCircle01Icon size={22} />
                         </div>
