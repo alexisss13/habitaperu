@@ -171,6 +171,67 @@ export async function processKycFee(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 4. PLAN UPGRADE — S/49 (Pro) o S/129 (Business) mensual
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function processPlanUpgrade(
+  plan: "PRO" | "BUSINESS",
+  culqiToken: string = "mock"
+): Promise<PaymentActionResult> {
+  try {
+    const session = await auth()
+    if (!session?.user) return { success: false, error: "No autorizado." }
+
+    const userId = session.user.id
+    if ((session.user as any).role !== "LANDLORD") return { success: false, error: "Solo arrendadores pueden suscribirse." }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, subscriptionPlan: true },
+    })
+
+    if (!user) return { success: false, error: "Usuario no encontrado." }
+    if (user.subscriptionPlan === plan) return { success: true, isMock: CULQI_IS_MOCK }
+
+    const priceKey: PaymentType = plan === "PRO" ? "PRO_MONTHLY" : "BUSINESS_MONTHLY"
+
+    const charge = await createCulqiCharge({
+      token: culqiToken,
+      amountCents: PRICES[priceKey],
+      description: PAYMENT_LABELS[priceKey],
+      email: user.email,
+      metadata: { userId, plan, type: "SUBSCRIPTION" },
+    })
+
+    if (!charge.success) return { success: false, error: charge.error }
+
+    const endsAt = new Date()
+    endsAt.setDate(endsAt.getDate() + 30)
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { subscriptionPlan: plan, subscriptionEndsAt: endsAt },
+    })
+
+    await createNotificationHelper(
+      userId,
+      "PAYMENT_SUCCESS",
+      `Plan ${plan} activado`,
+      `Tu plan ${plan} está activo hasta el ${endsAt.toLocaleDateString("es-PE")}.`,
+      { plan }
+    )
+
+    revalidatePath("/landlord/properties")
+    revalidatePath("/landlord/settings")
+
+    return { success: true, isMock: CULQI_IS_MOCK }
+  } catch (err) {
+    console.error("[processPlanUpgrade]", err)
+    return { success: false, error: "Error interno al procesar el pago." }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 3. FEATURED LISTING — S/15/25/45 para destacar propiedad X días
 // ─────────────────────────────────────────────────────────────────────────────
 

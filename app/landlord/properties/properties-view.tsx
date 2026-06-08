@@ -30,9 +30,12 @@ export interface PropertyInfo {
 interface PropertiesViewProps {
   properties: PropertyInfo[]
   isMockPayment: boolean
+  subscriptionPlan: string
+  propertyCount: number
+  openUpgrade?: boolean
 }
 
-export function PropertiesView({ properties, isMockPayment }: PropertiesViewProps) {
+export function PropertiesView({ properties, isMockPayment, subscriptionPlan, propertyCount, openUpgrade }: PropertiesViewProps) {
   const { isMobile, isLoading } = useResponsive()
 
   if (isLoading) {
@@ -40,8 +43,8 @@ export function PropertiesView({ properties, isMockPayment }: PropertiesViewProp
   }
 
   return isMobile ? (
-    <PropertiesMobile properties={properties} isMockPayment={isMockPayment} />
+    <PropertiesMobile properties={properties} isMockPayment={isMockPayment} subscriptionPlan={subscriptionPlan} propertyCount={propertyCount} openUpgrade={openUpgrade} />
   ) : (
-    <PropertiesDesktop properties={properties} isMockPayment={isMockPayment} />
+    <PropertiesDesktop properties={properties} isMockPayment={isMockPayment} subscriptionPlan={subscriptionPlan} propertyCount={propertyCount} openUpgrade={openUpgrade} />
   )
 }

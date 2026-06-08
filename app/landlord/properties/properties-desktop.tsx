@@ -5,26 +5,33 @@ import Link from "next/link"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon, SquareIcon,
   Location01Icon, Tag01Icon, StarIcon, EyeIcon, FlashIcon,
-  CheckmarkCircle01Icon
+  CheckmarkCircle01Icon, ArrowUp01Icon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
 import { PaymentModal } from "@/components/ui/payment-modal"
+import { PlanUpgradeModal } from "@/components/ui/plan-upgrade-modal"
 import { processFeaturedListing } from "@/app/actions/culqi-actions"
 import type { PropertyInfo } from "./properties-view"
+
+const PLAN_LIMITS: Record<string, number> = { FREE: 3, PRO: 10, BUSINESS: Infinity }
 
 interface Props {
   properties: PropertyInfo[]
   isMockPayment: boolean
+  subscriptionPlan: string
+  propertyCount: number
+  openUpgrade?: boolean
 }
 
-export function PropertiesDesktop({ properties, isMockPayment }: Props) {
+export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan, propertyCount, openUpgrade }: Props) {
   const [filter, setFilter] = useState<string>("TODAS")
   const [featuredModal, setFeaturedModal] = useState<{
     propertyId: string
     propertyTitle: string
     days: 7 | 15 | 30
   } | null>(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(!!openUpgrade)
 
   // Calculate quick metrics
   const total = properties.length
@@ -94,6 +101,66 @@ export function PropertiesDesktop({ properties, isMockPayment }: Props) {
           <span>Publicar Propiedad</span>
         </Link>
       </div>
+
+      {/* Plan status + upgrade banner */}
+      {(() => {
+        const limit = PLAN_LIMITS[subscriptionPlan] ?? 3
+        const used = propertyCount
+        const isNearLimit = limit !== Infinity && used >= limit - 1
+        const atLimit = limit !== Infinity && used >= limit
+        if (subscriptionPlan === "BUSINESS") return null
+        return (
+          <div className={`flex items-center justify-between rounded-xl px-5 py-3 mb-6 border ${
+            atLimit ? "bg-red-50 border-red-200" : isNearLimit ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-200"
+          }`}>
+            <div className="flex items-center gap-3">
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                subscriptionPlan === "PRO" ? "bg-accent/10 text-accent" : "bg-slate-200 text-slate-600"
+              }`}>
+                Plan {subscriptionPlan}
+              </span>
+              <span className={`text-xs font-semibold ${atLimit ? "text-red-600" : isNearLimit ? "text-amber-600" : "text-slate-500"}`}>
+                {limit === Infinity ? `${used} propiedades` : `${used} / ${limit} propiedades`}
+              </span>
+              {atLimit && <span className="text-xs font-bold text-red-600">— Límite alcanzado</span>}
+              {isNearLimit && !atLimit && <span className="text-xs text-amber-600">— Quedan {limit - used} espacios</span>}
+            </div>
+            <button
+              onClick={() => setShowUpgradeModal(true)}
+              className="flex items-center gap-1.5 text-xs font-bold text-accent border border-accent/30 px-3 py-1.5 rounded-lg hover:bg-accent/5 cursor-pointer bg-white transition-colors"
+            >
+              <ArrowUp01Icon size={13} />
+              {subscriptionPlan === "FREE" ? "Actualizar a Pro" : "Ver planes"}
+            </button>
+          </div>
+        )
+      })()}
+
+      {/* Analytics: top 3 por vistas */}
+      {properties.length > 0 && (() => {
+        const top = [...properties].sort((a, b) => b.views - a.views).slice(0, 3).filter(p => p.views > 0)
+        if (top.length === 0) return null
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-5 mb-6 shadow-sm">
+            <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Propiedades más vistas</p>
+            <div className="flex gap-4">
+              {top.map((p, i) => (
+                <div key={p.id} className="flex-1 flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3">
+                  <span className="text-xl font-extrabold text-slate-200">{i + 1}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-text truncate">{p.title}</p>
+                    <p className="text-[10px] text-text-muted">{p.district}</p>
+                  </div>
+                  <div className="ml-auto flex items-center gap-1 text-accent">
+                    <EyeIcon size={13} />
+                    <span className="text-sm font-extrabold">{p.views}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-4 gap-6 mb-8">
@@ -289,6 +356,16 @@ export function PropertiesDesktop({ properties, isMockPayment }: Props) {
           itemLabel="propiedades"
         />
       )}
+
+      {/* Modal de upgrade de plan */}
+      <PlanUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => window.location.reload()}
+        currentPlan={subscriptionPlan}
+        isMockMode={isMockPayment}
+        propertyCount={propertyCount}
+      />
 
       {/* Modal de Featured Listing */}
       {featuredModal && (

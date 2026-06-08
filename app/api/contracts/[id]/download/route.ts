@@ -333,6 +333,20 @@ export async function GET(
       )
     }
 
+    // ── 3b. Gate de plan: landlords FREE no pueden descargar PDF ─────────────
+    if (isLandlord) {
+      const landlordUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { subscriptionPlan: true },
+      })
+      if (!landlordUser || landlordUser.subscriptionPlan === "FREE") {
+        return NextResponse.json(
+          { error: "La descarga de PDF requiere el plan Pro o Business. Actualiza tu plan en /landlord/properties.", upgradeRequired: true },
+          { status: 403 },
+        )
+      }
+    }
+
     // ── 4. Verificar que el contrato tiene documentHash ───────────────────────
     if (!contract.documentHash) {
       return NextResponse.json(

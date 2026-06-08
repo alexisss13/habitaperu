@@ -75,6 +75,12 @@ export default async function ContractPage({ params }: Props) {
     redirect(`/${locale}/login?error=Unauthorized`)
   }
 
+  const landlordUser = await prisma.user.findUnique({
+    where: { id: contract.landlordId },
+    select: { subscriptionPlan: true },
+  })
+  const landlordSubscriptionPlan = landlordUser?.subscriptionPlan ?? "FREE"
+
   // Record viewed action in Audit Trail (Clickwrap)
   await recordContractView(contractId)
 
@@ -147,6 +153,7 @@ export default async function ContractPage({ params }: Props) {
       isTenant={isTenant}
       locale={locale}
       isMockPayment={CULQI_IS_MOCK}
+      landlordSubscriptionPlan={landlordSubscriptionPlan}
     />
   )
 }

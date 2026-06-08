@@ -4,24 +4,32 @@ import { useState } from "react"
 import Link from "next/link"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon,
-  SquareIcon, Location01Icon, FlashIcon, StarIcon, CheckmarkCircle01Icon
+  SquareIcon, Location01Icon, FlashIcon, StarIcon, CheckmarkCircle01Icon,
+  EyeIcon, ArrowUp01Icon
 } from "hugeicons-react"
 import { PaymentModal } from "@/components/ui/payment-modal"
+import { PlanUpgradeModal } from "@/components/ui/plan-upgrade-modal"
 import { processFeaturedListing } from "@/app/actions/culqi-actions"
 import type { PropertyInfo } from "./properties-view"
+
+const PLAN_LIMITS: Record<string, number> = { FREE: 3, PRO: 10, BUSINESS: Infinity }
 
 interface Props {
   properties: PropertyInfo[]
   isMockPayment: boolean
+  subscriptionPlan: string
+  propertyCount: number
+  openUpgrade?: boolean
 }
 
-export function PropertiesMobile({ properties, isMockPayment }: Props) {
+export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, propertyCount, openUpgrade }: Props) {
   const [filter, setFilter] = useState<string>("TODAS")
   const [featuredModal, setFeaturedModal] = useState<{
     propertyId: string
     propertyTitle: string
     days: 7 | 15 | 30
   } | null>(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(!!openUpgrade)
 
   const filteredProperties = properties.filter(p => {
     if (filter === "TODAS") return true
@@ -74,6 +82,46 @@ export function PropertiesMobile({ properties, isMockPayment }: Props) {
           <span>Publicar Propiedad</span>
         </Link>
       </div>
+
+      {/* Plan banner */}
+      {subscriptionPlan !== "BUSINESS" && (() => {
+        const limit = PLAN_LIMITS[subscriptionPlan] ?? 3
+        const atLimit = limit !== Infinity && propertyCount >= limit
+        const isNear = limit !== Infinity && propertyCount >= limit - 1 && !atLimit
+        return (
+          <div className={`flex items-center justify-between rounded-xl px-4 py-2.5 mb-4 border ${atLimit ? "bg-red-50 border-red-200" : isNear ? "bg-amber-50 border-amber-200" : "bg-slate-50 border-slate-200"}`}>
+            <div>
+              <span className="text-[10px] font-bold text-slate-500">Plan {subscriptionPlan}</span>
+              <span className={`text-[10px] font-semibold ml-2 ${atLimit ? "text-red-600" : "text-slate-400"}`}>
+                {limit === Infinity ? `${propertyCount} props.` : `${propertyCount}/${limit}`}
+              </span>
+            </div>
+            <button onClick={() => setShowUpgradeModal(true)}
+              className="flex items-center gap-1 text-[10px] font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg cursor-pointer bg-white">
+              <ArrowUp01Icon size={11} /> Mejorar plan
+            </button>
+          </div>
+        )
+      })()}
+
+      {/* Top vistas compacto */}
+      {properties.length > 0 && (() => {
+        const top = [...properties].sort((a, b) => b.views - a.views).slice(0, 2).filter(p => p.views > 0)
+        if (top.length === 0) return null
+        return (
+          <div className="flex gap-2 mb-4">
+            {top.map(p => (
+              <div key={p.id} className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex items-center gap-2">
+                <EyeIcon size={13} className="text-accent shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold text-text truncate">{p.title}</p>
+                  <p className="text-[10px] text-text-muted">{p.views} vistas</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      })()}
 
       {/* Filter horizontal scroll */}
       <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-none mb-4 -mx-4 px-4">
@@ -186,6 +234,15 @@ export function PropertiesMobile({ properties, isMockPayment }: Props) {
           </div>
         )}
       </div>
+
+      <PlanUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onSuccess={() => window.location.reload()}
+        currentPlan={subscriptionPlan}
+        isMockMode={isMockPayment}
+        propertyCount={propertyCount}
+      />
 
       {featuredModal && (
         <PaymentModal
