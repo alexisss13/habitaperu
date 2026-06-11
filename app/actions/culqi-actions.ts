@@ -3,13 +3,15 @@
 /**
  * app/actions/culqi-actions.ts
  *
- * Server actions para los tres tipos de cobro de Habita Perú:
- *   1. Success fee     — S/ 29  al landlord cuando contrato pasa a ACTIVE
- *   2. KYC fee         — S/  9.90 al tenant cuando su KYC es aprobado
- *   3. Featured listing — S/ 15/25/45 al landlord para destacar propiedad
+ * Server actions para los cobros de Habita Perú:
+ *   1. Success fee      — S/ 29     al landlord cuando contrato pasa a ACTIVE
+ *   2. Featured listing — S/ 15/25/45 al landlord para destacar propiedad
+ *   3. Plan upgrade     — S/ 49/129 suscripción mensual Pro/Business
+ *
+ * Nota: el KYC fee (S/ 9.90) está desactivado en esta etapa — la verificación
+ * es gratuita para maximizar adopción. Se reactiva cuando haya tracción validada.
  *
  * En modo MOCK (sin CULQI_SECRET_KEY) los cobros se simulan localmente.
- * Para activar Culqi real: agregar CULQI_PUBLIC_KEY y CULQI_SECRET_KEY al .env
  */
 
 import { auth } from "@/lib/auth"
@@ -114,64 +116,7 @@ export async function processSuccessFee(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. KYC FEE — S/ 9.90 al tenant para activar perfil verificado
-// ─────────────────────────────────────────────────────────────────────────────
-
-export async function processKycFee(
-  culqiToken: string = "mock"
-): Promise<PaymentActionResult> {
-  try {
-    const session = await auth()
-    if (!session?.user) return { success: false, error: "No autorizado." }
-
-    const userId = session.user.id
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { email: true, kycFeePaid: true, kycVerification: { select: { status: true } } },
-    })
-
-    if (!user) return { success: false, error: "Usuario no encontrado." }
-    if (user.kycFeePaid) return { success: true, isMock: CULQI_IS_MOCK }
-    if (user.kycVerification?.status !== "APROBADO") {
-      return { success: false, error: "Tu KYC aún no ha sido aprobado." }
-    }
-
-    const charge = await createCulqiCharge({
-      token: culqiToken,
-      amountCents: PRICES.KYC_FEE,
-      description: PAYMENT_LABELS.KYC_FEE,
-      email: user.email,
-      metadata: { userId, type: "KYC_FEE" },
-    })
-
-    if (!charge.success) return { success: false, error: charge.error }
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { kycFeePaid: true, kycFeePaidAt: new Date() },
-    })
-
-    await createNotificationHelper(
-      userId,
-      "KYC_ACTIVATED",
-      "Perfil verificado activado",
-      "Tu perfil verificado está activo. Ya puedes contactar arrendadores.",
-      { chargeId: charge.chargeId }
-    )
-
-    revalidatePath("/tenant/kyc")
-    revalidatePath("/tenant/dashboard")
-
-    return { success: true, isMock: CULQI_IS_MOCK }
-  } catch (err) {
-    console.error("[processKycFee]", err)
-    return { success: false, error: "Error interno al procesar el pago." }
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 4. PLAN UPGRADE — S/49 (Pro) o S/129 (Business) mensual
+// 2. PLAN UPGRADE — S/49 (Pro) o S/129 (Business) mensual
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function processPlanUpgrade(

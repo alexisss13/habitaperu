@@ -118,7 +118,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
                   onClick={() => setContactOpen(false)}
                   className="block w-full py-3 bg-amber-500 text-white rounded-xl font-bold text-sm text-center no-underline"
                 >
-                  Verificar identidad — S/ 9.90
+                  Verificar identidad
                 </Link>
               </div>
             ) : formSent ? (

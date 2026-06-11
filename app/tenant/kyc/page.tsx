@@ -14,24 +14,18 @@ export default async function TenantKYCPage() {
 
   const userId = session.user.id
 
-  const [verification, user] = await Promise.all([
-    prisma.kYCVerification.findUnique({
-      where: { userId },
-      select: {
-        status: true,
-        dniDocument: true,
-        dniVerified: true,
-        biometricVerified: true,
-        backgroundCheck: true,
-        reviewNotes: true,
-        verifiedAt: true,
-      },
-    }),
-    prisma.user.findUnique({
-      where: { id: userId },
-      select: { kycFeePaid: true },
-    }),
-  ])
+  const verification = await prisma.kYCVerification.findUnique({
+    where: { userId },
+    select: {
+      status: true,
+      dniDocument: true,
+      dniVerified: true,
+      biometricVerified: true,
+      backgroundCheck: true,
+      reviewNotes: true,
+      verifiedAt: true,
+    },
+  })
 
   const mappedVerification = verification ? {
     status: verification.status,
@@ -46,7 +40,6 @@ export default async function TenantKYCPage() {
   return (
     <TenantKYCView
       verification={mappedVerification}
-      kycFeePaid={user?.kycFeePaid ?? false}
       isMockPayment={CULQI_IS_MOCK}
     />
   )

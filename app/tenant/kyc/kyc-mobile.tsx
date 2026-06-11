@@ -12,17 +12,14 @@ import {
 } from "hugeicons-react"
 import { submitKYCVerification } from "@/app/actions/kyc-actions"
 import { uploadImageAction } from "@/app/actions/upload-actions"
-import { processKycFee } from "@/app/actions/culqi-actions"
-import { PaymentModal } from "@/components/ui/payment-modal"
 import type { KYCVerificationData } from "./kyc-view"
 
 interface Props {
   verification: KYCVerificationData | null
-  kycFeePaid: boolean
   isMockPayment: boolean
 }
 
-export function TenantKYCMobile({ verification, kycFeePaid, isMockPayment }: Props) {
+export function TenantKYCMobile({ verification, isMockPayment }: Props) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,10 +31,6 @@ export function TenantKYCMobile({ verification, kycFeePaid, isMockPayment }: Pro
   const [success, setSuccess] = useState(false)
   
   const [isReSubmitting, setIsReSubmitting] = useState(false)
-  const [feePaid, setFeePaid] = useState(kycFeePaid)
-  const [showKycFeeModal, setShowKycFeeModal] = useState(
-    verification?.status === "APROBADO" && !kycFeePaid
-  )
   const [uploading, setUploading] = useState(false)
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -375,35 +368,23 @@ export function TenantKYCMobile({ verification, kycFeePaid, isMockPayment }: Pro
         {/* 3. STATE: APROBADO */}
         {activeStatus === "APROBADO" && (
           <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm space-y-5">
-            <div className={`size-14 rounded-full flex items-center justify-center mx-auto shadow-lg ${feePaid ? "bg-emerald-500 text-white shadow-emerald-500/20" : "bg-amber-500 text-white shadow-amber-500/20"}`}>
+            <div className="size-14 rounded-full flex items-center justify-center mx-auto shadow-lg bg-emerald-500 text-white shadow-emerald-500/20">
               <CheckmarkCircle01Icon size={28} />
             </div>
             <div>
-              <span className={`text-[9px] rounded font-bold px-2 py-0.5 inline-block mb-2 border ${feePaid ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}`}>
-                {feePaid ? "Perfil Activo ✓" : "Identidad Verificada — Pago Pendiente"}
+              <span className="text-[9px] rounded font-bold px-2 py-0.5 inline-block mb-2 border bg-emerald-50 text-emerald-700 border-emerald-200">
+                Perfil Activo ✓
               </span>
-              <h3 className="text-sm font-bold text-text">
-                {feePaid ? "¡Tu perfil está activo!" : "¡Identidad verificada!"}
-              </h3>
+              <h3 className="text-sm font-bold text-text">¡Tu perfil está activo!</h3>
               <p className="text-[11px] font-medium text-text-muted leading-relaxed max-w-xs mx-auto">
-                {feePaid
-                  ? "Ya puedes contactar arrendadores y firmar contratos con validez legal."
-                  : "Activa tu perfil para poder contactar arrendadores (S/ 9.90 único)."}
+                Ya puedes contactar arrendadores y firmar contratos con validez legal.
               </p>
             </div>
-            {!feePaid && (
-              <button
-                onClick={() => setShowKycFeeModal(true)}
-                className="w-full h-11 bg-amber-500 text-white rounded-xl text-xs font-bold flex items-center justify-center cursor-pointer border-0"
-              >
-                Activar perfil — S/ 9.90
-              </button>
-            )}
             <Link
               href="/tenant/dashboard"
               className="block text-xs font-semibold text-slate-400 no-underline"
             >
-              {feePaid ? "Ir al Panel →" : "Hacerlo después"}
+              Ir al Panel →
             </Link>
           </div>
         )}
@@ -450,17 +431,6 @@ export function TenantKYCMobile({ verification, kycFeePaid, isMockPayment }: Pro
 
       </div>
 
-      <PaymentModal
-        isOpen={showKycFeeModal}
-        onClose={() => setShowKycFeeModal(false)}
-        onSuccess={() => { setFeePaid(true); setShowKycFeeModal(false) }}
-        amount={9.90}
-        title="Activar perfil verificado"
-        description="Acceso para contactar arrendadores"
-        ctaLabel="Pagar S/ 9.90"
-        isMockMode={isMockPayment}
-        onProcessPayment={(token) => processKycFee(token)}
-      />
     </div>
   )
 }

@@ -429,7 +429,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                       href="/tenant/kyc"
                       className="block w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm text-center no-underline transition-colors"
                     >
-                      Completar verificación — S/ 9.90
+                      Completar verificación KYC
                     </Link>
                   </div>
                 ) : formState === 'sent' ? (
