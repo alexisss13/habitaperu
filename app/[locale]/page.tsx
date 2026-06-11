@@ -172,7 +172,6 @@ async function getCityCounts() {
 
 async function getPropertyStats() {
   try {
-    // Obtener el precio mínimo y el total de propiedades disponibles
     const [minPriceResult, totalCount] = await Promise.all([
       prisma.property.findFirst({
         where: { status: 'DISPONIBLE' },
@@ -190,20 +189,34 @@ async function getPropertyStats() {
     }
   } catch (error) {
     console.error('Error fetching property stats:', error)
-    // Return default values when DB is not available
+    return { minPrice: 350, availableCount: 0 }
+  }
+}
+
+async function getLandlordStats() {
+  try {
+    const [landlordCount, ratingResult, contractCount] = await Promise.all([
+      prisma.user.count({ where: { role: 'LANDLORD' } }),
+      prisma.review.aggregate({ _avg: { rating: true } }),
+      prisma.contract.count({ where: { status: 'ACTIVE' } }),
+    ])
     return {
-      minPrice: 350,
-      availableCount: 24
+      landlordCount,
+      avgRating: Math.round(((ratingResult._avg.rating ?? 4.8) * 10)) / 10,
+      contractCount,
     }
+  } catch {
+    return { landlordCount: 0, avgRating: 0, contractCount: 0 }
   }
 }
 
 export default async function HomePage() {
-  const [properties, stats, cityCounts] = await Promise.all([
+  const [properties, stats, cityCounts, landlordStats] = await Promise.all([
     getProperties(),
     getPropertyStats(),
     getCityCounts(),
+    getLandlordStats(),
   ])
 
-  return <HomeView properties={properties} stats={stats} cityCounts={cityCounts} />
+  return <HomeView properties={properties} stats={stats} cityCounts={cityCounts} landlordStats={landlordStats} />
 }

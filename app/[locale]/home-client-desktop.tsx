@@ -9,7 +9,8 @@ import {
   Search01Icon, FavouriteIcon, StarIcon, ArrowRightDoubleIcon,
   SecurityCheckIcon, FileValidationIcon, CreditCardIcon, CustomerSupportIcon,
   PlusSignCircleIcon, BedIcon, Building03Icon, Home01Icon,
-  BookOpen01Icon, Sofa01Icon, Wifi01Icon, CheckmarkCircle01Icon, ParkingAreaSquareIcon
+  BookOpen01Icon, Sofa01Icon, Wifi01Icon, CheckmarkCircle01Icon, ParkingAreaSquareIcon,
+  Calendar01Icon, SignatureIcon
 } from 'hugeicons-react'
 
 interface Property {
@@ -20,8 +21,14 @@ interface Property {
 
 interface PropertyStats { minPrice: number; availableCount: number }
 interface CityCount { city: string; count: number }
+interface LandlordStats { landlordCount: number; avgRating: number; contractCount: number }
 
-interface HomeClientProps { properties: Property[]; stats: PropertyStats; cityCounts: CityCount[] }
+interface HomeClientProps {
+  properties: Property[]
+  stats: PropertyStats
+  cityCounts: CityCount[]
+  landlordStats: LandlordStats
+}
 
 const filterBtn = (active: boolean) =>
   `px-5 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all border-none
@@ -54,10 +61,10 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
             <div className="property-header-simple">
               <h4 className="property-title-simple">{property.title}</h4>
               <div className="property-rating-simple">
-                <StarIcon size={11} className="text-gray-900" /><span>4.8</span>
+                <StarIcon size={11} className="text-amber-400" /><span>4.8</span>
               </div>
             </div>
-            <p className="property-location-simple">{property.district}, Lima</p>
+            <p className="property-location-simple">{property.district}</p>
             <p className="property-specs-simple">
               {property.rooms} {property.rooms === 1 ? t('property.room') : t('property.rooms')} · {property.bathrooms} {property.bathrooms === 1 ? t('property.bathroom') : t('property.bathrooms')}
             </p>
@@ -71,7 +78,7 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
   )
 }
 
-export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientProps) {
+export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats }: HomeClientProps) {
   const t = useTranslations('home')
   const router = useRouter()
   const params = useParams()
@@ -153,6 +160,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
             {/* Left Content */}
             <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gray-100 border border-gray-200 rounded-lg mb-5">
+                <div className="size-1.5 rounded-full bg-accent" />
                 <span className="text-xs font-semibold text-gray-500 tracking-wide">{t('hero.badge')}</span>
               </div>
 
@@ -320,14 +328,14 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
                 desc: 'Contacta directamente con el arrendador y agenda una visita para conocer la propiedad.',
                 numBg: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)', numShadow: 'rgba(143,130,114,0.35)',
                 iconBg: 'linear-gradient(135deg, rgba(143,130,114,0.15) 0%, rgba(143,130,114,0.08) 100%)',
-                iconBorder: 'rgba(143,130,114,0.2)', icon: <span className="text-[2.5rem]">📅</span>
+                iconBorder: 'rgba(143,130,114,0.2)', icon: <Calendar01Icon size={40} className="text-[#8f8272]" />
               },
               {
                 num: '3', title: 'Firma y múdate',
                 desc: 'Firma tu contrato digital de forma segura y comienza a disfrutar de tu nuevo hogar.',
                 numBg: 'linear-gradient(135deg, #d5d0bd 0%, #b8b3a0 100%)', numShadow: 'rgba(213,208,189,0.35)',
                 iconBg: 'linear-gradient(135deg, rgba(213,208,189,0.2) 0%, rgba(213,208,189,0.1) 100%)',
-                iconBorder: 'rgba(213,208,189,0.3)', icon: <span className="text-[2.5rem]">✍️</span>
+                iconBorder: 'rgba(213,208,189,0.3)', icon: <SignatureIcon size={40} className="text-[#b8b3a0]" />
               }
             ].map((step, i) => (
               <div key={i}
@@ -582,18 +590,22 @@ export function HomeClientDesktop({ properties, stats, cityCounts }: HomeClientP
               </h2>
               <p className="text-lg text-white/85 leading-[1.7] mb-6">
                 Únete a más de{' '}
-                <span className="font-bold text-cream">4,800 arrendadores</span>{' '}
+                <span className="font-bold text-cream">{landlordStats.landlordCount.toLocaleString()} arrendadores</span>{' '}
                 que ya gestionan sus propiedades con Habita Perú.
               </p>
               <div className="flex items-center gap-8 mt-8">
                 <div>
-                  <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">98%</div>
-                  <div className="text-[0.85rem] text-white/70">Satisfacción</div>
+                  <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">
+                    {landlordStats.avgRating > 0 ? `${landlordStats.avgRating}/5` : '—'}
+                  </div>
+                  <div className="text-[0.85rem] text-white/70">Calificación</div>
                 </div>
                 <div className="w-px h-10 bg-white/20" />
                 <div>
-                  <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">15 días</div>
-                  <div className="text-[0.85rem] text-white/70">Promedio de alquiler</div>
+                  <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">
+                    {landlordStats.contractCount}
+                  </div>
+                  <div className="text-[0.85rem] text-white/70">Contratos activos</div>
                 </div>
               </div>
             </div>

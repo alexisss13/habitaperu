@@ -30,16 +30,23 @@ export interface CityCount {
   count: number
 }
 
+export interface LandlordStats {
+  landlordCount: number
+  avgRating: number
+  contractCount: number
+}
+
 interface HomeViewProps {
   properties: Property[]
   stats: PropertyStats
   cityCounts: CityCount[]
+  landlordStats: LandlordStats
 }
 
-export function HomeView({ properties, stats, cityCounts }: HomeViewProps) {
+export function HomeView({ properties, stats, cityCounts, landlordStats }: HomeViewProps) {
   const { isMobile, isLoading } = useResponsive()
   if (isLoading) return <LoadingScreen message="Cargando Habita Perú..." />
   return isMobile
-    ? <HomeClientMobile properties={properties} stats={stats} />
-    : <HomeClientDesktop properties={properties} stats={stats} cityCounts={cityCounts} />
+    ? <HomeClientMobile properties={properties} stats={stats} cityCounts={cityCounts} landlordStats={landlordStats} />
+    : <HomeClientDesktop properties={properties} stats={stats} cityCounts={cityCounts} landlordStats={landlordStats} />
 }

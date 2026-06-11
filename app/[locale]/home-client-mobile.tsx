@@ -18,7 +18,14 @@ interface Property {
   bathrooms: number; area: number; _count: { reviews: number }
 }
 interface PropertyStats { minPrice: number; availableCount: number }
-interface Props { properties: Property[]; stats: PropertyStats }
+interface CityCount { city: string; count: number }
+interface LandlordStats { landlordCount: number; avgRating: number; contractCount: number }
+interface Props {
+  properties: Property[]
+  stats: PropertyStats
+  cityCounts: CityCount[]
+  landlordStats: LandlordStats
+}
 
 /* ─── Mini property card (horizontal scroll) ─────────────────── */
 function PropCard({
@@ -98,7 +105,7 @@ function HScroll({ children }: { children: React.ReactNode }) {
 }
 
 /* ─── Main component ──────────────────────────────────────────── */
-export function HomeClientMobile({ properties, stats }: Props) {
+export function HomeClientMobile({ properties, stats, cityCounts, landlordStats }: Props) {
   const t = useTranslations('home')
   const router = useRouter()
   const params = useParams()
@@ -162,13 +169,6 @@ export function HomeClientMobile({ properties, stats }: Props) {
     { Icon: FileValidationIcon, color: '#6d6558', bg: '#f5f3ef', title: 'Contratos Seguros', desc: 'Contratos digitales con validez legal.' },
     { Icon: CreditCardIcon, color: '#0f3457', bg: '#e8edf2', title: 'Pagos Protegidos', desc: 'Sistema de pagos con protección total.' },
     { Icon: CustomerSupportIcon, color: '#0f3457', bg: '#e8edf2', title: 'Soporte 24/7', desc: 'Disponibles para ayudarte siempre.' },
-  ]
-
-  const LOCATIONS = [
-    { district: 'San Isidro', count: 45 },
-    { district: 'Miraflores', count: 67 },
-    { district: 'Barranco', count: 38 },
-    { district: 'Surco', count: 52 },
   ]
 
   const NAV = [
@@ -373,19 +373,18 @@ export function HomeClientMobile({ properties, stats }: Props) {
           href="/propiedades?filter=location"
         />
         <HScroll>
-          {LOCATIONS.map((loc, i) => (
+          {cityCounts.filter(c => c.count > 0).slice(0, 6).map((loc) => (
             <Link
-              key={i}
-              href={`/propiedades?district=${loc.district}`}
+              key={loc.city}
+              href={`/propiedades?district=${encodeURIComponent(loc.city)}`}
               className="no-underline flex-shrink-0 w-[130px] h-[90px] rounded-2xl overflow-hidden relative"
               style={{ scrollSnapAlign: 'start' }}
             >
-              <Image src="/placeholder.jpg" alt={loc.district} fill className="object-cover" sizes="130px" />
-              <div className="absolute inset-0"
-                style={{ background: 'linear-gradient(180deg, transparent 15%, rgba(0,0,0,0.65) 100%)' }} />
-              <div className="absolute bottom-2.5 left-3">
-                <p className="text-white text-xs font-bold leading-none">{loc.district}</p>
-                <p className="text-white/75 text-[10px] mt-0.5">{loc.count} props.</p>
+              <div className="absolute inset-0 rounded-2xl"
+                style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                <p className="text-white text-xs font-bold leading-none">{loc.city}</p>
+                <p className="text-white/75 text-[10px]">{loc.count} props.</p>
               </div>
             </Link>
           ))}
@@ -453,19 +452,21 @@ export function HomeClientMobile({ properties, stats }: Props) {
           </h2>
           <p className="text-sm text-white/75 leading-relaxed mb-5">
             Únete a más de{' '}
-            <span className="font-bold text-[#d5d0bd]">4,800 arrendadores</span>{' '}
+            <span className="font-bold text-[#d5d0bd]">{landlordStats.landlordCount.toLocaleString()} arrendadores</span>{' '}
             que gestionan sus propiedades.
           </p>
 
           <div className="flex items-center gap-5 mb-6">
             <div>
-              <p className="text-2xl font-extrabold text-white leading-none">98%</p>
-              <p className="text-[11px] text-white/55 mt-0.5">Satisfacción</p>
+              <p className="text-2xl font-extrabold text-white leading-none">
+                {landlordStats.avgRating > 0 ? `${landlordStats.avgRating}/5` : '—'}
+              </p>
+              <p className="text-[11px] text-white/55 mt-0.5">Calificación</p>
             </div>
             <div className="w-px h-8 bg-white/20" />
             <div>
-              <p className="text-2xl font-extrabold text-white leading-none">15 días</p>
-              <p className="text-[11px] text-white/55 mt-0.5">Prom. de alquiler</p>
+              <p className="text-2xl font-extrabold text-white leading-none">{landlordStats.contractCount}</p>
+              <p className="text-[11px] text-white/55 mt-0.5">Contratos activos</p>
             </div>
           </div>
 
@@ -485,9 +486,8 @@ export function HomeClientMobile({ properties, stats }: Props) {
 
       {/* ══ MOBILE FOOTER ══════════════════════════════════════ */}
       <footer className="bg-white border-t border-gray-100 px-4 py-6 mb-2">
-        <div className="flex items-center gap-2 mb-3">
-          <Home01Icon size={20} className="text-accent" />
-          <span className="text-base font-extrabold text-[#151c26]">Habita Perú</span>
+        <div className="mb-3">
+          <Image src="/habita-logo-horizontal.svg" alt="Habita Perú" width={140} height={38} />
         </div>
         <p className="text-xs text-gray-400 mb-4 leading-relaxed">
           La plataforma líder en alquiler de propiedades en Perú con contratos digitales seguros.
