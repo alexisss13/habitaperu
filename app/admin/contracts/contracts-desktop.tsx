@@ -17,10 +17,10 @@ const statusBadge = (status: string) => {
   }
 }
 
-const fmtDate = (d: Date) =>
+const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
 
-const duration = (start: Date, end: Date) => {
+const duration = (start: string, end: string) => {
   const m = Math.round((new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24 * 30))
   return `${m} ${m === 1 ? 'mes' : 'meses'}`
 }

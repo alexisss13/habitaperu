@@ -13,7 +13,7 @@ const statusBadge = (status: string) => {
   }
 }
 
-const fmtDate = (d: Date) =>
+const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: '2-digit' })
 
 export function ContractsMobile({ data }: { data: ContractsData }) {

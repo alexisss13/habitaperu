@@ -8,8 +8,8 @@ import { ContractsMobile } from './contracts-mobile'
 export interface AdminContract {
   id: string
   status: string
-  startDate: Date
-  endDate: Date
+  startDate: string
+  endDate: string
   monthlyRent: number
   tenant: { firstName: string; lastName: string; email: string }
   property: { title: string; district: string; price: number; owner: { firstName: string; lastName: string } }
