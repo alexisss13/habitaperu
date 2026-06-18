@@ -428,7 +428,7 @@ export function TenantContractDesktop({ contracts }: Props) {
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => setReviewingProperty({ id: c.property.id, title: c.property.title })}
+                            onClick={() => setReviewingProperty({ id: c.property.id, title: c.property.title, contractId: c.id })}
                             className="inline-flex h-9 items-center justify-center px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg font-bold transition-all cursor-pointer"
                           >
                             ⭐ Calificar

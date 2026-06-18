@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function TenantContractMobile({ contracts }: Props) {
-  const [reviewingProperty, setReviewingProperty] = useState<{ id: string; title: string } | null>(null)
+  const [reviewingProperty, setReviewingProperty] = useState<{ id: string; title: string; contractId: string } | null>(null)
   const activeContract = contracts.find(c => c.status === "ACTIVE")
   const pendingContract = contracts.find(c => c.status === "PENDING_TENANT" || c.status === "DRAFT")
   const waitingContract = contracts.find(c => c.status === "PENDING_LANDLORD")
@@ -209,7 +209,7 @@ export function TenantContractMobile({ contracts }: Props) {
               )}
 
               <button
-                onClick={() => setReviewingProperty({ id: activeContract.property.id, title: activeContract.property.title })}
+                onClick={() => setReviewingProperty({ id: activeContract.property.id, title: activeContract.property.title, contractId: activeContract.id })}
                 className="w-full h-11 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 ⭐ Escribir Reseña Inmueble
@@ -259,7 +259,7 @@ export function TenantContractMobile({ contracts }: Props) {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setReviewingProperty({ id: c.property.id, title: c.property.title })}
+                      onClick={() => setReviewingProperty({ id: c.property.id, title: c.property.title, contractId: c.id })}
                       className="h-9 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-250 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
                     >
                       ⭐ Calificar
@@ -283,6 +283,7 @@ export function TenantContractMobile({ contracts }: Props) {
       {reviewingProperty && (
         <WriteReviewModal
           propertyId={reviewingProperty.id}
+          contractId={reviewingProperty.contractId}
           propertyTitle={reviewingProperty.title}
           onClose={() => setReviewingProperty(null)}
         />
