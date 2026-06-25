@@ -53,7 +53,7 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
 
   const containerCls = isMobile 
     ? "px-4 py-6 flex flex-col gap-6" 
-    : "max-w-4xl mx-auto px-6 py-10 flex flex-col gap-8"
+    : "max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8"
 
   return (
     <div className={containerCls}>
@@ -72,13 +72,13 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
 
       {/* Messages */}
       {successMsg && (
-        <div className="flex items-center gap-2.5 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-semibold animate-fade-in">
+        <div className="flex items-center gap-2.5 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-semibold transition-all">
           <CheckmarkCircle01Icon size={18} className="shrink-0 text-green" />
           <span>{successMsg}</span>
         </div>
       )}
       {errorMsg && (
-        <div className="flex items-center gap-2.5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-semibold animate-fade-in">
+        <div className="flex items-center gap-2.5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-semibold transition-all">
           <span className="shrink-0">⚠️</span>
           <span>{errorMsg}</span>
         </div>
@@ -87,8 +87,8 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
       {/* Sections */}
       <div className="flex flex-col gap-6">
         {/* Profile Info Section */}
-        <div className="bg-white rounded-2xl border border-gray-250/50 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-150 bg-gray-50/50">
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
             <UserIcon size={20} className="text-accent" />
             <h2 className="text-base font-bold text-gray-800">Datos del Perfil</h2>
           </div>
@@ -105,7 +105,7 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
                 Correo Electrónico
               </label>
-              <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-850 font-mono">
+              <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 font-mono">
                 {user.email}
               </div>
             </div>
@@ -129,8 +129,8 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
         </div>
 
         {/* Security Section (2FA Toggle) */}
-        <div className="bg-white rounded-2xl border border-gray-250/50 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-150 bg-gray-50/50">
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
             <SecurityIcon size={20} className="text-accent" />
             <h2 className="text-base font-bold text-gray-800">Seguridad de la Cuenta</h2>
           </div>
@@ -171,8 +171,8 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
         </div>
 
         {/* Notifications Preference Mock Section */}
-        <div className="bg-white rounded-2xl border border-gray-250/50 shadow-sm overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-150 bg-gray-50/50">
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
             <Notification02Icon size={20} className="text-accent" />
             <h2 className="text-base font-bold text-gray-800">Notificaciones y Alertas</h2>
           </div>

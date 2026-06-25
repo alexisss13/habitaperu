@@ -6,7 +6,6 @@ import {
   Search01Icon, 
   FilterIcon, 
   Clock01Icon, 
-  UserCircleIcon,
   CheckmarkCircle02Icon,
   EyeIcon,
   Copy01Icon
@@ -41,7 +40,7 @@ const actionBadge = (action: string) => {
       }
     default:
       return { 
-        cls: "bg-slate-100 text-slate-600 border border-slate-250", 
+        cls: "bg-slate-100 text-slate-600 border border-slate-200", 
         label: action, 
         Icon: Clock01Icon 
       }
@@ -178,8 +177,12 @@ export function AuditDesktop({ logs }: Props) {
         </div>
 
         {filteredLogs.length === 0 ? (
-          <div className="p-10 text-center text-sm text-admin-text-muted">
-            No se encontraron registros de auditoría que coincidan con la búsqueda.
+          <div className="p-12 text-center flex flex-col items-center justify-center min-h-[300px]">
+            <DatabaseIcon size={48} className="text-admin-text-muted mb-4 animate-pulse" />
+            <h3 className="text-lg font-semibold text-admin-text mb-2">No se encontraron registros</h3>
+            <p className="text-sm text-admin-text-muted max-w-sm">
+              No hay logs de auditoría que coincidan con tu búsqueda. Intenta con otros términos.
+            </p>
           </div>
         ) : (
           pagination.paginatedItems.map((log) => {
@@ -197,7 +200,7 @@ export function AuditDesktop({ logs }: Props) {
                 {/* User */}
                 <div className="flex items-center gap-2">
                   <div className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold shrink-0">
-                    {log.user.firstName[0]}{log.user.lastName[0]}
+                    {log.user.firstName?.[0] ?? '?'}{log.user.lastName?.[0] ?? ''}
                   </div>
                   <div className="min-w-0">
                     <p className="font-bold text-admin-text truncate">

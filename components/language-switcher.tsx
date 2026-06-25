@@ -53,39 +53,39 @@ interface LanguageSwitcherProps {
 
 export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState('es-PE')
+  const [selectedLanguage, setSelectedLanguage] = useState(() => {
+    if (typeof window === 'undefined') return 'es-PE'
+    try { return localStorage.getItem('habitaperu_language') || 'es-PE' } catch { return 'es-PE' }
+  })
   const [activeTab, setActiveTab] = useState<'language' | 'currency'>('language')
   const modalRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
-    const saved = localStorage.getItem('habitaperu_language')
-    if (saved) setSelectedLanguage(saved)
-  }, [])
+    if (!isOpen) return
 
-  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) setIsOpen(false)
     }
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false)
     }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'hidden'
-    }
+    const originalOverflow = document.body.style.overflow || ''
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    document.body.style.overflow = 'hidden'
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'unset'
+      document.body.style.overflow = originalOverflow
     }
   }, [isOpen])
 
   const handleLanguageSelect = (languageCode: string) => {
     setSelectedLanguage(languageCode)
-    localStorage.setItem('habitaperu_language', languageCode)
+    try { localStorage.setItem('habitaperu_language', languageCode) } catch {}
     const locale = localeMap[languageCode] || 'es'
     if (onLanguageChange) onLanguageChange(languageCode)
 

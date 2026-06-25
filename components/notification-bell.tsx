@@ -67,6 +67,7 @@ export function NotificationBell({ theme = "tenant" }: NotificationBellProps) {
 
   // Fetch initial notifications on mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotifications()
     // Poll every 30 seconds for new notifications
     const interval = setInterval(fetchNotifications, 30000)
@@ -152,7 +153,7 @@ export function NotificationBell({ theme = "tenant" }: NotificationBellProps) {
     ? "text-xs text-admin-accent cursor-pointer hover:underline bg-transparent border-none"
     : "text-xs text-accent font-semibold cursor-pointer hover:underline bg-transparent border-none"
 
-  const listClass = "max-h-[350px] overflow-y-auto divide-y" + (isAdmin ? " divide-admin-border" : " divide-slate-100")
+  const listClass = `max-h-[350px] overflow-y-auto divide-y ${isAdmin ? "divide-admin-border" : "divide-slate-100"}`
 
   const itemClass = (isUnread: boolean) => {
     if (isAdmin) {
@@ -167,7 +168,7 @@ export function NotificationBell({ theme = "tenant" }: NotificationBellProps) {
 
   const textTitleClass = isAdmin ? "text-sm text-admin-text" : "text-sm text-[#151c26] font-medium"
   const textMessageClass = isAdmin ? "text-xs text-admin-text-muted mt-0.5 line-clamp-2" : "text-xs text-slate-500 mt-0.5 line-clamp-2"
-  const textTimeClass = isAdmin ? "text-[10px] text-admin-text-muted mt-1" : "text-[10px] text-slate-400 mt-1 block"
+  const textTimeClass = isAdmin ? "text-[10px] text-admin-text-muted mt-1 block" : "text-[10px] text-slate-400 mt-1 block"
 
   const emptyTextClass = isAdmin ? "p-8 text-center text-xs text-admin-text-muted" : "p-8 text-center text-sm text-slate-400"
 

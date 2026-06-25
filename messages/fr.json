@@ -1,0 +1,293 @@
+{
+  "common": {
+    "appName": "Habita Perú",
+    "loading": "Chargement...",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent"
+  },
+  "header": {
+    "publishProperty": "Publiez votre propriété",
+    "login": "Se connecter",
+    "register": "S'inscrire",
+    "helpCenter": "Centre d'aide",
+    "language": "Langue",
+    "myProperties": "Mes propriétés",
+    "manageRoom": "Gérer votre chambre",
+    "myRoom": "Ma chambre",
+    "searchRoom": "Rechercher une chambre",
+    "dashboardAdmin": "Tableau de bord Admin",
+    "dashboardLandlord": "Mes propriétés",
+    "dashboardTenant": "Mon tableau de bord",
+    "dashboardDefault": "Tableau de bord",
+    "roleAdmin": "Administrateur",
+    "roleLandlord": "Propriétaire",
+    "roleTenant": "Locataire",
+    "logout": "Se déconnecter",
+    "announcement": {
+      "verified": "Propriétés vérifiées",
+      "secure": "Contrats sécurisés",
+      "support": "Support 24/7"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "LOCATIONS MENSUELLES",
+      "title": "Trouvez votre prochain chez-vous",
+      "subtitle": "Chambres et appartements pour étudiants et professionnels. Locations mensuelles simples et sécurisées.",
+      "searchPlaceholder": "Recherchez par quartier, université ou adresse...",
+      "searchButton": "Rechercher",
+      "filters": "Filtres",
+      "from": "À partir de",
+      "perMonth": "/mois",
+      "propertyAvailable": "propriété disponible",
+      "propertiesAvailable": "propriétés disponibles"
+    },
+    "filters": {
+      "room": "Chambre",
+      "apartment": "Appartement",
+      "wifi": "WiFi",
+      "furnished": "Meublé"
+    },
+    "featured": {
+      "title": "Propriétés à la une",
+      "subtitle": "Les meilleures options vérifiées et prêtes pour vous",
+      "filterAll": "Tout",
+      "filterRooms": "Chambres",
+      "filterApartments": "Appartements",
+      "filterHouses": "Maisons",
+      "filterFurnished": "Meublé",
+      "viewAll": "Voir toutes les propriétés"
+    },
+    "property": {
+      "room": "chambre",
+      "rooms": "chambres",
+      "bathroom": "salle de bain",
+      "bathrooms": "salles de bain",
+      "perMonth": "/mois"
+    },
+    "howItWorks": {
+      "badge": "Processus Simple",
+      "title": "Comment ça marche ?",
+      "subtitle": "Trouvez votre logement idéal en 3 étapes simples",
+      "step1": {
+        "title": "Recherchez et filtrez",
+        "description": "Explorez des milliers de propriétés vérifiées. Utilisez les filtres pour trouver exactement ce dont vous avez besoin."
+      },
+      "step2": {
+        "title": "Planifiez une visite",
+        "description": "Contactez directement le propriétaire et planifiez une visite pour découvrir la propriété."
+      },
+      "step3": {
+        "title": "Signez et emménagez",
+        "description": "Signez votre contrat numérique en toute sécurité et commencez à profiter de votre nouveau chez-vous."
+      }
+    },
+    "whyChoose": {
+      "badge": "Avantages",
+      "title": "Pourquoi choisir Habita Perú ?",
+      "subtitle": "Nous offrons la meilleure expérience de location de propriétés en toute sécurité et confiance",
+      "feature1": {
+        "title": "Propriétés Vérifiées",
+        "description": "Toutes les propriétés passent par un processus de vérification rigoureux pour garantir votre sécurité."
+      },
+      "feature2": {
+        "title": "Contrats Sécurisés",
+        "description": "Contrats numériques avec validité légale adaptés aux réglementations péruviennes en vigueur."
+      },
+      "feature3": {
+        "title": "Paiements Protégés",
+        "description": "Système de paiement sécurisé avec protection pour les locataires et les propriétaires."
+      },
+      "feature4": {
+        "title": "Support 24/7",
+        "description": "Équipe de support disponible pour vous aider à tout moment dès que vous en avez besoin."
+      }
+    },
+    "cta": {
+      "badge": "Pour les propriétaires",
+      "title": "Vous avez une propriété à louer ?",
+      "subtitle": "Rejoignez plus de {count} propriétaires qui gèrent déjà leurs propriétés avec Habita Perú.",
+      "satisfaction": "Satisfaction",
+      "averageRental": "Moyenne de location",
+      "days": "jours",
+      "button": "Publier ma propriété",
+      "benefits": "✓ Sans frais cachés · ✓ Publication gratuite"
+    },
+    "exploreLocation": {
+      "title": "Explorer par emplacement",
+      "subtitle": "Découvrez des propriétés dans les quartiers les plus populaires de Lima"
+    },
+    "studentProperties": {
+      "title": "Propriétés pour étudiants",
+      "subtitle": "Chambres et appartements à proximité des principales universités"
+    },
+    "fullApartments": {
+      "title": "Appartements complets",
+      "subtitle": "Espaces idéaux pour les familles ou les groupes recherchant de l'intimité"
+    },
+    "budgetRooms": {
+      "title": "Chambres économiques",
+      "subtitle": "Options abordables sans compromettre la qualité et le confort"
+    }
+  },
+  "languageSwitcher": {
+    "title": "Langue et région",
+    "currency": "Devise",
+    "suggested": "Langues et régions suggérées",
+    "choose": "Choisissez une langue et une région",
+    "currencyPlaceholder": "Fonctionnalité de devise bientôt disponible",
+    "currencyDescription": "Pour l'instant, tous les prix sont affichés en Soles (S/)"
+  },
+  "login": {
+    "title": "Se connecter",
+    "welcome": "Bienvenue sur Habita Perú",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "continue": "Continuer",
+    "loading": "Connexion en cours...",
+    "or": "ou",
+    "googleLogin": "Continuer avec Google",
+    "facebookLogin": "Continuer avec Facebook",
+    "noAccount": "Pas de compte ?",
+    "signUp": "Inscrivez-vous",
+    "error": "Identifiants incorrects. Veuillez vérifier votre e-mail et votre mot de passe.",
+    "genericError": "Erreur lors de la connexion. Veuillez réessayer.",
+    "demoCredentials": {
+      "title": "Identifiants de démonstration",
+      "admin": "Admin :",
+      "landlord": "Propriétaire :",
+      "tenant": "Locataire :"
+    }
+  },
+  "register": {
+    "title": "Créer un compte",
+    "welcome": "Rejoignez Habita Perú",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "role": "Type de compte",
+    "tenant": "Locataire",
+    "landlord": "Propriétaire",
+    "continue": "Créer le compte",
+    "loading": "Création du compte...",
+    "or": "ou",
+    "googleSignup": "S'inscrire avec Google",
+    "facebookSignup": "S'inscrire avec Facebook",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "login": "Se connecter",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "error": "Erreur lors de la création du compte. Veuillez réessayer.",
+    "success": "Compte créé avec succès"
+  },
+  "publish": {
+    "hero": {
+      "badge": "Plateforme certifiée pour les propriétaires",
+      "title": "Rentabilisez votre propriété",
+      "titleAccent": "en toute sécurité et ordre",
+      "subtitle": "Gérez les contrats, vérifiez les locataires et contrôlez vos paiements au même endroit. Conçu pour le propriétaire moderne.",
+      "startButton": "Commencer maintenant — c'est gratuit",
+      "watchVideo": "Voir comment ça marche",
+      "stats": {
+        "properties": "Propriétés actives",
+        "contracts": "Contrats sans conflit",
+        "tenants": "Locataires vérifiés"
+      }
+    },
+    "features": {
+      "badge": "Fonctionnalités clés",
+      "title": "Tout ce dont vous avez besoin pour louer en toute confiance",
+      "kyc": {
+        "title": "Vérification KYC",
+        "description": "Validation d'identité biométrique et antécédents de chaque locataire avant de signer tout contrat.",
+        "link": "En savoir plus"
+      },
+      "contracts": {
+        "title": "Contrats Légaux",
+        "description": "Génération automatique de contrats avec validité légale, adaptés aux réglementations péruviennes en vigueur.",
+        "link": "Voir le contrat démo"
+      },
+      "dashboard": {
+        "title": "Tableau de bord Admin",
+        "description": "Panneau centralisé pour contrôler les paiements, les statuts d'occupation et les communications avec les locataires.",
+        "link": "Aller au tableau de bord"
+      },
+      "matching": {
+        "title": "Matching Intelligent",
+        "description": "Algorithme de compatibilité qui connecte votre propriété avec le profil de locataire le plus approprié.",
+        "link": "Voir comment ça marche"
+      }
+    },
+    "dashboard": {
+      "badge": "Tableau de bord",
+      "title": "Votre tableau de bord propriétaire",
+      "subtitle": "Visualisez le statut de vos propriétés, paiements et contrats en temps réel.",
+      "payments": {
+        "title": "Feu de signalisation des paiements",
+        "period": "Avril 2026",
+        "paid": "Payé",
+        "pending": "En attente",
+        "processing": "En traitement",
+        "viewFull": "Voir le tableau de bord complet"
+      },
+      "occupancy": {
+        "title": "Occupation mensuelle",
+        "period": "Les 6 derniers mois",
+        "occupied": "Occupés",
+        "income": "Revenus du mois",
+        "activeContracts": "Contrats actifs"
+      }
+    },
+    "howToStart": {
+      "badge": "Processus simple",
+      "title": "Commencez en 3 étapes",
+      "step1": {
+        "title": "Inscrivez-vous gratuitement",
+        "description": "Créez votre compte propriétaire en moins de 2 minutes. Aucun coût initial."
+      },
+      "step2": {
+        "title": "Publiez votre propriété",
+        "description": "Ajoutez des photos, une description et des détails. Notre équipe vérifiera votre propriété."
+      },
+      "step3": {
+        "title": "Recevez des demandes",
+        "description": "Des locataires vérifiés vous contacteront. C'est vous qui décidez avec qui signer."
+      },
+      "startButton": "Commencer maintenant"
+    },
+    "testimonials": {
+      "badge": "Témoignages",
+      "title": "Ce que disent nos propriétaires",
+      "testimonial1": {
+        "text": "Avant, je perdais beaucoup de temps à vérifier les locataires. Maintenant, Habita Perú le fait pour moi et je me sens beaucoup plus en sécurité.",
+        "name": "Juan Díaz",
+        "properties": "6 propriétés à Lima"
+      },
+      "testimonial2": {
+        "text": "Le tableau de bord me permet de tout voir en temps réel. Les paiements arrivent à l'heure et sans tracas.",
+        "name": "Rosa Vargas",
+        "properties": "3 propriétés à San Isidro"
+      },
+      "testimonial3": {
+        "text": "Les contrats numériques ont tout changé. Tout est plus rapide et plus professionnel.",
+        "name": "Carlos Mendoza",
+        "properties": "2 propriétés à Miraflores"
+      }
+    },
+    "cta": {
+      "title": "Prêt à louer avec un contrôle total ?",
+      "subtitle": "Rejoignez plus de 4 800 propriétaires qui gèrent déjà leurs propriétés avec Habita Perú.",
+      "button": "Commencer maintenant — c'est gratuit"
+    }
+  }
+}

@@ -97,7 +97,7 @@ function extractStructuredTextFromHtml(html: string): Array<{
   })
 
   // Procesar <td> → celdas de tabla de partes
-  content = content.replace(/<td[^>]*>([\s\S]*?)<\/td>/gi, (_, inner) => {
+  content.replace(/<td[^>]*>([\s\S]*?)<\/td>/gi, (_, inner) => {
     const text = inner.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()
     if (text && text.length > 2) {
       lines.push({ text: `  ${text}`, isBold: false, isTitle: false, isSubtitle: false, indent: 4 })

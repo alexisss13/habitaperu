@@ -70,14 +70,14 @@ export function TenantsMobile({ tenants }: { tenants: TenantItem[] }) {
           filtered.map((t) => {
             const kyc = kycBadge(t.kyc)
             return (
-              <div key={t.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+              <div key={t.id} className="bg-white rounded-2xl border border-slate-200 p-4">
                 {/* Top row */}
                 <div className="flex items-center gap-3 mb-3">
                   <div
                     className="size-11 rounded-full flex items-center justify-center text-white font-bold shrink-0"
                     style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                   >
-                    {t.firstName[0]}{t.lastName[0]}
+                    {t.firstName?.[0] ?? '?'}{t.lastName?.[0] ?? ''}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[#151c26] text-sm truncate">{t.firstName} {t.lastName}</p>

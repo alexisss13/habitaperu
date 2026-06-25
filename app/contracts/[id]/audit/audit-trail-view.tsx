@@ -93,7 +93,7 @@ export function AuditTrailView({ data }: { data: AuditData }) {
                 className="size-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
                 style={{ background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" }}
               >
-                {p.name[0]}
+                {p.name?.[0] ?? '?'}
               </div>
               <div>
                 <p className="text-xs text-gray-400">{p.label}</p>
@@ -141,7 +141,7 @@ export function AuditTrailView({ data }: { data: AuditData }) {
             <div className="absolute left-4 top-4 bottom-4 w-px bg-gray-100" />
 
             <div className="flex flex-col gap-6">
-              {data.entries.map((entry, i) => {
+              {data.entries.map((entry) => {
                 const meta = ACTION_META[entry.action] ?? {
                   label: entry.action,
                   color: "bg-gray-100 text-gray-500 border-gray-200",

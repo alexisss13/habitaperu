@@ -1,0 +1,293 @@
+{
+  "common": {
+    "appName": "Habita Perú",
+    "loading": "Carregando...",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "close": "Fechar",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "view": "Ver",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior"
+  },
+  "header": {
+    "publishProperty": "Publique sua propriedade",
+    "login": "Entrar",
+    "register": "Cadastrar-se",
+    "helpCenter": "Central de ajuda",
+    "language": "Idioma",
+    "myProperties": "Minhas propriedades",
+    "manageRoom": "Gerenciar seu quarto",
+    "myRoom": "Meu quarto",
+    "searchRoom": "Buscar quarto",
+    "dashboardAdmin": "Painel Admin",
+    "dashboardLandlord": "Minhas propriedades",
+    "dashboardTenant": "Meu painel",
+    "dashboardDefault": "Painel",
+    "roleAdmin": "Administrador",
+    "roleLandlord": "Proprietário",
+    "roleTenant": "Inquilino",
+    "logout": "Sair",
+    "announcement": {
+      "verified": "Propriedades verificadas",
+      "secure": "Contratos seguros",
+      "support": "Suporte 24/7"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "ALUGUÉIS MENSAIS",
+      "title": "Encontre seu próximo lar",
+      "subtitle": "Quartos e apartamentos para estudantes e profissionais. Aluguéis mensais simples e seguros.",
+      "searchPlaceholder": "Busque por bairro, universidade ou endereço...",
+      "searchButton": "Buscar",
+      "filters": "Filtros",
+      "from": "A partir de",
+      "perMonth": "/mês",
+      "propertyAvailable": "propriedade disponível",
+      "propertiesAvailable": "propriedades disponíveis"
+    },
+    "filters": {
+      "room": "Quarto",
+      "apartment": "Apartamento",
+      "wifi": "WiFi",
+      "furnished": "Mobiliado"
+    },
+    "featured": {
+      "title": "Propriedades em destaque",
+      "subtitle": "As melhores opções verificadas e prontas para você",
+      "filterAll": "Todos",
+      "filterRooms": "Quartos",
+      "filterApartments": "Apartamentos",
+      "filterHouses": "Casas",
+      "filterFurnished": "Mobiliado",
+      "viewAll": "Ver todas as propriedades"
+    },
+    "property": {
+      "room": "quarto",
+      "rooms": "quartos",
+      "bathroom": "banheiro",
+      "bathrooms": "banheiros",
+      "perMonth": "/mês"
+    },
+    "howItWorks": {
+      "badge": "Processo Simples",
+      "title": "Como funciona?",
+      "subtitle": "Encontre seu lar ideal em 3 passos simples",
+      "step1": {
+        "title": "Busque e filtre",
+        "description": "Explore milhares de propriedades verificadas. Use filtros para encontrar exatamente o que precisa."
+      },
+      "step2": {
+        "title": "Agende uma visita",
+        "description": "Entre em contato direto com o proprietário e agende uma visita para conhecer a propriedade."
+      },
+      "step3": {
+        "title": "Assine e mude-se",
+        "description": "Assine seu contrato digital de forma segura e comece a desfrutar do seu novo lar."
+      }
+    },
+    "whyChoose": {
+      "badge": "Vantagens",
+      "title": "Por que escolher o Habita Perú?",
+      "subtitle": "Oferecemos a melhor experiência em aluguel de propriedades com segurança e confiança",
+      "feature1": {
+        "title": "Propriedades Verificadas",
+        "description": "Todas as propriedades passam por um processo de verificação rigoroso para garantir sua segurança."
+      },
+      "feature2": {
+        "title": "Contratos Seguros",
+        "description": "Contratos digitais com validade legal adaptados às regulamentações peruanas vigentes."
+      },
+      "feature3": {
+        "title": "Pagamentos Protegidos",
+        "description": "Sistema de pagamentos seguro com proteção para inquilinos e proprietários."
+      },
+      "feature4": {
+        "title": "Suporte 24/7",
+        "description": "Equipe de suporte disponível para ajudar a qualquer momento que você precisar."
+      }
+    },
+    "cta": {
+      "badge": "Para Proprietários",
+      "title": "Tem uma propriedade para alugar?",
+      "subtitle": "Junte-se a mais de {count} proprietários que já gerenciam suas propriedades com o Habita Perú.",
+      "satisfaction": "Satisfação",
+      "averageRental": "Média de aluguel",
+      "days": "dias",
+      "button": "Publicar minha propriedade",
+      "benefits": "✓ Sem taxas ocultas · ✓ Publicação gratuita"
+    },
+    "exploreLocation": {
+      "title": "Explore por localização",
+      "subtitle": "Descubra propriedades nos bairros mais populares de Lima"
+    },
+    "studentProperties": {
+      "title": "Propriedades para estudantes",
+      "subtitle": "Quartos e apartamentos perto das principais universidades"
+    },
+    "fullApartments": {
+      "title": "Apartamentos completos",
+      "subtitle": "Espaços ideais para famílias ou grupos que buscam privacidade"
+    },
+    "budgetRooms": {
+      "title": "Quartos econômicos",
+      "subtitle": "Opções acessíveis sem comprometer a qualidade e o conforto"
+    }
+  },
+  "languageSwitcher": {
+    "title": "Idioma e região",
+    "currency": "Moeda",
+    "suggested": "Idiomas e regiões sugeridos",
+    "choose": "Escolha um idioma e uma região",
+    "currencyPlaceholder": "Funcionalidade de moeda em breve",
+    "currencyDescription": "Por enquanto, todos os preços são exibidos em Soles (S/)"
+  },
+  "login": {
+    "title": "Entrar",
+    "welcome": "Bem-vindo ao Habita Perú",
+    "email": "E-mail",
+    "password": "Senha",
+    "continue": "Continuar",
+    "loading": "Entrando...",
+    "or": "ou",
+    "googleLogin": "Continuar com o Google",
+    "facebookLogin": "Continuar com o Facebook",
+    "noAccount": "Não tem uma conta?",
+    "signUp": "Cadastre-se",
+    "error": "Credenciais incorretas. Verifique seu e-mail e senha.",
+    "genericError": "Erro ao entrar. Tente novamente.",
+    "demoCredentials": {
+      "title": "Credenciais de demonstração",
+      "admin": "Admin:",
+      "landlord": "Proprietário:",
+      "tenant": "Inquilino:"
+    }
+  },
+  "register": {
+    "title": "Criar conta",
+    "welcome": "Junte-se ao Habita Perú",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "role": "Tipo de conta",
+    "tenant": "Inquilino",
+    "landlord": "Proprietário",
+    "continue": "Criar conta",
+    "loading": "Criando conta...",
+    "or": "ou",
+    "googleSignup": "Cadastrar-se com o Google",
+    "facebookSignup": "Cadastrar-se com o Facebook",
+    "hasAccount": "Já tem uma conta?",
+    "login": "Entrar",
+    "passwordMismatch": "As senhas não coincidem",
+    "error": "Erro ao criar a conta. Tente novamente.",
+    "success": "Conta criada com sucesso"
+  },
+  "publish": {
+    "hero": {
+      "badge": "Plataforma certificada para proprietários",
+      "title": "Rentabilize sua propriedade",
+      "titleAccent": "com segurança e ordem",
+      "subtitle": "Gerencie contratos, verifique inquilinos e controle seus pagamentos em um só lugar. Projetado para o proprietário moderno.",
+      "startButton": "Começar agora — é grátis",
+      "watchVideo": "Ver como funciona",
+      "stats": {
+        "properties": "Propriedades ativas",
+        "contracts": "Contratos sem conflitos",
+        "tenants": "Inquilinos verificados"
+      }
+    },
+    "features": {
+      "badge": "Funcionalidades principais",
+      "title": "Tudo o que você precisa para alugar com confiança",
+      "kyc": {
+        "title": "Verificação KYC",
+        "description": "Validação de identidade biométrica e antecedentes de cada inquilino antes de assinar qualquer contrato.",
+        "link": "Saiba mais"
+      },
+      "contracts": {
+        "title": "Contratos Legais",
+        "description": "Geração automática de contratos com validade legal, adaptados às regulamentações peruanas vigentes.",
+        "link": "Ver contrato demo"
+      },
+      "dashboard": {
+        "title": "Painel Administrativo",
+        "description": "Painel centralizado para controlar pagamentos, status de ocupação e comunicações com inquilinos.",
+        "link": "Ir para o painel"
+      },
+      "matching": {
+        "title": "Combinação Inteligente",
+        "description": "Algoritmo de compatibilidade que conecta sua propriedade ao perfil de inquilino mais adequado.",
+        "link": "Ver como funciona"
+      }
+    },
+    "dashboard": {
+      "badge": "Painel de controle",
+      "title": "Seu painel de proprietário",
+      "subtitle": "Visualize o status de suas propriedades, pagamentos e contratos em tempo real.",
+      "payments": {
+        "title": "Semáforo de Pagamentos",
+        "period": "Abril 2026",
+        "paid": "Pago",
+        "pending": "Pendente",
+        "processing": "Em processamento",
+        "viewFull": "Ver painel completo"
+      },
+      "occupancy": {
+        "title": "Ocupação mensal",
+        "period": "Últimos 6 meses",
+        "occupied": "Ocupados",
+        "income": "Receita do mês",
+        "activeContracts": "Contratos ativos"
+      }
+    },
+    "howToStart": {
+      "badge": "Processo simples",
+      "title": "Comece em 3 passos",
+      "step1": {
+        "title": "Cadastre-se grátis",
+        "description": "Crie sua conta de proprietário em menos de 2 minutos. Sem custos iniciais."
+      },
+      "step2": {
+        "title": "Publique sua propriedade",
+        "description": "Adicione fotos, descrição e detalhes. Nossa equipe verificará sua propriedade."
+      },
+      "step3": {
+        "title": "Receba solicitações",
+        "description": "Inquilinos verificados entrarão em contato. Você decide com quem assinar."
+      },
+      "startButton": "Começar agora"
+    },
+    "testimonials": {
+      "badge": "Depoimentos",
+      "title": "O que dizem nossos proprietários",
+      "testimonial1": {
+        "text": "Antes eu perdia muito tempo verificando inquilinos. Agora o Habita Perú faz isso por mim e me sinto muito mais seguro.",
+        "name": "Juan Díaz",
+        "properties": "6 propriedades em Lima"
+      },
+      "testimonial2": {
+        "text": "O painel me permite ver tudo em tempo real. Os pagamentos chegam pontualmente e sem complicações.",
+        "name": "Rosa Vargas",
+        "properties": "3 propriedades em San Isidro"
+      },
+      "testimonial3": {
+        "text": "Os contratos digitais mudaram tudo. Tudo é mais rápido e profissional.",
+        "name": "Carlos Mendoza",
+        "properties": "2 propriedades em Miraflores"
+      }
+    },
+    "cta": {
+      "title": "Pronto para alugar com controle total?",
+      "subtitle": "Junte-se a mais de 4.800 proprietários que já gerenciam suas propriedades com o Habita Perú.",
+      "button": "Começar agora — é grátis"
+    }
+  }
+}

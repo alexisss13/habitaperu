@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import {
   Location01Icon, FavouriteIcon, CheckmarkCircle02Icon,
@@ -15,20 +15,18 @@ const typeLabel = (t: string) =>
 
 export function PropertyDetailMobile({ property: p }: { property: PropertyDetail }) {
   const [imgIndex, setImgIndex] = useState(0)
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(() => {
+    if (typeof window === 'undefined') return false
+    try {
+      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
+      return ids.includes(p.id)
+    } catch { return false }
+  })
   const [contactOpen, setContactOpen] = useState(false)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [message, setMessage] = useState('')
   const [formSent, setFormSent] = useState(false)
-
-  // Init favorite from localStorage after mount
-  useEffect(() => {
-    try {
-      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      setIsFavorite(ids.includes(p.id))
-    } catch {}
-  }, [p.id])
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -337,7 +335,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
               className="size-12 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0"
               style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
             >
-              {p.owner.firstName[0]}
+              {p.owner.firstName?.[0] ?? '?'}
             </div>
             <div>
               <p className="font-bold text-[#151c26] text-sm">
@@ -370,7 +368,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
                       className="size-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0"
                       style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                     >
-                      {r.author.firstName[0]}
+                      {r.author.firstName?.[0] ?? '?'}
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-[#151c26]">{r.author.firstName}</p>

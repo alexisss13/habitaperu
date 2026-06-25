@@ -1,0 +1,293 @@
+{
+  "common": {
+    "appName": "Habita Perú",
+    "loading": "読み込み中...",
+    "search": "検索",
+    "filter": "フィルター",
+    "close": "閉じる",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "view": "見る",
+    "back": "戻る",
+    "next": "次へ",
+    "previous": "前へ"
+  },
+  "header": {
+    "publishProperty": "物件を掲載する",
+    "login": "ログイン",
+    "register": "新規登録",
+    "helpCenter": "ヘルプセンター",
+    "language": "言語",
+    "myProperties": "所有物件一覧",
+    "manageRoom": "部屋の管理",
+    "myRoom": "マイ・ルーム",
+    "searchRoom": "部屋を探す",
+    "dashboardAdmin": "管理パネル",
+    "dashboardLandlord": "所有物件一覧",
+    "dashboardTenant": "マイ・パネル",
+    "dashboardDefault": "パネル",
+    "roleAdmin": "管理者",
+    "roleLandlord": "大家様",
+    "roleTenant": "入居者様",
+    "logout": "ログアウト",
+    "announcement": {
+      "verified": "確認済み物件",
+      "secure": "安全な契約",
+      "support": "24時間年中無休サポート"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "月極賃貸",
+      "title": "次の住まいを見つけよう",
+      "subtitle": "学生・社会人向けの個室・アパートメント。シンプルで安心の月極賃貸サービス。",
+      "searchPlaceholder": "地区、大学、または住所で検索...",
+      "searchButton": "検索",
+      "filters": "フィルター",
+      "from": "価格",
+      "perMonth": "/月",
+      "propertyAvailable": "件の空き物件",
+      "propertiesAvailable": "件の空き物件"
+    },
+    "filters": {
+      "room": "個室",
+      "apartment": "アパート",
+      "wifi": "WiFiあり",
+      "furnished": "家具付き"
+    },
+    "featured": {
+      "title": "おすすめ物件",
+      "subtitle": "厳選された安心・安全の確認済み物件",
+      "filterAll": "すべて",
+      "filterRooms": "個室",
+      "filterApartments": "アパート",
+      "filterHouses": "一戸建て",
+      "filterFurnished": "家具付き",
+      "viewAll": "すべての物件を見る"
+    },
+    "property": {
+      "room": "個室",
+      "rooms": "個室",
+      "bathroom": "バスルーム",
+      "bathrooms": "バスルーム",
+      "perMonth": "/月"
+    },
+    "howItWorks": {
+      "badge": "シンプルな流れ",
+      "title": "ご利用の流れ",
+      "subtitle": "わずか3ステップで理想の住まいを見つける",
+      "step1": {
+        "title": "検索と絞り込み",
+        "description": "何千もの確認済み物件から、フィルター機能を使って必要な条件にぴったりの部屋を探せます。"
+      },
+      "step2": {
+        "title": "内見の予約",
+        "description": "大家さんに直接メッセージを送り、実際に物件を見るための内見日を簡単に調整できます。"
+      },
+      "step3": {
+        "title": "契約と引っ越し",
+        "description": "安全な電子契約を結び、手続き完了後すぐに新しい新生活をスタートできます。"
+      }
+    },
+    "whyChoose": {
+      "badge": "Habita Perúの強み",
+      "title": "Habita Perúが選ばれる理由",
+      "subtitle": "セキュリティと信頼性を備えた、最高水準の賃貸体験を提供します",
+      "feature1": {
+        "title": "確認済み物件のみ",
+        "description": "すべての物件は、安全性を確保するためにチームによる厳格な審査と現地確認を行っています。"
+      },
+      "feature2": {
+        "title": "法的に有効な契約",
+        "description": "ペルーの最新の賃貸法規に完全に適合した、法的効力のある電子契約書を自動生成します。"
+      },
+      "feature3": {
+        "title": "保護された支払い",
+        "description": "入居者と大家の双方の利益を守るための安全な決済管理システムを導入しています。"
+      },
+      "feature4": {
+        "title": "24時間365日サポート",
+        "description": "困ったことや質問があれば、専任のサポートスタッフがいつでも迅速に対応します。"
+      }
+    },
+    "cta": {
+      "badge": "大家様向け",
+      "title": "賃貸用の物件をお持ちですか？",
+      "subtitle": "すでにHabita Perúで物件を管理している{count}名以上の大家様のコミュニティに参加しましょう。",
+      "satisfaction": "満足度",
+      "averageRental": "平均賃貸期間",
+      "days": "日",
+      "button": "物件を掲載する（無料）",
+      "benefits": "✓ 隠れた手数料なし · ✓ 無料で掲載可能"
+    },
+    "exploreLocation": {
+      "title": "エリアから探す",
+      "subtitle": "リマで最も人気の高い地区の物件を見る"
+    },
+    "studentProperties": {
+      "title": "学生向け物件",
+      "subtitle": "主要大学へのアクセスが良い個室・アパートメント"
+    },
+    "fullApartments": {
+      "title": "アパート丸ごと貸し",
+      "subtitle": "プライバシーを重視する家族やグループに最適な部屋"
+    },
+    "budgetRooms": {
+      "title": "格安個室",
+      "subtitle": "快適さと品質を妥協せず、予算を抑えられるリーズナブルな部屋"
+    }
+  },
+  "languageSwitcher": {
+    "title": "言語と言語地域",
+    "currency": "通貨",
+    "suggested": "おすすめの言語と言語地域",
+    "choose": "言語と地域を選択してください",
+    "currencyPlaceholder": "通貨換算機能は間もなく公開予定です",
+    "currencyDescription": "現在は、すべての価格がペルー・ソル（S/）で表示されています"
+  },
+  "login": {
+    "title": "ログイン",
+    "welcome": "Habita Perúへようこそ",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "continue": "次へ",
+    "loading": "ログイン中...",
+    "or": "または",
+    "googleLogin": "Googleでログイン",
+    "facebookLogin": "Facebookでログイン",
+    "noAccount": "アカウントをお持ちでないですか？",
+    "signUp": "新規会員登録",
+    "error": "メールアドレスまたはパスワードが正しくありません。再度ご確認ください。",
+    "genericError": "ログイン中にエラーが発生しました。もう一度お試しください。",
+    "demoCredentials": {
+      "title": "デモ用ログイン情報",
+      "admin": "管理者アカウント:",
+      "landlord": "大家アカウント:",
+      "tenant": "入居者アカウント:"
+    }
+  },
+  "register": {
+    "title": "アカウント作成",
+    "welcome": "Habita Perúに参加する",
+    "firstName": "名（ファーストネーム）",
+    "lastName": "姓（ファミリーネーム）",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "confirmPassword": "パスワードの確認",
+    "role": "アカウント種別",
+    "tenant": "入居者として登録",
+    "landlord": "大家として登録",
+    "continue": "アカウントを作成する",
+    "loading": "アカウント作成中...",
+    "or": "または",
+    "googleSignup": "Googleで登録",
+    "facebookSignup": "Facebookで登録",
+    "hasAccount": "すでにアカウントをお持ちですか？",
+    "login": "ログインする",
+    "passwordMismatch": "パスワードが一致しません",
+    "error": "アカウント作成中にエラーが発生しました。再度お試しください。",
+    "success": "アカウントを作成しました"
+  },
+  "publish": {
+    "hero": {
+      "badge": "認定大家様向けプラットフォーム",
+      "title": "物件を安全に収益化",
+      "titleAccent": "スマートな一元管理",
+      "subtitle": "契約書の発行、入居者の本人確認、家賃回収を一元化。現代の不動産経営のためのツール。",
+      "startButton": "今すぐ始める（無料登録）",
+      "watchVideo": "使い方動画を見る",
+      "stats": {
+        "properties": "掲載中の物件",
+        "contracts": "トラブルゼロの契約",
+        "tenants": "確認済みの入居者"
+      }
+    },
+    "features": {
+      "badge": "主な機能",
+      "title": "安心して賃貸経営を行うためのすべてがここに",
+      "kyc": {
+        "title": "KYC（本人確認）",
+        "description": "契約を結ぶ前に、すべての入居者希望者の生体認証による本人確認と経歴照会を行います。",
+        "link": "詳細を見る"
+      },
+      "contracts": {
+        "title": "法的契約書",
+        "description": "ペルーの現行法に完全準拠した法的効力を持つ契約書テンプレートを数分で自動作成します。",
+        "link": "契約書サンプルを見る"
+      },
+      "dashboard": {
+        "title": "管理ダッシュボード",
+        "description": "家賃支払い、入居率、入居者との連絡を一箇所で完全に管理・確認できるダッシュボードです。",
+        "link": "管理画面に進む"
+      },
+      "matching": {
+        "title": "スマートマッチング",
+        "description": "物件の条件と、確認された最適な入居者プロフィールを繋ぐ最新のマッチングシステム。",
+        "link": "詳細を見る"
+      }
+    },
+    "dashboard": {
+      "badge": "管理画面",
+      "title": "大家専用ダッシュボード",
+      "subtitle": "所有物件の状況、入金ステータス、契約内容をリアルタイムで把握できます。",
+      "payments": {
+        "title": "家賃入金ステータス（信号表示）",
+        "period": "2026年4月",
+        "paid": "支払済み",
+        "pending": "未払い（保留）",
+        "processing": "確認・処理中",
+        "viewFull": "支払い管理に進む"
+      },
+      "occupancy": {
+        "title": "月間入居率",
+        "period": "直近6ヶ月間",
+        "occupied": "入居中",
+        "income": "今月の家賃収入",
+        "activeContracts": "契約中の件数"
+      }
+    },
+    "howToStart": {
+      "badge": "簡単な始め方",
+      "title": "わずか3ステップで開始",
+      "step1": {
+        "title": "無料登録",
+        "description": "大家アカウントを2分以内に作成できます。初期費用や登録料は一切かかりません。"
+      },
+      "step2": {
+        "title": "物件情報の入力",
+        "description": "写真と説明文をアップロードすると、審査チームが掲載に向けて物件の確認を行います。"
+      },
+      "step3": {
+        "title": "問い合わせの受け取り",
+        "description": "本人確認を済ませた入居者から連絡が届きます。契約するかどうかは大家様が判断できます。"
+      },
+      "startButton": "今すぐ登録する"
+    },
+    "testimonials": {
+      "badge": "大家様の声",
+      "title": "ご利用中の大家様からのメッセージ",
+      "testimonial1": {
+        "text": "以前は入居者の身元確認に多くの時間を費やしていましたが、Habita Perúがすべて代行してくれるため、安心して貸し出せます。",
+        "name": "ホアン・ディアス様",
+        "properties": "リマで6物件を運営"
+      },
+      "testimonial2": {
+        "text": "入金状況が一目で確認でき、毎月の家賃がスケジュール通りに遅れることなく振り込まれるので助かっています。",
+        "name": "ロサ・バルガス様",
+        "properties": "サン・イシドロで3物件を運営"
+      },
+      "testimonial3": {
+        "text": "電子契約への移行により、すべてが格段にスピーディかつプロフェッショナルな対応になりました。",
+        "name": "カルロス・メンドーサ様",
+        "properties": "ミラフローレスで2物件を運営"
+      }
+    },
+    "cta": {
+      "title": "管理を一元化し、スマートな経営を始めませんか？",
+      "subtitle": "すでに4,800名以上の大家様がHabita Perúを使って安心の不動産運用を行っています。",
+      "button": "今すぐ無料で始める"
+    }
+  }
+}

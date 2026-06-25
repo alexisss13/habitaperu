@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider"
 import { TawkWidget } from "@/components/tawk-widget"
 
+import { headers } from "next/headers";
+
 // Baloo 2 → Para títulos (más gruesa y amigable)
 const baloo2 = Baloo_2({ 
   subsets: ["latin"],
@@ -25,17 +27,32 @@ export const metadata: Metadata = {
   description: "Gestiona contratos, verifica inquilinos y controla tus pagos desde un solo lugar.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const locale = headersList.get("x-locale") || "es";
+
   return (
-    <html lang="es" className={`${baloo2.variable} ${mPlusRounded.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${baloo2.variable} ${mPlusRounded.variable}`}>
       <head>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedTheme = localStorage.getItem('habitaperu-theme') || localStorage.getItem('admin-theme') || 'light';
+                  document.documentElement.setAttribute('data-theme', savedTheme);
+                } catch (e) {}
+              })()
+            `,
+          }}
         />
       </head>
       <body className={mPlusRounded.className}>

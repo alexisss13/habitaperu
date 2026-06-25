@@ -4,19 +4,20 @@ import { useEffect, useState, KeyboardEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
-import { useTranslations } from '@/lib/i18n-context'
+import { useTranslations, useLocale } from '@/lib/i18n-context'
 import {
   Search01Icon, FavouriteIcon, StarIcon, ArrowRightDoubleIcon,
   SecurityCheckIcon, FileValidationIcon, CreditCardIcon, CustomerSupportIcon,
-  PlusSignCircleIcon, BedIcon, Building03Icon, Home01Icon,
-  BookOpen01Icon, Sofa01Icon, Wifi01Icon, CheckmarkCircle01Icon, ParkingAreaSquareIcon,
+  PlusSignCircleIcon, BedIcon, Building03Icon,
+  Sofa01Icon, Wifi01Icon,
   Calendar01Icon, SignatureIcon
 } from 'hugeicons-react'
 
 interface Property {
   id: string; title: string; type: string; condition: string; district: string
   price: number; images: string[]; favorites: number; rooms: number
-  bathrooms: number; area: number; _count: { reviews: number }
+  bathrooms: number; area: number; avgRating: number; reviewCount: number
+  amenities: string[]; tenantProfile: string[]
 }
 
 interface PropertyStats { minPrice: number; availableCount: number }
@@ -38,10 +39,11 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
   properties: Property[]; favorites: Set<string>; toggleFavorite: (id: string) => void
   t: (key: string) => string; badge?: { bg: string; label: string }
 }) {
+  const locale = useLocale()
   return (
     <div className="property-grid grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
       {properties.map((property) => (
-        <Link key={property.id} href={`/propiedades/${property.id}`} className="property-card-simple fade-in">
+        <Link key={property.id} href={`/${locale}/propiedades/${property.id}`} className="property-card-simple fade-in">
           <div className="property-img-simple">
             <Image src={property.images[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80'} alt={property.title} width={600} height={400} loading="lazy" />
             <button
@@ -60,9 +62,15 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
           <div className="property-info-simple">
             <div className="property-header-simple">
               <h4 className="property-title-simple">{property.title}</h4>
-              <div className="property-rating-simple">
-                <StarIcon size={11} className="text-amber-400" /><span>4.8</span>
-              </div>
+              {property.reviewCount > 0 ? (
+                <div className="property-rating-simple">
+                  <StarIcon size={11} className="text-amber-400" /><span>{property.avgRating.toFixed(1)}</span>
+                </div>
+              ) : (
+                <div className="property-rating-simple text-gray-400">
+                  <span>Nuevo</span>
+                </div>
+              )}
             </div>
             <p className="property-location-simple">{property.district}</p>
             <p className="property-specs-simple">
@@ -88,6 +96,9 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
 
+  const studentMatches = properties.filter((p) => p.tenantProfile?.includes('estudiante'))
+  const studentProperties = (studentMatches.length > 0 ? studentMatches : properties).slice(0, 4)
+
   const handleSearch = () => {
     const q = searchQuery.trim()
     if (q) {
@@ -105,7 +116,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
     const routes: Record<string, string> = {
       HABITACION:   `/${locale}/propiedades?type=HABITACION`,
       DEPARTAMENTO: `/${locale}/propiedades?type=DEPARTAMENTO`,
-      wifi:         `/${locale}/propiedades`,
+      wifi:         `/${locale}/propiedades?amenity=wifi`,
       AMOBLADO:     `/${locale}/propiedades?condition=AMOBLADO`,
     }
     router.push(routes[value] ?? `/${locale}/propiedades`)
@@ -138,7 +149,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id); else next.add(id)
       return next
     })
   }
@@ -280,7 +291,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
           <PropertyCardGrid properties={visibleProperties} favorites={favorites} toggleFavorite={toggleFavorite} t={t} />
 
           <div className="text-center mt-12">
-            <Link href="/propiedades"
+            <Link href={`/${locale}/propiedades`}
               className="inline-flex items-center gap-2 py-3.5 px-8 bg-transparent border-[1.5px] border-accent rounded-xl text-[0.9rem] font-semibold text-accent no-underline transition-all hover:bg-accent hover:!text-white"
             >
               <ArrowRightDoubleIcon size={20} /> {t('featured.viewAll')}
@@ -300,39 +311,36 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
         <div className="max-w-[1200px] mx-auto px-10 relative z-[1]">
           <div className="text-center mb-16">
             <div className="inline-block px-5 py-2 rounded-full border border-brown/20 mb-4"
-              style={{ background: 'linear-gradient(135deg, rgba(15,52,87,0.08) 0%, rgba(143,130,114,0.1) 100%)' }}>
-              <span className="text-xs font-bold text-accent tracking-[0.1em] uppercase">Proceso Simple</span>
+               style={{ background: 'linear-gradient(135deg, rgba(15,52,87,0.08) 0%, rgba(143,130,114,0.1) 100%)' }}>
+              <span className="text-xs font-bold text-accent tracking-[0.1em] uppercase">{t('howItWorks.badge')}</span>
             </div>
             <h2 className="text-[clamp(2rem,4vw,2.75rem)] font-extrabold text-[#151c26] mb-4 tracking-tight">
-              ¿Cómo funciona?
+              {t('howItWorks.title')}
             </h2>
             <p className="text-lg text-gray-500 max-w-[600px] mx-auto leading-[1.7]">
-              Encuentra tu hogar ideal en 3 simples pasos
+              {t('howItWorks.subtitle')}
             </p>
           </div>
 
           <div className="grid gap-10 relative" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
             <div className="absolute top-20 left-[25%] right-[25%] h-0.5"
-              style={{ background: 'linear-gradient(90deg, transparent 0%, #e5e7eb 20%, #e5e7eb 80%, transparent 100%)' }} />
+               style={{ background: 'linear-gradient(90deg, transparent 0%, #e5e7eb 20%, #e5e7eb 80%, transparent 100%)' }} />
 
             {[
               {
-                num: '1', title: 'Busca y filtra',
-                desc: 'Explora miles de propiedades verificadas. Usa filtros para encontrar exactamente lo que necesitas.',
+                num: '1', key: 'step1',
                 numBg: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)', numShadow: 'rgba(15,52,87,0.3)',
                 iconBg: 'linear-gradient(135deg, rgba(15,52,87,0.1) 0%, rgba(15,52,87,0.05) 100%)',
                 iconBorder: 'rgba(15,52,87,0.1)', icon: <Search01Icon size={40} className="text-accent" />
               },
               {
-                num: '2', title: 'Agenda una visita',
-                desc: 'Contacta directamente con el arrendador y agenda una visita para conocer la propiedad.',
+                num: '2', key: 'step2',
                 numBg: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)', numShadow: 'rgba(143,130,114,0.35)',
                 iconBg: 'linear-gradient(135deg, rgba(143,130,114,0.15) 0%, rgba(143,130,114,0.08) 100%)',
                 iconBorder: 'rgba(143,130,114,0.2)', icon: <Calendar01Icon size={40} className="text-[#8f8272]" />
               },
               {
-                num: '3', title: 'Firma y múdate',
-                desc: 'Firma tu contrato digital de forma segura y comienza a disfrutar de tu nuevo hogar.',
+                num: '3', key: 'step3',
                 numBg: 'linear-gradient(135deg, #d5d0bd 0%, #b8b3a0 100%)', numShadow: 'rgba(213,208,189,0.35)',
                 iconBg: 'linear-gradient(135deg, rgba(213,208,189,0.2) 0%, rgba(213,208,189,0.1) 100%)',
                 iconBorder: 'rgba(213,208,189,0.3)', icon: <SignatureIcon size={40} className="text-[#b8b3a0]" />
@@ -349,8 +357,8 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
                   style={{ background: step.iconBg, borderColor: step.iconBorder }}>
                   {step.icon}
                 </div>
-                <h3 className="text-[1.375rem] font-bold text-[#151c26] mb-3">{step.title}</h3>
-                <p className="text-[0.95rem] text-gray-500 leading-[1.7]">{step.desc}</p>
+                <h3 className="text-[1.375rem] font-bold text-[#151c26] mb-3">{t(`howItWorks.${step.key}.title`)}</h3>
+                <p className="text-[0.95rem] text-gray-500 leading-[1.7]">{t(`howItWorks.${step.key}.description`)}</p>
               </div>
             ))}
           </div>
@@ -366,43 +374,35 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
           <div className="text-center mb-16">
             <div className="inline-block px-5 py-2 rounded-full border border-brown/20 mb-4"
               style={{ background: 'linear-gradient(135deg, rgba(143,130,114,0.12) 0%, rgba(15,52,87,0.08) 100%)' }}>
-              <span className="text-xs font-bold text-brown tracking-[0.1em] uppercase">Ventajas</span>
+              <span className="text-xs font-bold text-brown tracking-[0.1em] uppercase">{t('whyChoose.badge')}</span>
             </div>
             <h2 className="text-[clamp(2rem,4vw,2.75rem)] font-extrabold text-[#151c26] mb-4 tracking-tight">
-              ¿Por qué elegir Habita Perú?
+              {t('whyChoose.title')}
             </h2>
             <p className="text-lg text-gray-500 max-w-[700px] mx-auto leading-[1.7]">
-              Ofrecemos la mejor experiencia en alquiler de propiedades con seguridad y confianza
+              {t('whyChoose.subtitle')}
             </p>
           </div>
 
           <div className="grid gap-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
             {[
               {
-                Icon: SecurityCheckIcon, iconColor: '#008A05', accentColor: 'rgba(0,138,5',
-                title: 'Propiedades Verificadas',
-                desc: 'Todas las propiedades pasan por un proceso de verificación riguroso para garantizar tu seguridad.',
+                Icon: SecurityCheckIcon, iconColor: '#008A05', accentColor: 'rgba(0,138,5', key: 'feature1',
                 hoverBorder: '#008A05', hoverShadow: '0 20px 40px rgba(0,138,5,0.15)'
               },
               {
-                Icon: FileValidationIcon, iconColor: '#8f8272', accentColor: 'rgba(143,130,114',
-                title: 'Contratos Seguros',
-                desc: 'Contratos digitales con validez legal adaptados a la normativa peruana vigente.',
+                Icon: FileValidationIcon, iconColor: '#8f8272', accentColor: 'rgba(143,130,114', key: 'feature2',
                 hoverBorder: '#8f8272', hoverShadow: '0 20px 40px rgba(143,130,114,0.2)'
               },
               {
-                Icon: CreditCardIcon, iconColor: '#8f8272', accentColor: 'rgba(213,208,189',
-                title: 'Pagos Protegidos',
-                desc: 'Sistema de pagos seguro con protección para inquilinos y arrendadores.',
+                Icon: CreditCardIcon, iconColor: '#8f8272', accentColor: 'rgba(213,208,189', key: 'feature3',
                 hoverBorder: '#d5d0bd', hoverShadow: '0 20px 40px rgba(213,208,189,0.25)'
               },
               {
-                Icon: CustomerSupportIcon, iconColor: '#0f3457', accentColor: 'rgba(15,52,87',
-                title: 'Soporte 24/7',
-                desc: 'Equipo de soporte disponible para ayudarte en cualquier momento que lo necesites.',
+                Icon: CustomerSupportIcon, iconColor: '#0f3457', accentColor: 'rgba(15,52,87', key: 'feature4',
                 hoverBorder: '#0f3457', hoverShadow: '0 20px 40px rgba(15,52,87,0.15)'
               }
-            ].map(({ Icon, iconColor, accentColor, title, desc }, i) => (
+            ].map(({ Icon, iconColor, accentColor, key }, i) => (
               <div key={i}
                 className="rounded-3xl p-10 border-2 border-gray-100 transition-all duration-300 cursor-pointer relative overflow-hidden hover:-translate-y-2 group"
                 style={{ background: 'linear-gradient(135deg, #f9fafb 0%, #fff 100%)' }}
@@ -416,8 +416,8 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
                   }}>
                   <Icon size={32} style={{ color: iconColor }} />
                 </div>
-                <h3 className="text-xl font-bold text-[#151c26] mb-3">{title}</h3>
-                <p className="text-[0.95rem] text-gray-500 leading-[1.7]">{desc}</p>
+                <h3 className="text-xl font-bold text-[#151c26] mb-3">{t(`whyChoose.${key}.title`)}</h3>
+                <p className="text-[0.95rem] text-gray-500 leading-[1.7]">{t(`whyChoose.${key}.description`)}</p>
               </div>
             ))}
           </div>
@@ -432,7 +432,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('exploreLocation.title')}</h2>
               <p className="text-base text-gray-500">{t('exploreLocation.subtitle')}</p>
             </div>
-            <Link href="/propiedades?filter=location"
+            <Link href={`/${locale}/propiedades?filter=location`}
               className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
@@ -483,7 +483,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
               </p>
             </div>
             <Link
-              href="/propiedades"
+              href={`/${locale}/propiedades`}
               className="bg-white text-accent font-bold text-sm px-5 py-2.5 rounded-xl no-underline hover:bg-white/90 transition-colors whitespace-nowrap"
             >
               Ver todas →
@@ -500,18 +500,18 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('studentProperties.title')}</h2>
               <p className="text-base text-gray-500">{t('studentProperties.subtitle')}</p>
             </div>
-            <Link href="/propiedades?filter=students"
+            <Link href={`/${locale}/propiedades?filter=students`}
               className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
             </Link>
           </div>
           <PropertyCardGrid
-            properties={visibleProperties.slice(0, 4)}
+            properties={studentProperties}
             favorites={favorites}
             toggleFavorite={toggleFavorite}
             t={t}
-            badge={{ bg: 'bg-[#008A05]', label: 'Cerca de universidades' }}
+            badge={{ bg: 'bg-[#008A05]', label: 'Para estudiantes' }}
           />
         </div>
       </section>
@@ -524,7 +524,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('fullApartments.title')}</h2>
               <p className="text-base text-gray-500">{t('fullApartments.subtitle')}</p>
             </div>
-            <Link href="/propiedades?type=departamento"
+            <Link href={`/${locale}/propiedades?type=departamento`}
               className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
@@ -547,7 +547,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('budgetRooms.title')}</h2>
               <p className="text-base text-gray-500">{t('budgetRooms.subtitle')}</p>
             </div>
-            <Link href="/propiedades?sort=price-asc"
+            <Link href={`/${locale}/propiedades?sort=price-asc`}
               className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
             >
               Ver todo <ArrowRightDoubleIcon size={18} />
@@ -580,46 +580,48 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
             <div className="flex-1 min-w-[300px]">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-brown/20 border border-brown/40 rounded-full mb-5">
                 <div className="size-2 rounded-full bg-brown animate-pulse" />
-                <span className="text-xs font-bold text-cream tracking-[0.05em] uppercase">Para Arrendadores</span>
+                <span className="text-xs font-bold text-cream tracking-[0.05em] uppercase">{t('cta.badge')}</span>
               </div>
               <h2
                 className="font-extrabold text-white mb-4 leading-[1.2] tracking-tight"
                 style={{ fontSize: 'clamp(1.875rem, 4vw, 2.5rem)' }}
               >
-                ¿Tienes una propiedad para alquilar?
+                {t('cta.title')}
               </h2>
               <p className="text-lg text-white/85 leading-[1.7] mb-6">
-                Únete a más de{' '}
-                <span className="font-bold text-cream">{landlordStats.landlordCount.toLocaleString()} arrendadores</span>{' '}
-                que ya gestionan sus propiedades con Habita Perú.
+                {t('cta.subtitle').replace('{count}', landlordStats.landlordCount.toLocaleString())}
               </p>
               <div className="flex items-center gap-8 mt-8">
                 <div>
                   <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">
                     {landlordStats.avgRating > 0 ? `${landlordStats.avgRating}/5` : '—'}
                   </div>
-                  <div className="text-[0.85rem] text-white/70">Calificación</div>
+                  <div className="text-[0.85rem] text-white/70">
+                    {locale === 'en' ? 'Rating' : locale === 'pt' ? 'Avaliação' : 'Calificación'}
+                  </div>
                 </div>
                 <div className="w-px h-10 bg-white/20" />
                 <div>
                   <div className="text-[2rem] font-extrabold text-white leading-none mb-1.5">
                     {landlordStats.contractCount}
                   </div>
-                  <div className="text-[0.85rem] text-white/70">Contratos activos</div>
+                  <div className="text-[0.85rem] text-white/70">
+                    {locale === 'en' ? 'Active contracts' : locale === 'pt' ? 'Contratos ativos' : 'Contratos activos'}
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="shrink-0">
-              <Link href="/publicar"
+              <Link href={`/${locale}/publicar`}
                 className="inline-flex items-center gap-3 py-[18px] px-10 !text-white text-base font-bold rounded-2xl no-underline transition-all border-2 border-cream/20 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(143,130,114,0.5)]"
                 style={{ background: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)', boxShadow: '0 8px 32px rgba(143,130,114,0.4)' }}
               >
                 <PlusSignCircleIcon size={24} />
-                Publicar mi propiedad
+                {t('cta.button')}
               </Link>
               <p className="text-[0.8rem] text-white/60 mt-3 text-center">
-                ✓ Sin comisiones ocultas · ✓ Publicación gratuita
+                {t('cta.benefits')}
               </p>
             </div>
           </div>

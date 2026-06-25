@@ -52,44 +52,54 @@ export function UsersMobile({ data }: { data: UsersData }) {
 
       {/* User Cards */}
       <div className="px-4 flex flex-col gap-3">
-        {users.map(user => (
-          <div key={user.id} className="bg-admin-card-bg rounded-xl border border-admin-border p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="size-10 rounded-full flex items-center justify-center text-white font-semibold text-sm shrink-0"
-                style={{ background: 'linear-gradient(135deg, #EA4227, #d63820)' }}>
-                {user.firstName?.[0]}{user.lastName?.[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-admin-text truncate">{user.firstName} {user.lastName}</div>
-                <div className="text-xs text-admin-text-muted truncate">{user.email}</div>
-              </div>
-              <span className={`px-2 py-1 rounded-full text-[0.625rem] font-semibold shrink-0 ${roleBadgeClass(user.role)}`}>
-                {roleLabel(user.role)}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="text-xs text-admin-text-muted">
-                {user.role === 'LANDLORD' && `${user._count.propertiesOwned} propiedades`}
-                {user.role === 'TENANT' && `${user._count.contractsAsTenant} contratos`}
-                {user.role === 'ADMIN' && 'Administrador'}
-              </div>
-              <div className="flex items-center gap-1.5">
-                {user.verified ? (
-                  <>
-                    <CheckmarkCircle02Icon size={14} className="text-green" />
-                    <span className="text-[0.625rem] font-semibold text-green">Verificado</span>
-                  </>
-                ) : (
-                  <>
-                    <Cancel01Icon size={14} className="text-[#f59e0b]" />
-                    <span className="text-[0.625rem] font-semibold text-[#f59e0b]">Pendiente</span>
-                  </>
-                )}
-              </div>
-            </div>
+        {users.length === 0 ? (
+          <div className="bg-admin-card-bg rounded-xl border border-admin-border p-8 text-center flex flex-col items-center justify-center min-h-[200px]">
+            <UserMultiple02Icon size={36} className="text-admin-text-muted mb-3 animate-pulse" />
+            <h3 className="text-sm font-semibold text-admin-text mb-1">No se encontraron usuarios</h3>
+            <p className="text-xs text-admin-text-muted max-w-xs">
+              No hay usuarios registrados en el sistema.
+            </p>
           </div>
-        ))}
+        ) : (
+          users.map(user => (
+            <div key={user.id} className="bg-admin-card-bg rounded-xl border border-admin-border p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="size-10 rounded-full flex items-center justify-center text-white font-semibold text-sm shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #EA4227, #d63820)' }}>
+                  {user.firstName?.[0]}{user.lastName?.[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-admin-text truncate">{user.firstName} {user.lastName}</div>
+                  <div className="text-xs text-admin-text-muted truncate">{user.email}</div>
+                </div>
+                <span className={`px-2 py-1 rounded-full text-[0.625rem] font-semibold shrink-0 ${roleBadgeClass(user.role)}`}>
+                  {roleLabel(user.role)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-admin-text-muted">
+                  {user.role === 'LANDLORD' && `${user._count.propertiesOwned} propiedades`}
+                  {user.role === 'TENANT' && `${user._count.contractsAsTenant} contratos`}
+                  {user.role === 'ADMIN' && 'Administrador'}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {user.verified ? (
+                    <>
+                      <CheckmarkCircle02Icon size={14} className="text-green" />
+                      <span className="text-[0.625rem] font-semibold text-green">Verificado</span>
+                    </>
+                  ) : (
+                    <>
+                      <Cancel01Icon size={14} className="text-[#f59e0b]" />
+                      <span className="text-[0.625rem] font-semibold text-[#f59e0b]">Pendiente</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )

@@ -23,14 +23,13 @@ export function LoginDesktop() {
   const [require2FA, setRequire2FA] = useState(false)
   const [totpCode, setTotpCode] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const performLogin = async (email: string, password: string) => {
     setError("")
     setLoading(true)
     try {
       if (!require2FA) {
         // Step 1: Check if 2FA is enabled for this account
-        const checkResult = await checkTwoFactorRequiredAction(formData.email, formData.password)
+        const checkResult = await checkTwoFactorRequiredAction(email, password)
         if (!checkResult.success) {
           setError(checkResult.error || t('error'))
           setLoading(false)
@@ -46,8 +45,8 @@ export function LoginDesktop() {
 
       // Step 2: Perform Credentials Sign In (with or without 2FA)
       const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
+        email,
+        password,
         totpCode: require2FA ? totpCode : "",
         redirect: false,
       })
@@ -75,6 +74,16 @@ export function LoginDesktop() {
       setError(t('genericError'))
       setLoading(false)
     }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    performLogin(formData.email, formData.password)
+  }
+
+  const handleDemoLogin = (email: string, password: string) => {
+    setFormData({ email, password })
+    performLogin(email, password)
   }
 
   const floatLabel = (field: string) =>
@@ -279,24 +288,26 @@ export function LoginDesktop() {
             style={{ background: 'linear-gradient(135deg, rgba(15,52,87,0.04) 0%, rgba(143,130,114,0.06) 100%)' }}
           >
             <p className="text-xs font-semibold text-accent mb-3 flex items-center gap-1.5">
-              ℹ️ {t('demoCredentials.title')}
+              ℹ️ {t('demoCredentials.title')} <span className="font-normal text-text-muted">— clic para entrar</span>
             </p>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 text-[0.7rem]">
-              <div>
-                <strong className="block mb-1 text-accent">{t('demoCredentials.admin')}</strong>
-                <span className="block text-text-muted">admin@habitaperu.pe</span>
-                <span className="block text-text-muted">password123</span>
-              </div>
-              <div>
-                <strong className="block mb-1 text-accent">{t('demoCredentials.landlord')}</strong>
-                <span className="block text-text-muted">juan.diaz@email.com</span>
-                <span className="block text-text-muted">password123</span>
-              </div>
-              <div>
-                <strong className="block mb-1 text-accent">{t('demoCredentials.tenant')}</strong>
-                <span className="block text-text-muted">carlos.ramirez@email.com</span>
-                <span className="block text-text-muted">password123</span>
-              </div>
+              {[
+                { label: t('demoCredentials.admin'), email: 'admin@habitaperu.pe' },
+                { label: t('demoCredentials.landlord'), email: 'juan.diaz@email.com' },
+                { label: t('demoCredentials.tenant'), email: 'carlos.ramirez@email.com' },
+              ].map(({ label, email }) => (
+                <button
+                  key={email}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => handleDemoLogin(email, 'password123')}
+                  className="text-left p-2 -m-2 rounded-lg border border-transparent cursor-pointer transition-all hover:border-accent/30 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <strong className="block mb-1 text-accent">{label}</strong>
+                  <span className="block text-text-muted">{email}</span>
+                  <span className="block text-text-muted">password123</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>

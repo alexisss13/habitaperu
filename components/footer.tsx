@@ -8,7 +8,7 @@ export function Footer() {
   const locale = useLocale()
   
   return (
-    <footer className="footer hidden md:block">
+    <footer className="footer">
       <div className="container">
         <div className="footer-inner">
           <div className="footer-brand">
@@ -28,15 +28,15 @@ export function Footer() {
             <div className="footer-col">
               <h5>Plataforma</h5>
               <Link href={`/${locale}/publicar`}>Publicar propiedad</Link>
-              <Link href="/propiedades">Buscar inmueble</Link>
-              <Link href="/gestion">Contratos digitales</Link>
-              <Link href="/dashboard">Dashboard</Link>
+              <Link href={`/${locale}/propiedades`}>Buscar inmueble</Link>
+              <Link href={`/${locale}/contracts`}>Contratos digitales</Link>
+              <Link href={`/${locale}/dashboard`}>Dashboard</Link>
             </div>
 
             <div className="footer-col">
               <h5>Cuenta</h5>
-              <Link href="/perfil">Mi perfil</Link>
-              <Link href="/gestion">Mis alquileres</Link>
+              <Link href={`/${locale}/dashboard`}>Mi perfil</Link>
+              <Link href={`/${locale}/dashboard`}>Mis alquileres</Link>
               <Link href={`/${locale}/login`}>Iniciar sesión</Link>
               <Link href={`/${locale}/register`}>Registrarse</Link>
             </div>

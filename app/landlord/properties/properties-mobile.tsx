@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon,
-  SquareIcon, Location01Icon, FlashIcon, StarIcon, CheckmarkCircle01Icon,
+  SquareIcon, Location01Icon, FlashIcon, CheckmarkCircle01Icon,
   EyeIcon, ArrowUp01Icon
 } from "hugeicons-react"
 import { PaymentModal } from "@/components/ui/payment-modal"
@@ -124,7 +124,7 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
       })()}
 
       {/* Filter horizontal scroll */}
-      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-none mb-4 -mx-4 px-4">
+      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide mb-4 -mx-4 px-4">
         {[
           { key: "TODAS", label: "Todas" },
           { key: "DISPONIBLES", label: "Disponibles" },

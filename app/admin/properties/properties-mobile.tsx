@@ -44,46 +44,56 @@ export function PropertiesMobile({ data }: { data: PropertiesData }) {
 
       {/* Property Cards */}
       <div className="px-4 flex flex-col gap-4">
-        {properties.map(p => {
-          const badge = statusBadge(p.status)
-          return (
-            <div key={p.id} className="bg-admin-card-bg rounded-xl border border-admin-border overflow-hidden">
-              <div className="relative w-full h-[160px] bg-gray-100">
-                {p.images.length > 0 ? (
-                  <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <Building03Icon size={40} />
-                  </div>
-                )}
-                <span className={`absolute top-2 right-2 px-2 py-1 rounded-full text-[0.625rem] font-semibold ${badge.cls}`}>
-                  {badge.label}
-                </span>
-              </div>
-
-              <div className="p-4">
-                <h3 className="text-sm font-semibold text-admin-text mb-1.5 truncate">{p.title}</h3>
-                <div className="flex items-center gap-1 mb-2">
-                  <Location01Icon size={12} className="text-admin-text-muted" />
-                  <span className="text-xs text-admin-text-muted">{p.district}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
-                      <BedIcon size={14} className="text-admin-text-muted" />
-                      <span className="text-xs text-admin-text">{p.rooms}</span>
+        {properties.length === 0 ? (
+          <div className="bg-admin-card-bg rounded-xl border border-admin-border p-8 text-center flex flex-col items-center justify-center min-h-[200px]">
+            <Building03Icon size={36} className="text-admin-text-muted mb-3 animate-pulse" />
+            <h3 className="text-sm font-semibold text-admin-text mb-1">No se encontraron propiedades</h3>
+            <p className="text-xs text-admin-text-muted max-w-xs">
+              No hay propiedades registradas en el sistema.
+            </p>
+          </div>
+        ) : (
+          properties.map(p => {
+            const badge = statusBadge(p.status)
+            return (
+              <div key={p.id} className="bg-admin-card-bg rounded-xl border border-admin-border overflow-hidden">
+                <div className="relative w-full h-[160px] bg-gray-100">
+                  {p.images.length > 0 ? (
+                    <Image src={p.images[0]} alt={p.title} fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <Building03Icon size={40} />
                     </div>
-                    <span className="text-xs text-admin-text-muted">{p.area}m²</span>
-                  </div>
-                  <div className="text-base font-bold text-admin-text">S/ {p.price.toLocaleString()}</div>
+                  )}
+                  <span className={`absolute top-2 right-2 px-2 py-1 rounded-full text-[0.625rem] font-semibold ${badge.cls}`}>
+                    {badge.label}
+                  </span>
                 </div>
-                <div className="mt-2 pt-2 border-t border-admin-border text-[0.625rem] text-admin-text-muted">
-                  {p.owner.firstName} {p.owner.lastName}
+
+                <div className="p-4">
+                  <h3 className="text-sm font-semibold text-admin-text mb-1.5 truncate">{p.title}</h3>
+                  <div className="flex items-center gap-1 mb-2">
+                    <Location01Icon size={12} className="text-admin-text-muted" />
+                    <span className="text-xs text-admin-text-muted">{p.district}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <BedIcon size={14} className="text-admin-text-muted" />
+                        <span className="text-xs text-admin-text">{p.rooms}</span>
+                      </div>
+                      <span className="text-xs text-admin-text-muted">{p.area}m²</span>
+                    </div>
+                    <div className="text-base font-bold text-admin-text">S/ {p.price.toLocaleString()}</div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-admin-border text-[0.625rem] text-admin-text-muted">
+                    {p.owner.firstName} {p.owner.lastName}
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })
+        )}
       </div>
     </div>
   )

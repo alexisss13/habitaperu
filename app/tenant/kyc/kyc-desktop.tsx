@@ -8,8 +8,7 @@ import {
   CheckmarkCircle01Icon, 
   AlertCircleIcon, 
   Cancel01Icon, 
-  ImageAdd01Icon, 
-  FileValidationIcon 
+  ImageAdd01Icon 
 } from "hugeicons-react"
 import { submitKYCVerification } from "@/app/actions/kyc-actions"
 import { uploadImageAction } from "@/app/actions/upload-actions"
@@ -258,7 +257,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                     </div>
 
                     {/* Camera Scanner Simulation viewport */}
-                    <div className="border border-slate-250 rounded-2xl h-64 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-6 text-white text-center">
+                    <div className="border border-slate-200 rounded-2xl h-64 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-6 text-white text-center">
                       {isScanning ? (
                         <>
                           {/* Animated scanner bar line */}
@@ -308,7 +307,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                       </p>
                     </div>
 
-                    <div className="border border-slate-150 rounded-xl overflow-hidden text-xs font-semibold text-text divide-y divide-slate-100">
+                    <div className="border border-slate-100 rounded-xl overflow-hidden text-xs font-semibold text-text divide-y divide-slate-100">
                       <div className="p-3.5 bg-slate-50/50 flex justify-between">
                         <span className="text-text-muted">Documento DNI:</span>
                         <span className="text-emerald-600">✓ Cargado</span>
@@ -454,7 +453,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
         {/* 4. STATE: RECHAZADO */}
         {activeStatus === "RECHAZADO" && (
           <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
-            <div className="size-16 rounded-full bg-red-105 text-red border border-red-200 flex items-center justify-center mx-auto">
+            <div className="size-16 rounded-full bg-red-50 text-red border border-red-200 flex items-center justify-center mx-auto">
               <AlertCircleIcon size={32} />
             </div>
             <div>

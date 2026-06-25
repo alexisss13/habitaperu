@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { useState, useEffect, useRef, Fragment } from "react"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 import {
   UserCircleIcon, SecurityCheckIcon,
@@ -31,15 +31,16 @@ export function Header() {
   }, [])
 
   useEffect(() => {
-    const handleScroll = () => setShowAnnouncement(window.scrollY <= 50)
+    const handleScroll = () => setShowAnnouncement(window.scrollY <= 200)
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const isLoggedIn = status === 'authenticated'
-  const role = (session?.user as any)?.role as string | undefined
-  const hasActiveContract = (session?.user as any)?.hasActiveContract as boolean | undefined
-  const userName = session?.user?.name ?? ''
+  const user = session?.user as { role?: string; hasActiveContract?: boolean; name?: string | null } | undefined
+  const role = user?.role
+  const hasActiveContract = user?.hasActiveContract
+  const userName = user?.name ?? ''
   const initials = userName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'U'
 
   // Dashboard link per role
@@ -49,14 +50,14 @@ export function Header() {
     role === 'TENANT'   ? '/tenant/dashboard' : `/${locale}`
 
   const dashboardLabel =
-    role === 'ADMIN'    ? 'Panel Admin' :
-    role === 'LANDLORD' ? 'Mis propiedades' :
-    role === 'TENANT'   ? 'Mi panel' : 'Panel'
+    role === 'ADMIN'    ? t('dashboardAdmin') :
+    role === 'LANDLORD' ? t('dashboardLandlord') :
+    role === 'TENANT'   ? t('dashboardTenant') : t('dashboardDefault')
 
   const roleLabel =
-    role === 'ADMIN' ? 'Administrador' :
-    role === 'LANDLORD' ? 'Arrendador' :
-    role === 'TENANT' ? 'Inquilino' : ''
+    role === 'ADMIN' ? t('roleAdmin') :
+    role === 'LANDLORD' ? t('roleLandlord') :
+    role === 'TENANT' ? t('roleTenant') : ''
 
   // CTA button for logged-in users
   const tenantCTA = isLoggedIn && role === 'TENANT'
@@ -84,16 +85,24 @@ export function Header() {
           </Link>
 
           {/* ── Desktop right nav ── */}
-          <div className="hidden md:flex items-center gap-4">
+          <nav className="hidden md:flex items-center gap-4" aria-label="Navegación principal">
 
             {/* CTA depending on auth state */}
             {!isLoggedIn && status !== 'loading' && (
-              <Link
-                href="/publicar"
-                className="text-[0.9rem] font-medium text-[#151c26] no-underline hover:text-accent transition-colors"
-              >
-                {t('publishProperty')}
-              </Link>
+              <>
+                <Link
+                  href={`/${locale}/publicar`}
+                  className="text-[0.9rem] font-medium text-[#151c26] no-underline hover:text-accent transition-colors"
+                >
+                  {t('publishProperty')}
+                </Link>
+                <Link
+                  href={`/${locale}/login`}
+                  className="text-[0.9rem] font-semibold text-accent no-underline hover:opacity-80 transition-opacity"
+                >
+                  {t('login')}
+                </Link>
+              </>
             )}
 
             {isLoggedIn && role === 'LANDLORD' && (
@@ -102,7 +111,7 @@ export function Header() {
                 className="text-sm font-semibold text-[#151c26] no-underline hover:text-accent transition-colors flex items-center gap-1.5"
               >
                 <Building03Icon size={16} className="text-accent" />
-                Mis propiedades
+                {t('myProperties')}
               </Link>
             )}
 
@@ -113,20 +122,20 @@ export function Header() {
                 style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
               >
                 <Home01Icon size={16} />
-                Gestiona tu habitación
+                {t('manageRoom')}
               </Link>
             )}
 
             {showSearchButton && (
               <Link
-                href="/propiedades"
+                href={`/${locale}/propiedades`}
                 className="flex items-center gap-2 px-4 py-2 border border-accent/30 rounded-xl text-sm font-semibold text-accent no-underline hover:bg-accent/5 transition-colors"
               >
-                Buscar habitación
+                {t('searchRoom')}
               </Link>
             )}
 
-            <LanguageSwitcher onLanguageChange={(code) => console.log('Idioma:', code)} />
+            <LanguageSwitcher />
 
             {/* User menu button */}
             <div className="relative" ref={menuRef}>
@@ -135,7 +144,7 @@ export function Header() {
                 className={`flex items-center gap-2 rounded-full border-[1.5px] cursor-pointer transition-all hover:border-accent hover:shadow-[0_2px_8px_rgba(15,52,87,0.15)] ${
                   isLoggedIn ? 'pl-1 pr-3 py-1 border-gray-300' : 'size-10 justify-center border-gray-300'
                 }`}
-                aria-label="Menú de usuario"
+                aria-label={locale === 'en' ? 'User menu' : 'Menú de usuario'}
               >
                 {isLoggedIn ? (
                   <>
@@ -179,19 +188,18 @@ export function Header() {
                             onClick={() => setUserMenuOpen(false)}
                           >
                             <Home01Icon size={16} className="text-accent" />
-                            Gestiona tu habitación
+                            {t('manageRoom')}
                           </Link>
                         )}
                       </div>
                       <div className="border-t border-gray-100 py-1">
-                        <a
-                          href="/api/auth/signout"
-                          className={`${menuLink} text-red-500 hover:bg-red-50`}
-                          onClick={() => setUserMenuOpen(false)}
+                        <button
+                          onClick={() => { setUserMenuOpen(false); signOut() }}
+                          className={`${menuLink} text-red-500 hover:bg-red-50 w-full text-left`}
                         >
                           <Logout01Icon size={16} className="text-red-400" />
-                          Cerrar sesión
-                        </a>
+                          {t('logout')}
+                        </button>
                       </div>
                     </>
                   ) : (
@@ -213,7 +221,7 @@ export function Header() {
                         </Link>
                       </div>
                       <div className="border-t border-gray-100 py-1">
-                        <Link href="/publicar" className={menuLink} onClick={() => setUserMenuOpen(false)}>
+                        <Link href={`/${locale}/publicar`} className={menuLink} onClick={() => setUserMenuOpen(false)}>
                           {t('publishProperty')}
                         </Link>
                         <Link href="#" className={menuLink} onClick={() => setUserMenuOpen(false)}>
@@ -225,7 +233,7 @@ export function Header() {
                 </div>
               )}
             </div>
-          </div>
+          </nav>
 
           {/* ── Mobile right ── */}
           <div className="flex md:hidden items-center gap-2">
@@ -238,7 +246,7 @@ export function Header() {
                     href="/tenant/dashboard"
                     className="text-xs font-bold text-accent no-underline border border-accent/30 px-3 py-1.5 rounded-lg whitespace-nowrap"
                   >
-                    Mi habitación
+                    {t('myRoom')}
                   </Link>
                 )}
                 <a href={dashboardHref} className="no-underline">
@@ -256,7 +264,7 @@ export function Header() {
                   href={`/${locale}/login`}
                   className="text-xs font-semibold text-accent no-underline border border-accent/30 px-3 py-1.5 rounded-lg"
                 >
-                  Ingresar
+                  {t('login')}
                 </Link>
                 <Link
                   href={`/${locale}/register`}
@@ -272,12 +280,11 @@ export function Header() {
 
       {/* Announcement bar — desktop only */}
       <div
-        className="hidden md:block fixed inset-x-0 z-[99] py-2.5 overflow-hidden pointer-events-auto transition-[transform,opacity] duration-300"
+        className="hidden md:block fixed inset-x-0 z-[99] py-2.5 overflow-hidden pointer-events-auto transition-[transform,opacity] duration-300 animate-gradient-shift"
         style={{
           top: '72px',
           background: 'linear-gradient(90deg, #0f3457 0%, #8f8272 50%, #0f3457 100%)',
           backgroundSize: '200% 100%',
-          animation: 'gradientShift 8s ease infinite',
           transform: showAnnouncement ? 'translateY(0)' : 'translateY(-100%)',
           opacity: showAnnouncement ? 1 : 0,
           pointerEvents: showAnnouncement ? 'auto' : 'none',
@@ -298,13 +305,6 @@ export function Header() {
             </Fragment>
           ))}
         </div>
-
-        <style jsx>{`
-          @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-          }
-        `}</style>
       </div>
     </>
   )

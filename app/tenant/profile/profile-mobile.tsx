@@ -87,7 +87,7 @@ export function ProfileMobile({ profile }: { profile: UserProfile }) {
             className="size-16 rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0"
             style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
           >
-            {profile.firstName[0]}{profile.lastName[0]}
+            {profile.firstName?.[0] ?? '?'}{profile.lastName?.[0] ?? ''}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-[#151c26] truncate">{profile.firstName} {profile.lastName}</p>

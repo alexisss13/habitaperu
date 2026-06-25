@@ -41,11 +41,11 @@ export function KycReviewCard({ request }: KycReviewCardProps) {
   ]
 
   return (
-    <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow">
+    <div className="bg-white border border-slate-200 rounded-xl p-5">
       <div className="flex items-start gap-4 mb-5">
         <div className="shrink-0">
           <div
-            className="size-16 rounded-xl flex items-center justify-center shadow-sm"
+            className="size-16 rounded-xl flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
           >
             <span className="text-white font-bold text-xl">
@@ -71,7 +71,7 @@ export function KycReviewCard({ request }: KycReviewCardProps) {
           const Icon = validation.icon
           const isCompleted = validation.status === 'completed'
           return (
-            <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+            <div key={validation.label} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
               <div className={`size-8 rounded-lg flex items-center justify-center shrink-0 ${isCompleted ? 'bg-emerald-50' : 'bg-slate-100'}`}>
                 <Icon size={16} className={isCompleted ? 'text-emerald-600' : 'text-slate-400'} />
               </div>

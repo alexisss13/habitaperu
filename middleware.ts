@@ -7,26 +7,45 @@ const defaultLocale = 'es'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Ignorar archivos estáticos, rutas de API y rutas de dashboards específicos
+  // Ignorar archivos estáticos, rutas de API y archivos con extensión
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/static') ||
-    pathname.startsWith('/admin') ||
-    pathname.startsWith('/landlord') ||
-    pathname.startsWith('/tenant') ||
     pathname.includes('.')
   ) {
     return NextResponse.next()
   }
 
+  // Si son rutas de dashboards directos sin locale, usamos el defaultLocale ('es')
+  const isAdminOrDashboard = 
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/landlord') ||
+    pathname.startsWith('/tenant')
+
+  if (isAdminOrDashboard) {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-locale', defaultLocale)
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      }
+    })
+  }
+
   // Verificar si el pathname ya tiene un locale
-  const pathnameHasLocale = locales.some(
+  const matchedLocale = locales.find(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
 
-  if (pathnameHasLocale) {
-    return NextResponse.next()
+  if (matchedLocale) {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-locale', matchedLocale)
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      }
+    })
   }
 
   // Si no tiene locale, redirigir a la versión con locale por defecto

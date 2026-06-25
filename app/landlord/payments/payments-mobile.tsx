@@ -6,8 +6,7 @@ import {
   CreditCardIcon, 
   CheckmarkCircle01Icon, 
   AlertCircleIcon, 
-  Cancel01Icon, 
-  FileValidationIcon 
+  Cancel01Icon
 } from "hugeicons-react"
 import { approvePayment, rejectPayment } from "@/app/actions/payment-actions"
 import type { LandlordPaymentItem } from "./payments-view"
@@ -48,14 +47,6 @@ export function LandlordPaymentsMobile({ payments }: Props) {
       month: "short",
       year: "numeric",
     })
-  }
-
-  const getMonthName = (isoString: string) => {
-    const formatted = new Date(isoString).toLocaleDateString("es-PE", {
-      month: "long",
-      year: "numeric",
-    })
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1)
   }
 
   const getStatusBadge = (status: string) => {
@@ -172,20 +163,20 @@ export function LandlordPaymentsMobile({ payments }: Props) {
       </div>
 
       {/* Metrics horizontal scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none -mx-4 px-4 mb-4">
-        <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3.5 shrink-0 w-44">
+      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mb-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shrink-0 w-44">
           <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Recaudado</p>
           <p className="text-lg font-bold text-emerald-600">S/ {totalReceived.toLocaleString()}</p>
           <p className="text-[9px] text-text-muted mt-0.5">Cobros aprobados</p>
         </div>
 
-        <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3.5 shrink-0 w-44">
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shrink-0 w-44">
           <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Por Aprobar</p>
-          <p className="text-lg font-bold text-indigo-650">{pendingApprovalsCount}</p>
+          <p className="text-lg font-bold text-indigo-600">{pendingApprovalsCount}</p>
           <p className="text-[9px] text-text-muted mt-0.5">Vouchers en revisión</p>
         </div>
 
-        <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3.5 shrink-0 w-44">
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shrink-0 w-44">
           <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Atrasados</p>
           <p className="text-lg font-bold text-red">{overdueCount}</p>
           <p className="text-[9px] text-text-muted mt-0.5">Inquilinos vencidos</p>
@@ -202,7 +193,7 @@ export function LandlordPaymentsMobile({ payments }: Props) {
           className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent outline-none"
         />
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
           {[
             { key: "TODOS", label: "Todos" },
             { key: "POR_APROBAR", label: "Por Aprobar" },
@@ -213,7 +204,7 @@ export function LandlordPaymentsMobile({ payments }: Props) {
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`px-3 py-1.5 text-[10px] font-bold rounded-lg shrink-0 transition-all border border-slate-250 cursor-pointer ${
+              className={`px-3 py-1.5 text-[10px] font-bold rounded-lg shrink-0 transition-all border border-slate-200 cursor-pointer ${
                 filter === tab.key 
                   ? "bg-[#151c26] text-white border-[#151c26]" 
                   : "bg-white text-text-muted hover:text-text"
@@ -229,7 +220,7 @@ export function LandlordPaymentsMobile({ payments }: Props) {
       <div className="px-4 space-y-3">
         {filteredPayments.length > 0 ? (
           filteredPayments.map(p => (
-            <div key={p.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+            <div key={p.id} className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-3">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-bold text-sm text-text truncate max-w-[200px]">{p.propertyName}</h3>
@@ -280,7 +271,7 @@ export function LandlordPaymentsMobile({ payments }: Props) {
           ))
         ) : (
           <div className="text-center py-16 bg-white border border-slate-200 rounded-xl">
-            <CreditCardIcon size={36} className="text-slate-350 mx-auto mb-2" />
+            <CreditCardIcon size={36} className="text-slate-400 mx-auto mb-2" />
             <p className="text-xs font-bold text-text mb-0.5">Sin pagos</p>
             <p className="text-[10px] text-text-muted">No se registran transacciones.</p>
           </div>
@@ -517,7 +508,7 @@ export function LandlordPaymentsMobile({ payments }: Props) {
                     <button
                       type="button"
                       onClick={() => setReminderPayment(null)}
-                      className="w-full h-11 border border-slate-250 bg-white rounded-xl text-xs font-bold text-text-muted cursor-pointer"
+                      className="w-full h-11 border border-slate-200 bg-white rounded-xl text-xs font-bold text-text-muted cursor-pointer"
                     >
                       Cancelar
                     </button>

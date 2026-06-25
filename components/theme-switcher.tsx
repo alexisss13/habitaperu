@@ -4,24 +4,27 @@ import { useState, useEffect } from "react"
 import { Sun02Icon, Moon02Icon } from "hugeicons-react"
 
 export default function ThemeSwitcher() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    const savedTheme = (localStorage.getItem('admin-theme') as 'light' | 'dark') || 'light'
-    setTheme(savedTheme)
-    applyTheme(savedTheme)
-  }, [])
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light'
+    try {
+      const saved = localStorage.getItem('habitaperu-theme') || localStorage.getItem('admin-theme') || 'light'
+      return saved === 'dark' ? 'dark' : 'light'
+    } catch { return 'light' }
+  })
+  const [mounted] = useState(() => typeof window !== 'undefined')
 
   const applyTheme = (newTheme: 'light' | 'dark') => {
     document.documentElement.setAttribute('data-theme', newTheme)
   }
 
+  useEffect(() => {
+    applyTheme(theme)
+  }, [])
+
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
-    localStorage.setItem('admin-theme', newTheme)
+    try { localStorage.setItem('habitaperu-theme', newTheme) } catch {}
     applyTheme(newTheme)
   }
 

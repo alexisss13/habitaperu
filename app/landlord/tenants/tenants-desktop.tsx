@@ -48,79 +48,77 @@ export function TenantsDesktop({ tenants }: { tenants: TenantItem[] }) {
   })
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-0">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="py-8 px-6 max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-[#151c26] mb-1 flex items-center gap-3">
-              <UserMultiple02Icon size={28} className="text-accent" />
-              Mis Inquilinos
-            </h1>
-            <p className="text-sm text-gray-500">{tenants.length} {tenants.length === 1 ? "inquilino" : "inquilinos"} en total</p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight mb-2 text-text">Mis Inquilinos</h1>
+          <p className="text-base font-medium text-text-muted">
+            {tenants.length} {tenants.length === 1 ? "inquilino" : "inquilinos"} en total
+          </p>
         </div>
 
         {/* Filters */}
         <div className="flex items-center gap-3 mb-6 flex-wrap">
           <div className="relative flex-1 max-w-sm">
-            <Search01Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search01Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por nombre o email..."
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-accent bg-white"
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-accent bg-white"
             />
           </div>
-          {(["todos", "activos", "sin_kyc"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all border cursor-pointer ${
-                filter === f
-                  ? "bg-accent text-white border-accent"
-                  : "bg-white text-gray-500 border-gray-200 hover:border-accent hover:text-accent"
-              }`}
-            >
-              {f === "todos" ? "Todos" : f === "activos" ? "Con contrato activo" : "Sin KYC aprobado"}
-            </button>
-          ))}
+          <div className="flex gap-1.5 bg-white p-1 border border-slate-200 rounded-xl">
+            {(["todos", "activos", "sin_kyc"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer border-0 ${
+                  filter === f
+                    ? "bg-[#151c26] text-white shadow-sm"
+                    : "text-text-muted hover:text-text hover:bg-slate-50"
+                }`}
+              >
+                {f === "todos" ? "Todos" : f === "activos" ? "Con Contrato" : "Sin KYC"}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Table */}
         {filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
-            <UserMultiple02Icon size={48} className="mx-auto mb-4 opacity-30" />
-            <p className="text-lg font-semibold">No se encontraron inquilinos</p>
-            <p className="text-sm mt-1">Cuando publiques propiedades y se activen contratos, aparecerán aquí.</p>
+          <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl">
+            <UserMultiple02Icon size={56} className="text-slate-300 mx-auto mb-4" />
+            <h3 className="text-base font-bold text-text mb-1">No se encontraron inquilinos</h3>
+            <p className="text-xs font-medium text-text-muted">Cuando publiques propiedades y se activen contratos, aparecerán aquí.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="text-left px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Inquilino</th>
-                  <th className="text-left px-4 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">KYC</th>
-                  <th className="text-left px-4 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Propiedad</th>
-                  <th className="text-left px-4 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Contrato</th>
-                  <th className="text-left px-4 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Último pago</th>
-                  <th className="text-right px-6 py-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Acción</th>
+                <tr className="border-b border-slate-200 bg-slate-50/50">
+                  <th className="text-left px-6 py-4 font-bold text-text-muted text-xs uppercase tracking-wider">Inquilino</th>
+                  <th className="text-left px-4 py-4 font-bold text-text-muted text-xs uppercase tracking-wider">KYC</th>
+                  <th className="text-left px-4 py-4 font-bold text-text-muted text-xs uppercase tracking-wider">Propiedad</th>
+                  <th className="text-left px-4 py-4 font-bold text-text-muted text-xs uppercase tracking-wider">Contrato</th>
+                  <th className="text-left px-4 py-4 font-bold text-text-muted text-xs uppercase tracking-wider">Último pago</th>
+                  <th className="text-right px-6 py-4 font-bold text-text-muted text-xs uppercase tracking-wider">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-slate-100">
                 {filtered.map((t) => {
                   const kyc = kycBadge(t.kyc)
                   const payment = t.lastPayment ? paymentBadge(t.lastPayment.status) : null
                   return (
-                    <tr key={t.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={t.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div
                             className="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
                             style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                           >
-                            {t.firstName[0]}{t.lastName[0]}
+                            {t.firstName?.[0] ?? '?'}{t.lastName?.[0] ?? ''}
                           </div>
                           <div>
                             <p className="font-semibold text-[#151c26]">{t.firstName} {t.lastName}</p>
@@ -207,7 +205,6 @@ export function TenantsDesktop({ tenants }: { tenants: TenantItem[] }) {
             </table>
           </div>
         )}
-      </div>
     </div>
   )
 }

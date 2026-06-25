@@ -1,0 +1,293 @@
+{
+  "common": {
+    "appName": "Habita Perú",
+    "loading": "Laden...",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "close": "Schließen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Ansehen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück"
+  },
+  "header": {
+    "publishProperty": "Inserieren Sie Ihre Immobilie",
+    "login": "Einloggen",
+    "register": "Registrieren",
+    "helpCenter": "Hilfe-Center",
+    "language": "Sprache",
+    "myProperties": "Meine Immobilien",
+    "manageRoom": "Verwalten Sie Ihr Zimmer",
+    "myRoom": "Mein Zimmer",
+    "searchRoom": "Zimmer suchen",
+    "dashboardAdmin": "Admin-Dashboard",
+    "dashboardLandlord": "Meine Immobilien",
+    "dashboardTenant": "Mein Dashboard",
+    "dashboardDefault": "Dashboard",
+    "roleAdmin": "Administrator",
+    "roleLandlord": "Vermieter",
+    "roleTenant": "Mieter",
+    "logout": "Ausloggen",
+    "announcement": {
+      "verified": "Verifizierte Immobilien",
+      "secure": "Sichere Verträge",
+      "support": "Support rund um die Uhr"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "MONATLICHE VERMIETUNG",
+      "title": "Finden Sie Ihr nächstes Zuhause",
+      "subtitle": "Zimmer und Wohnungen für Studierende und Berufstätige. Einfache und sichere monatliche Mieten.",
+      "searchPlaceholder": "Suchen Sie nach Stadtteil, Universität oder Adresse...",
+      "searchButton": "Suchen",
+      "filters": "Filter",
+      "from": "Ab",
+      "perMonth": "/Monat",
+      "propertyAvailable": "Immobilie verfügbar",
+      "propertiesAvailable": "Immobilien verfügbar"
+    },
+    "filters": {
+      "room": "Zimmer",
+      "apartment": "Wohnung",
+      "wifi": "WLAN",
+      "furnished": "Möbliert"
+    },
+    "featured": {
+      "title": "Herausragende Immobilien",
+      "subtitle": "Die besten verifizierten Optionen, bereit für Sie",
+      "filterAll": "Alle",
+      "filterRooms": "Zimmer",
+      "filterApartments": "Wohnungen",
+      "filterHouses": "Häuser",
+      "filterFurnished": "Möbliert",
+      "viewAll": "Alle Immobilien anzeigen"
+    },
+    "property": {
+      "room": "Zimmer",
+      "rooms": "Zimmer",
+      "bathroom": "Badezimmer",
+      "bathrooms": "Badezimmer",
+      "perMonth": "/Monat"
+    },
+    "howItWorks": {
+      "badge": "Einfacher Prozess",
+      "title": "Wie funktioniert es?",
+      "subtitle": "Finden Sie Ihr ideales Zuhause in 3 einfachen Schritten",
+      "step1": {
+        "title": "Suchen und filtern",
+        "description": "Erkunden Sie Tausende von verifizierten Immobilien. Nutzen Sie Filter, um genau das zu finden, was Sie brauchen."
+      },
+      "step2": {
+        "title": "Besichtigung vereinbaren",
+        "description": "Kontaktieren Sie den Vermieter direkt und vereinbaren Sie eine Besichtigung, um die Immobilie kennenzulernen."
+      },
+      "step3": {
+        "title": "Unterschreiben und einziehen",
+        "description": "Unterschreiben Sie Ihren digitalen Vertrag sicher und genießen Sie Ihr neues Zuhause."
+      }
+    },
+    "whyChoose": {
+      "badge": "Vorteile",
+      "title": "Warum Habita Perú wählen?",
+      "subtitle": "Wir bieten die beste Erfahrung bei der Immobilienvermietung mit Sicherheit und Vertrauen",
+      "feature1": {
+        "title": "Verifizierte Immobilien",
+        "description": "Alle Immobilien durchlaufen einen strengen Verifizierungsprozess, um Ihre Sicherheit zu gewährleisten."
+      },
+      "feature2": {
+        "title": "Sichere Verträge",
+        "description": "Digitale Verträge mit Rechtsgültigkeit, angepasst an die aktuellen peruanischen Vorschriften."
+      },
+      "feature3": {
+        "title": "Geschützte Zahlungen",
+        "description": "Sicheres Zahlungssystem mit Schutz für Mieter und Vermieter."
+      },
+      "feature4": {
+        "title": "Support rund um die Uhr",
+        "description": "Unser Support-Team steht Ihnen jederzeit zur Verfügung, wenn Sie Hilfe benötigen."
+      }
+    },
+    "cta": {
+      "badge": "Für Vermieter",
+      "title": "Haben Sie eine Immobilie zu vermieten?",
+      "subtitle": "Schließen Sie sich über {count} Vermietern an, die ihre Immobilien bereits mit Habita Perú verwalten.",
+      "satisfaction": "Zufriedenheit",
+      "averageRental": "Durchschnittliche Mietdauer",
+      "days": "Tage",
+      "button": "Meine Immobilie inserieren",
+      "benefits": "✓ Keine versteckten Gebühren · ✓ Kostenlose Veröffentlichung"
+    },
+    "exploreLocation": {
+      "title": "Nach Standort erkunden",
+      "subtitle": "Entdecken Sie Immobilien in den beliebtesten Stadtteilen von Lima"
+    },
+    "studentProperties": {
+      "title": "Immobilien für Studierende",
+      "subtitle": "Zimmer und Wohnungen in der Nähe der wichtigsten Universitäten"
+    },
+    "fullApartments": {
+      "title": "Komplette Wohnungen",
+      "subtitle": "Ideale Unterkünfte für Familien oder Gruppen, die Privatsphäre suchen"
+    },
+    "budgetRooms": {
+      "title": "Günstige Zimmer",
+      "subtitle": "Bezahlbare Optionen ohne Kompromisse bei Qualität und Komfort"
+    }
+  },
+  "languageSwitcher": {
+    "title": "Sprache und Region",
+    "currency": "Währung",
+    "suggested": "Empfohlene Sprachen und Regionen",
+    "choose": "Wählen Sie eine Sprache und Region",
+    "currencyPlaceholder": "Währungsfunktion in Kürze verfügbar",
+    "currencyDescription": "Derzeit werden alle Preise in Soles (S/) angezeigt"
+  },
+  "login": {
+    "title": "Einloggen",
+    "welcome": "Willkommen bei Habita Perú",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "continue": "Weiter",
+    "loading": "Einloggen...",
+    "or": "oder",
+    "googleLogin": "Mit Google fortfahren",
+    "facebookLogin": "Mit Facebook fortfahren",
+    "noAccount": "Noch kein Konto?",
+    "signUp": "Registrieren",
+    "error": "Ungültige Anmeldedaten. Bitte überprüfen Sie Ihre E-Mail und Ihr Passwort.",
+    "genericError": "Fehler beim Einloggen. Bitte versuchen Sie es erneut.",
+    "demoCredentials": {
+      "title": "Test-Anmeldedaten",
+      "admin": "Admin:",
+      "landlord": "Vermieter:",
+      "tenant": "Mieter:"
+    }
+  },
+  "register": {
+    "title": "Konto erstellen",
+    "welcome": "Werden Sie Teil von Habita Perú",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "role": "Kontotyp",
+    "tenant": "Mieter",
+    "landlord": "Vermieter",
+    "continue": "Konto erstellen",
+    "loading": "Konto wird erstellt...",
+    "or": "oder",
+    "googleSignup": "Mit Google registrieren",
+    "facebookSignup": "Mit Facebook registrieren",
+    "hasAccount": "Bereits ein Konto?",
+    "login": "Einloggen",
+    "passwordMismatch": "Die Passwörter stimmen nicht überein",
+    "error": "Fehler beim Erstellen des Kontos. Bitte versuchen Sie es erneut.",
+    "success": "Konto erfolgreich erstellt"
+  },
+  "publish": {
+    "hero": {
+      "badge": "Zertifizierte Plattform für Vermieter",
+      "title": "Machen Sie Ihre Immobilie rentabel",
+      "titleAccent": "mit Sicherheit und Ordnung",
+      "subtitle": "Verwalten Sie Verträge, überprüfen Sie Mieter und kontrollieren Sie Ihre Zahlungen an einem Ort. Entwickelt für den modernen Vermieter.",
+      "startButton": "Jetzt starten — kostenlos",
+      "watchVideo": "Sehen, wie es funktioniert",
+      "stats": {
+        "properties": "Aktive Immobilien",
+        "contracts": "Konfliktfreie Verträge",
+        "tenants": "Verifizierte Mieter"
+      }
+    },
+    "features": {
+      "badge": "Hauptfunktionen",
+      "title": "Alles, was Sie für eine sichere Vermietung brauchen",
+      "kyc": {
+        "title": "KYC-Verifizierung",
+        "description": "Biometrische Identitätsprüfung und Hintergrund-Check für jeden Mieter vor Vertragsunterzeichnung.",
+        "link": "Mehr erfahren"
+      },
+      "contracts": {
+        "title": "Rechtsgültige Verträge",
+        "description": "Automatische Erstellung von Verträgen mit Rechtsgültigkeit, angepasst an die aktuellen peruanischen Gesetze.",
+        "link": "Mustervertrag ansehen"
+      },
+      "dashboard": {
+        "title": "Verwaltungs-Dashboard",
+        "description": "Zentrales Panel zur Kontrolle von Zahlungen, Belegungsstatus und Kommunikation mit den Mietern.",
+        "link": "Zum Dashboard"
+      },
+      "matching": {
+        "title": "Intelligentes Matching",
+        "description": "Kompatibilitätsalgorithmus, der Ihre Immobilie mit dem am besten passenden Mieterprofil verbindet.",
+        "link": "Sehen, wie es funktioniert"
+      }
+    },
+    "dashboard": {
+      "badge": "Kontrollzentrum",
+      "title": "Ihr Vermieter-Dashboard",
+      "subtitle": "Visualisieren Sie den Status Ihrer Immobilien, Zahlungen und Verträge in Echtzeit.",
+      "payments": {
+        "title": "Zahlungs-Ampel",
+        "period": "April 2026",
+        "paid": "Bezahlt",
+        "pending": "Ausstehend",
+        "processing": "In Bearbeitung",
+        "viewFull": "Vollständiges Dashboard anzeigen"
+      },
+      "occupancy": {
+        "title": "Monatliche Belegung",
+        "period": "Letzte 6 Monate",
+        "occupied": "Belegt",
+        "income": "Monatseinnahmen",
+        "activeContracts": "Aktive Verträge"
+      }
+    },
+    "howToStart": {
+      "badge": "Einfacher Prozess",
+      "title": "In 3 Schritten starten",
+      "step1": {
+        "title": "Kostenlos registrieren",
+        "description": "Erstellen Sie Ihr Vermieterkonto in weniger als 2 Minuten. Keine Anfangskosten."
+      },
+      "step2": {
+        "title": "Immobilie veröffentlichen",
+        "description": "Fügen Sie Fotos, Beschreibung und Details hinzu. Unser Team verifiziert Ihre Immobilie."
+      },
+      "step3": {
+        "title": "Anfragen erhalten",
+        "description": "Verifizierte Mieter werden Sie kontaktieren. Sie entscheiden, mit wem Sie unterschreiben."
+      },
+      "startButton": "Jetzt starten"
+    },
+    "testimonials": {
+      "badge": "Erfahrungsberichte",
+      "title": "Was unsere Vermieter sagen",
+      "testimonial1": {
+        "text": "Früher habe ich viel Zeit mit der Überprüfung von Mietern verloren. Jetzt macht das Habita Perú für mich und ich fühle mich viel sicherer.",
+        "name": "Juan Díaz",
+        "properties": "6 Immobilien in Lima"
+      },
+      "testimonial2": {
+        "text": "Das Dashboard ermöglicht es mir, alles in Echtzeit zu sehen. Die Zahlungen kommen pünktlich und ohne Komplikationen.",
+        "name": "Rosa Vargas",
+        "properties": "3 Immobilien in San Isidro"
+      },
+      "testimonial3": {
+        "text": "Digitale Verträge sind eine absolute Bereicherung. Alles läuft schneller und professioneller ab.",
+        "name": "Carlos Mendoza",
+        "properties": "2 Immobilien in Miraflores"
+      }
+    },
+    "cta": {
+      "title": "Bereit zur Vermietung mit voller Kontrolle?",
+      "subtitle": "Schließen Sie sich über 4.800 Vermietern an, die ihre Immobilien bereits mit Habita Perú verwalten.",
+      "button": "Jetzt starten — kostenlos"
+    }
+  }
+}

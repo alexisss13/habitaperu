@@ -6,8 +6,7 @@ import {
   CreditCardIcon, 
   CheckmarkCircle01Icon, 
   AlertCircleIcon, 
-  Cancel01Icon, 
-  FileValidationIcon 
+  Cancel01Icon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
@@ -66,11 +65,11 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PAGADO":
-        return <span className="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-250 rounded-lg">Verificado</span>
+        return <span className="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg">Verificado</span>
       case "EN_PROCESO":
-        return <span className="px-2.5 py-1 text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-250 rounded-lg animate-pulse">Por Aprobar</span>
+        return <span className="px-2.5 py-1 text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg animate-pulse">Por Aprobar</span>
       case "PENDIENTE":
-        return <span className="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 border border-amber-250 rounded-lg">Pendiente Inquilino</span>
+        return <span className="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg">Pendiente Inquilino</span>
       case "VENCIDO":
         return <span className="px-2.5 py-1 text-xs font-bold bg-red/10 text-red border border-red/20 rounded-lg">Atrasado</span>
       default:
@@ -176,8 +175,8 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-bg-2 pt-[80px]">
-      <div className="max-w-6xl mx-auto px-6 py-10">
+    <div>
+      <div className="py-8 px-6 max-w-7xl mx-auto">
         
         {/* Header */}
         <div className="mb-8">
@@ -189,19 +188,19 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-6 mb-8">
-          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 hover:shadow-md transition-shadow">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5">
             <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Recaudo Total</p>
             <p className="text-3xl font-bold text-emerald-600">S/ {totalReceived.toLocaleString()}</p>
             <p className="text-xs text-text-muted mt-1">Cuotas cobradas y verificadas</p>
           </div>
 
-          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 hover:shadow-md transition-shadow">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5">
             <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Pendientes de Aprobación</p>
-            <p className="text-3xl font-bold text-indigo-650">{pendingApprovalsCount}</p>
+            <p className="text-3xl font-bold text-indigo-600">{pendingApprovalsCount}</p>
             <p className="text-xs text-text-muted mt-1">Comprobantes por revisar en el panel</p>
           </div>
 
-          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 hover:shadow-md transition-shadow">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5">
             <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Alquileres Atrasados</p>
             <p className="text-3xl font-bold text-red">{overdueCount}</p>
             <p className="text-xs text-text-muted mt-1">Inquilinos con fecha de pago vencida</p>
@@ -209,7 +208,7 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
         </div>
 
         {/* Filter Controls */}
-        <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm mb-6 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+        <div className="bg-white border border-slate-200 p-5 rounded-2xl mb-6 flex flex-col md:flex-row md:items-center gap-4 justify-between">
           <div className="flex flex-wrap gap-1.5 bg-slate-50 p-1 border border-slate-200 rounded-xl">
             {[
               { key: "TODOS", label: "Todos" },
@@ -244,7 +243,7 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
         </div>
 
         {/* Main Table */}
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
           {filteredPayments.length > 0 ? (
             <table className="w-full text-left border-collapse">
               <thead>
@@ -587,7 +586,7 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
 
                   <div className="bg-slate-50 p-4 border border-slate-200 rounded-xl text-[11px] leading-relaxed text-slate-600">
                     <span className="font-bold text-text block mb-1">Plantilla Mensaje:</span>
-                    "Hola {reminderPayment.tenantName.split(" ")[0]}, te recordamos que tienes una cuota de arriendo vencida el {new Date(reminderPayment.dueDate).toLocaleDateString()} por S/ {reminderPayment.amount} para el inmueble {reminderPayment.propertyName}. Por favor registra tu voucher en Habita Perú. Gracias."
+                    {'"'}{`Hola ${reminderPayment.tenantName.split(" ")[0]}, te recordamos que tienes una cuota de arriendo vencida el ${new Date(reminderPayment.dueDate).toLocaleDateString()} por S/ ${reminderPayment.amount} para el inmueble ${reminderPayment.propertyName}. Por favor registra tu voucher en Habita Perú. Gracias.`}{'"'}
                   </div>
 
                   <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">

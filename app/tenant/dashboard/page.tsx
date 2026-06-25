@@ -67,7 +67,7 @@ async function getTenantDashboardData(tenantId: string) {
             ? payment.paidDate.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' })
             : payment.dueDate.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
           amount: Number(payment.amount),
-          status: payment.status === 'PAGADO' ? 'PAID' : payment.status === 'VENCIDO' ? 'OVERDUE' : 'PENDING',
+          status: payment.status === 'PAGADO' ? 'PAID' : payment.status === 'VENCIDO' ? 'OVERDUE' : payment.status === 'EN_PROCESO' ? 'IN_PROGRESS' : 'PENDING',
         }
       }),
       favoritesCount: 0, // No model in DB, keep it 0 or mock

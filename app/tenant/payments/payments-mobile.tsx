@@ -154,7 +154,7 @@ export function TenantPaymentsMobile({ payments }: Props) {
       </div>
 
       {/* Metrics horizontal scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none -mx-4 px-4 mb-4">
+      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mb-4">
         <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3.5 shrink-0 w-44">
           <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Próximo Pago</p>
           {nextPayment ? (
@@ -445,7 +445,7 @@ export function TenantPaymentsMobile({ payments }: Props) {
                       <span>{previewPayment.paymentMethod || "—"}</span>
                     </div>
                     {previewPayment.notes && (
-                      <div className="pt-1.5 border-t border-slate-150 mt-1">
+                      <div className="pt-1.5 border-t border-slate-100 mt-1">
                         <span className="text-text-muted block mb-0.5">Notas:</span>
                         <p className="font-normal text-text leading-normal">{previewPayment.notes}</p>
                       </div>

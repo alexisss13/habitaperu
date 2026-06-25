@@ -21,31 +21,32 @@ export function PaymentTrafficLight({ payments }: PaymentTrafficLightProps) {
 
   const getDaysUntilDue = (dueDate: string) => {
     const due = new Date(dueDate)
+    if (isNaN(due.getTime())) return Infinity
     const now = new Date()
     return Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
   }
 
   const getStatusDotClass = (status: string, dueDate: string) => {
-    if (status === 'PAID') return 'bg-emerald-500'
-    if (status === 'OVERDUE') return 'bg-red'
+    if (status === 'PAGADO') return 'bg-emerald-500'
+    if (status === 'VENCIDO') return 'bg-red'
     return getDaysUntilDue(dueDate) <= 3 ? 'bg-accent-secondary' : 'bg-emerald-500'
   }
 
   const getStatusBgClass = (status: string, dueDate: string) => {
-    if (status === 'PAID') return 'bg-emerald-500'
-    if (status === 'OVERDUE') return 'bg-red'
+    if (status === 'PAGADO') return 'bg-emerald-500'
+    if (status === 'VENCIDO') return 'bg-red'
     return getDaysUntilDue(dueDate) <= 3 ? 'bg-accent-secondary' : 'bg-emerald-500'
   }
 
   const getStatusIcon = (status: string, dueDate: string) => {
-    if (status === 'PAID') return <CheckmarkCircle01Icon size={16} className="text-white" />
-    if (status === 'OVERDUE') return <AlertCircleIcon size={16} className="text-white" />
+    if (status === 'PAGADO') return <CheckmarkCircle01Icon size={16} className="text-white" />
+    if (status === 'VENCIDO') return <AlertCircleIcon size={16} className="text-white" />
     return <Clock01Icon size={16} className="text-white" />
   }
 
   const getStatusText = (status: string, dueDate: string) => {
-    if (status === 'PAID') return 'Pagado'
-    if (status === 'OVERDUE') return 'Vencido'
+    if (status === 'PAGADO') return 'Pagado'
+    if (status === 'VENCIDO') return 'Vencido'
     const diffDays = getDaysUntilDue(dueDate)
     if (diffDays <= 0) return 'Vence hoy'
     if (diffDays === 1) return 'Vence mañana'
@@ -53,8 +54,8 @@ export function PaymentTrafficLight({ payments }: PaymentTrafficLightProps) {
   }
 
   const getStatusTextClass = (status: string) => {
-    if (status === 'OVERDUE') return 'text-red'
-    if (status === 'PAID') return 'text-green'
+    if (status === 'VENCIDO') return 'text-red'
+    if (status === 'PAGADO') return 'text-green'
     return 'text-accent-secondary'
   }
 
@@ -70,7 +71,7 @@ export function PaymentTrafficLight({ payments }: PaymentTrafficLightProps) {
   }
 
   return (
-    <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-6">
+    <div className="bg-white border border-slate-200 rounded-xl p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-bold tracking-tight text-text">Semáforo de Pagos</h2>
         <div className="flex items-center gap-4 text-xs font-medium text-text-muted">
@@ -94,7 +95,7 @@ export function PaymentTrafficLight({ payments }: PaymentTrafficLightProps) {
           payments.map((payment) => (
             <div key={payment.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
               <div className="shrink-0">
-                <div className={`size-12 rounded-xl ${getStatusBgClass(payment.status, payment.dueDate)} flex items-center justify-center shadow-sm`}>
+                <div className={`size-12 rounded-xl ${getStatusBgClass(payment.status, payment.dueDate)} flex items-center justify-center`}>
                   {getStatusIcon(payment.status, payment.dueDate)}
                 </div>
               </div>
@@ -116,7 +117,7 @@ export function PaymentTrafficLight({ payments }: PaymentTrafficLightProps) {
                 </div>
               </div>
 
-              {payment.status !== 'PAID' && (
+              {payment.status !== 'PAGADO' && (
                 <button
                   onClick={() => handleSendReminder(payment.id, payment.tenant.email)}
                   disabled={sendingReminder === payment.id}

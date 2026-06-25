@@ -76,7 +76,7 @@ export function PlanUpgradeModal({ isOpen, onClose, onSuccess, currentPlan, isMo
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[200]" onClick={onClose} role="presentation" />
       <div className="fixed inset-0 z-[201] flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
           {/* Header */}

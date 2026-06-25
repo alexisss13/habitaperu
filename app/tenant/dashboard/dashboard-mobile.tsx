@@ -22,9 +22,10 @@ interface Props {
 }
 
 const paymentStatusConfig = {
-  PAID:    { label: "Pagado",    cls: "text-green bg-green/10",    Icon: CheckmarkCircle02Icon },
-  OVERDUE: { label: "Vencido",   cls: "text-red bg-red/10",        Icon: AlertCircleIcon },
-  PENDING: { label: "Pendiente", cls: "text-amber-600 bg-amber-50", Icon: Clock05Icon },
+  PAID:        { label: "Pagado",    cls: "text-green bg-green/10",        Icon: CheckmarkCircle02Icon },
+  OVERDUE:     { label: "Vencido",   cls: "text-red bg-red/10",            Icon: AlertCircleIcon },
+  IN_PROGRESS: { label: "En proceso",cls: "text-indigo-600 bg-indigo-50",   Icon: Clock05Icon },
+  PENDING:     { label: "Pendiente", cls: "text-amber-600 bg-amber-50",     Icon: Clock05Icon },
 }
 
 export function TenantDashboardMobile({ session, data }: Props) {
@@ -37,7 +38,7 @@ export function TenantDashboardMobile({ session, data }: Props) {
     <div className="px-4 py-5 pb-4">
       {/* Greeting */}
       <div className="mb-5">
-        <h1 className="text-xl font-extrabold text-[#151c26]">Hola, {firstName} 👋</h1>
+        <h1 className="text-xl font-extrabold text-[#151c26]">Hola, {firstName} <span role="img" aria-hidden="true">👋</span></h1>
         <p className="text-xs text-gray-400 mt-0.5">Tu resumen como inquilino</p>
       </div>
 

@@ -10,8 +10,8 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const unreadOnly = searchParams.get("unread") === "true"
-    const page = parseInt(searchParams.get("page") ?? "1")
-    const limit = Math.min(parseInt(searchParams.get("limit") ?? "20"), 50)
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1") || 1)
+    const limit = Math.min(Math.max(1, parseInt(searchParams.get("limit") ?? "20") || 20), 50)
 
     const where = { userId: session.user.id, ...(unreadOnly ? { read: false } : {}) }
 

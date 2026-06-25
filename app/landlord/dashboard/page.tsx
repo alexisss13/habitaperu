@@ -31,9 +31,6 @@ async function getDashboardData(landlordId: string) {
     const totalProperties = properties.length
     const occupiedProperties = properties.filter(p => p.contracts.length > 0).length
     
-    // Calcular ingresos del mes actual
-    const currentMonth = new Date().getMonth()
-    const currentYear = new Date().getFullYear()
     
     const monthlyIncome = properties.reduce((total, property) => {
       return total + (property.contracts.length > 0 ? Number(property.price) : 0)
@@ -124,7 +121,7 @@ async function getDashboardData(landlordId: string) {
         id: payment.id,
         amount: Number(payment.amount),
         dueDate: payment.dueDate.toISOString(),
-        status: payment.status === 'PENDIENTE' ? 'PENDING' : payment.status === 'VENCIDO' ? 'OVERDUE' : 'PAID',
+        status: payment.status,
         tenant: {
           name: `${payment.contract.tenant.firstName} ${payment.contract.tenant.lastName}`,
           email: payment.contract.tenant.email,
@@ -157,7 +154,7 @@ async function getDashboardData(landlordId: string) {
           id: '1',
           amount: 1800,
           dueDate: new Date(2026, 4, 15).toISOString(),
-          status: 'PENDING',
+          status: 'PENDIENTE',
           tenant: {
             name: 'Carlos Ramírez',
             email: 'carlos.ramirez@email.com',
@@ -171,7 +168,7 @@ async function getDashboardData(landlordId: string) {
           id: '2',
           amount: 750,
           dueDate: new Date(2026, 4, 10).toISOString(),
-          status: 'OVERDUE',
+          status: 'VENCIDO',
           tenant: {
             name: 'María López',
             email: 'maria.lopez@email.com',

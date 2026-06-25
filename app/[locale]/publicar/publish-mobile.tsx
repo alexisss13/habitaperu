@@ -107,7 +107,7 @@ export function PublishMobile() {
           <h2 className="text-2xl font-extrabold text-[#151c26] mt-2 leading-tight">{t('howToStart.title')}</h2>
         </div>
         <div className="flex flex-col gap-6">
-          {steps.map(({ Icon, num, key }) => (
+          {steps.map(({ num, key }) => (
             <div key={key} className="flex items-start gap-5">
               <div className="relative shrink-0">
                 <div className="size-12 rounded-full flex items-center justify-center text-white font-extrabold text-lg"
@@ -145,7 +145,7 @@ export function PublishMobile() {
               <div className="flex gap-1 mb-3">
                 {[1,2,3,4,5].map(s => <StarIcon key={s} size={14} className="text-[#fbbf24]" />)}
               </div>
-              <p className="text-sm text-gray-500 leading-relaxed mb-4">"{t(`testimonials.${key}.text`)}"</p>
+               <p className="text-sm text-gray-500 leading-relaxed mb-4">{'"'}{t(`testimonials.${key}.text`)}{'"'}</p>
               <div className="flex items-center gap-3">
                 <div className="size-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
                   style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}>

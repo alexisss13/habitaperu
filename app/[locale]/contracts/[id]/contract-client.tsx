@@ -8,8 +8,7 @@ import {
   Download01Icon, 
   FileValidationIcon, 
   AlertCircleIcon, 
-  CheckmarkCircle01Icon,
-  LeftToRightListNumberIcon
+  CheckmarkCircle01Icon
 } from "hugeicons-react"
 import { signContractAsTenant, counterSignAsLandlord } from "@/app/actions/contract-actions"
 import { processSuccessFee } from "@/app/actions/culqi-actions"
@@ -55,7 +54,7 @@ interface Props {
   landlordSubscriptionPlan: string
 }
 
-export function ContractClient({ contract: initialContract, html, isLandlord, isTenant, locale, isMockPayment, landlordSubscriptionPlan }: Props) {
+export function ContractClient({ contract: initialContract, html, isLandlord, isTenant, isMockPayment, landlordSubscriptionPlan }: Props) {
   const router = useRouter()
   const [contract, setContract] = useState<ContractData>(initialContract)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
@@ -364,13 +363,13 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
                   <p className="text-[10px] text-slate-500 mb-3">
                     El plan Gratis permite ver el contrato en pantalla. Actualiza a Pro para descargarlo en PDF con sello SHA-256.
                   </p>
-                  <a
+                  <Link
                     href="/landlord/properties?upgrade=true"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-white px-4 py-2 rounded-xl no-underline hover:opacity-90 transition-opacity"
                     style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)" }}
                   >
                     <Download01Icon size={13} /> Ver planes — desde S/ 49/mes
-                  </a>
+                  </Link>
                 </div>
               ) : (
                 <button

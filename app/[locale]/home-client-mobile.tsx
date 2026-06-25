@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, KeyboardEvent } from 'react'
+import { useState, KeyboardEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useParams, usePathname } from 'next/navigation'
@@ -15,7 +15,8 @@ import {
 interface Property {
   id: string; title: string; type: string; condition: string; district: string
   price: number; images: string[]; favorites: number; rooms: number
-  bathrooms: number; area: number; _count: { reviews: number }
+  bathrooms: number; area: number; avgRating: number; reviewCount: number
+  amenities: string[]; tenantProfile: string[]
 }
 interface PropertyStats { minPrice: number; availableCount: number }
 interface CityCount { city: string; count: number }
@@ -66,8 +67,14 @@ function PropCard({
           {property.district}
         </p>
         <div className="flex items-center gap-1 mt-auto pt-1">
-          <StarIcon size={10} className="text-amber-400 shrink-0" />
-          <span className="text-[10px] text-gray-400">4.8</span>
+          {property.reviewCount > 0 ? (
+            <>
+              <StarIcon size={10} className="text-amber-400 shrink-0" />
+              <span className="text-[10px] text-gray-400">{property.avgRating.toFixed(1)}</span>
+            </>
+          ) : (
+            <span className="text-[10px] text-gray-400 font-semibold">Nuevo</span>
+          )}
           <span className="ml-auto text-sm font-bold text-accent">
             S/{property.price.toLocaleString()}
           </span>
@@ -112,7 +119,13 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
   const locale = (params?.locale as string) || 'es'
   const pathname = usePathname()
   const [activeFilter, setActiveFilter] = useState('all')
-  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [favorites, setFavorites] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set()
+    try {
+      const stored = localStorage.getItem('habitaperu_favorites')
+      return stored ? new Set(JSON.parse(stored)) : new Set()
+    } catch { return new Set() }
+  })
   const [searchQuery, setSearchQuery] = useState('')
 
   const handleSearch = () => {
@@ -132,21 +145,17 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
     router.push(routes[value] ?? `/${locale}/propiedades`)
   }
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('habitaperu_favorites')
-      if (stored) setFavorites(new Set(JSON.parse(stored)))
-    } catch {}
-  }, [])
-
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id); else next.add(id)
       try { localStorage.setItem('habitaperu_favorites', JSON.stringify([...next])) } catch {}
       return next
     })
   }
+
+  const studentMatches = properties.filter((p) => p.tenantProfile?.includes('estudiante'))
+  const studentProperties = (studentMatches.length > 0 ? studentMatches : properties).slice(0, 6)
 
   const filtered = properties.filter((p) => {
     if (activeFilter === 'habitacion') return p.type === 'HABITACION'
@@ -399,8 +408,8 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
           href="/propiedades?filter=students"
         />
         <HScroll>
-          {properties.slice(0, 6).map((p) => (
-            <PropCard key={p.id} property={p} favorited={favorites.has(p.id)} onFav={toggleFavorite} badge="Cerca universidades" />
+          {studentProperties.map((p) => (
+            <PropCard key={p.id} property={p} favorited={favorites.has(p.id)} onFav={toggleFavorite} badge="Para estudiantes" />
           ))}
         </HScroll>
       </section>

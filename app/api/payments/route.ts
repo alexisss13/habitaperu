@@ -14,8 +14,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const status = searchParams.get("status")
     const contractId = searchParams.get("contractId")
-    const page = parseInt(searchParams.get("page") ?? "1")
-    const limit = Math.min(parseInt(searchParams.get("limit") ?? "20"), 100)
+    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1") || 1)
+    const limit = Math.min(Math.max(1, parseInt(searchParams.get("limit") ?? "20") || 20), 100)
     const skip = (page - 1) * limit
 
     const where: Record<string, unknown> = {}

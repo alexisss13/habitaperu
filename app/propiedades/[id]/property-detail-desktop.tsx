@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import {
   Location01Icon, FavouriteIcon, Home01Icon, CheckmarkCircle02Icon,
@@ -34,14 +34,13 @@ function GallerySlot({ src, alt }: { src?: string; alt: string }) {
 }
 
 export function PropertyDetailDesktop({ property: p }: { property: PropertyDetail }) {
-  // Favorite state — initialized via useEffect to avoid SSR mismatch
-  const [isFavorite, setIsFavorite] = useState(false)
-  useEffect(() => {
+  const [isFavorite, setIsFavorite] = useState(() => {
+    if (typeof window === 'undefined') return false
     try {
       const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      setIsFavorite(ids.includes(p.id))
-    } catch {}
-  }, [p.id])
+      return ids.includes(p.id)
+    } catch { return false }
+  })
 
   const toggleFavorite = () => {
     try {
@@ -255,7 +254,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                   className="size-14 rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0"
                   style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                 >
-                  {p.owner.firstName[0]}
+                  {p.owner.firstName?.[0] ?? '?'}
                 </div>
               </div>
             </div>
@@ -332,7 +331,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                           className="size-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
                           style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                         >
-                          {r.author.firstName[0]}
+                          {r.author.firstName?.[0] ?? '?'}
                         </div>
                         <div>
                           <p className="font-bold text-[#151c26] text-sm">
@@ -516,7 +515,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                     className="size-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0"
                     style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                   >
-                    {p.owner.firstName[0]}
+                    {p.owner.firstName?.[0] ?? '?'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-[#151c26] text-sm">

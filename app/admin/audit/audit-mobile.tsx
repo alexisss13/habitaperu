@@ -37,7 +37,7 @@ const actionBadge = (action: string) => {
       }
     default:
       return { 
-        cls: "bg-slate-100 text-slate-600 border border-slate-250", 
+        cls: "bg-slate-100 text-slate-600 border border-slate-200", 
         label: action, 
         Icon: Clock01Icon 
       }
@@ -104,8 +104,12 @@ export function AuditMobile({ logs }: Props) {
       {/* Cards Stack */}
       <div className="space-y-3">
         {filteredLogs.length === 0 ? (
-          <div className="p-8 text-center text-xs text-admin-text-muted bg-admin-card-bg border border-admin-border rounded-xl">
-            No se encontraron registros.
+          <div className="bg-admin-card-bg border border-admin-border rounded-xl p-8 text-center flex flex-col items-center justify-center min-h-[200px]">
+            <DatabaseIcon size={36} className="text-admin-text-muted mb-3 animate-pulse" />
+            <h3 className="text-sm font-semibold text-admin-text mb-1">No se encontraron registros</h3>
+            <p className="text-xs text-admin-text-muted max-w-xs">
+              No hay logs de auditoría registrados que coincidan con la búsqueda.
+            </p>
           </div>
         ) : (
           filteredLogs.map((log) => {

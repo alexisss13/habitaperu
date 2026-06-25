@@ -1,0 +1,293 @@
+{
+  "common": {
+    "appName": "Habita Perú",
+    "loading": "加载中...",
+    "search": "搜索",
+    "filter": "筛选",
+    "close": "关闭",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "view": "查看",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步"
+  },
+  "header": {
+    "publishProperty": "发布房源",
+    "login": "登录",
+    "register": "注册",
+    "helpCenter": "帮助中心",
+    "language": "语言",
+    "myProperties": "我的房源",
+    "manageRoom": "管理房源",
+    "myRoom": "我的房间",
+    "searchRoom": "寻找房源",
+    "dashboardAdmin": "管理面板",
+    "dashboardLandlord": "我的房源",
+    "dashboardTenant": "我的面板",
+    "dashboardDefault": "控制台",
+    "roleAdmin": "管理员",
+    "roleLandlord": "房东",
+    "roleTenant": "租客",
+    "logout": "退出登录",
+    "announcement": {
+      "verified": "认证房源",
+      "secure": "安全合同",
+      "support": "24/7 全天候支持"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "按月起租",
+      "title": "寻找您的下一个温馨港湾",
+      "subtitle": "专为学生和职场人士设计的房间与公寓。便捷、安全的按月租赁服务。",
+      "searchPlaceholder": "按区域、大学或地址搜索...",
+      "searchButton": "搜索",
+      "filters": "筛选",
+      "from": "起",
+      "perMonth": "/月",
+      "propertyAvailable": "套可用房源",
+      "propertiesAvailable": "套可用房源"
+    },
+    "filters": {
+      "room": "单间",
+      "apartment": "整套公寓",
+      "wifi": "无线网络",
+      "furnished": "配齐家具"
+    },
+    "featured": {
+      "title": "精选房源推荐",
+      "subtitle": "平台严选确认，让您租得放心、住得舒心",
+      "filterAll": "全部",
+      "filterRooms": "单间",
+      "filterApartments": "整套公寓",
+      "filterHouses": "独立住宅",
+      "filterFurnished": "配齐家具",
+      "viewAll": "查看全部房源"
+    },
+    "property": {
+      "room": "单间",
+      "rooms": "单间",
+      "bathroom": "独立卫浴",
+      "bathrooms": "卫浴",
+      "perMonth": "/月"
+    },
+    "howItWorks": {
+      "badge": "极简流程",
+      "title": "如何运作？",
+      "subtitle": "只需简单三步，即可锁定理想居所",
+      "step1": {
+        "title": "在线搜索和筛选",
+        "description": "探索数千套经过核实的认证房源。使用筛选器轻松找到最符合您需求的房间。"
+      },
+      "step2": {
+        "title": "预约线下看房",
+        "description": "直接在线向房东发送消息，便捷约定时间进行现场看房与核实。"
+      },
+      "step3": {
+        "title": "签约并拎包入住",
+        "description": "在线签署具有法律效力的电子合同，支付完成后即可轻松开启您的租房生活。"
+      }
+    },
+    "whyChoose": {
+      "badge": "核心优势",
+      "title": "为什么选择 Habita Perú？",
+      "subtitle": "我们为您提供安全、便捷、可靠的全新租房体验",
+      "feature1": {
+        "title": "百分百认证房源",
+        "description": "所有上架房源均经过平台团队的实地审核与资质核验，保障租客的租住安全。"
+      },
+      "feature2": {
+        "title": "法律效力合同",
+        "description": "系统自动生成完全符合秘鲁现行法律规范的电子合同，切实保护租赁双方合法权益。"
+      },
+      "feature3": {
+        "title": "安全支付保护",
+        "description": "采用受保护的安全支付管理机制，确保房租准时、安全交割，减少资金纠纷。"
+      },
+      "feature4": {
+        "title": "24/7 专属客服",
+        "description": "我们的专业客服团队随时在线，解答并协助处理您在租房过程中的任何疑问。"
+      }
+    },
+    "cta": {
+      "badge": "房东专属",
+      "title": "您有闲置房源需要出租吗？",
+      "subtitle": "立即加入由 {count} 多位信任并使用 Habita Perú 管理房产的专业房东社群。",
+      "satisfaction": "用户满意度",
+      "averageRental": "平均出租时长",
+      "days": "天",
+      "button": "免费发布我的房源",
+      "benefits": "✓ 绝无隐性费用 · ✓ 支持免费推广展示"
+    },
+    "exploreLocation": {
+      "title": "按热门地标探索",
+      "subtitle": "浏览秘鲁利马最受欢迎的租房街区"
+    },
+    "studentProperties": {
+      "title": "高校学生推荐房源",
+      "subtitle": "临近主要知名大学、通勤方便的精选房间与公寓"
+    },
+    "fullApartments": {
+      "title": "整租套房源",
+      "subtitle": "非常适合家庭或注重高私密性体验的合租群体"
+    },
+    "budgetRooms": {
+      "title": "高性价比经济房",
+      "subtitle": "租金亲民，且在居住安全与核心设施上毫不妥协的优质房源"
+    }
+  },
+  "languageSwitcher": {
+    "title": "选择语言与国家/地区",
+    "currency": "显示货币",
+    "suggested": "推荐的语言与国家",
+    "choose": "请选择您所偏好的语言和使用区域",
+    "currencyPlaceholder": "多货币显示功能即将上线",
+    "currencyDescription": "目前所有价格均统一以秘鲁新索尔 (S/) 进行结算与展示"
+  },
+  "login": {
+    "title": "登录",
+    "welcome": "欢迎来到 Habita Perú",
+    "email": "电子邮箱",
+    "password": "登录密码",
+    "continue": "安全登录",
+    "loading": "正在验证登录...",
+    "or": "或",
+    "googleLogin": "使用 Google 账号登录",
+    "facebookLogin": "使用 Facebook 账号登录",
+    "noAccount": "还没有账号吗？",
+    "signUp": "立即免费注册",
+    "error": "邮箱或密码输入不正确，请重新检查并输入。",
+    "genericError": "登录请求处理失败，请稍后重试。",
+    "demoCredentials": {
+      "title": "演示体验账号",
+      "admin": "管理员账户:",
+      "landlord": "房东账户:",
+      "tenant": "租客账户:"
+    }
+  },
+  "register": {
+    "title": "创建新账户",
+    "welcome": "加入 Habita Perú 平台",
+    "firstName": "名字 (First Name)",
+    "lastName": "姓氏 (Last Name)",
+    "email": "电子邮箱",
+    "password": "登录密码",
+    "confirmPassword": "确认登录密码",
+    "role": "账户类型",
+    "tenant": "我是租客",
+    "landlord": "我是房东",
+    "continue": "注册完成并登录",
+    "loading": "正在创建您的账户...",
+    "or": "或",
+    "googleSignup": "使用 Google 快速注册",
+    "facebookSignup": "使用 Facebook 快速注册",
+    "hasAccount": "您已经拥有账户？",
+    "login": "前往登录",
+    "passwordMismatch": "两次输入的密码不一致，请重新检查",
+    "error": "注册失败，请检查填写内容或稍后重试。",
+    "success": "恭喜，您的账户已创建成功"
+  },
+  "publish": {
+    "hero": {
+      "badge": "经认证的专业房东管理平台",
+      "title": "让您的房产投资安全增值",
+      "titleAccent": "开启数字化智能管理",
+      "subtitle": "在线签署合同、核验租客信用、自动管理房租收付，助您高效省心做房东。",
+      "startButton": "立即免费入驻",
+      "watchVideo": "观看功能介绍视频",
+      "stats": {
+        "properties": "活跃发布房源",
+        "contracts": "无纠纷签约率",
+        "tenants": "经核验的入居者"
+      }
+    },
+    "features": {
+      "badge": "平台核心功能",
+      "title": "助您信心十足、轻松出租的一站式解决方案",
+      "kyc": {
+        "title": "租客背景核验 (KYC)",
+        "description": "在拟定合同前，平台对租客进行实名认证与合规背景分析，防范租赁风险。",
+        "link": "了解详细功能"
+      },
+      "contracts": {
+        "title": "合规电子合同",
+        "description": "一键在线生成符合秘鲁现行租赁法律框架的电子合同，省去繁琐手续。",
+        "link": "查看合同范本"
+      },
+      "dashboard": {
+        "title": "房房资产看板",
+        "description": "一站式集中控制和查看房租状态、空置情况以及与在租房客在线联系。",
+        "link": "进入房东看板"
+      },
+      "matching": {
+        "title": "智能房客匹配",
+        "description": "基于大数据画像，为您的房源推荐信用良好、高契合度的优质意向房客。",
+        "link": "查看匹配逻辑"
+      }
+    },
+    "dashboard": {
+      "badge": "控制台",
+      "title": "您的房东看板",
+      "subtitle": "实时掌握名下房产的出租率、月度收支和合同状态。",
+      "payments": {
+        "title": "房租缴费看板 (红绿灯指示)",
+        "period": "2026年4月",
+        "paid": "已付清",
+        "pending": "待付 (期)",
+        "processing": "款项确认与核对中",
+        "viewFull": "查看全部收付记录"
+      },
+      "occupancy": {
+        "title": "每月出租率",
+        "period": "近 6 个月趋势",
+        "occupied": "已出租",
+        "income": "本月预估总收益",
+        "activeContracts": "生效合同份数"
+      }
+    },
+    "howToStart": {
+      "badge": "简单起步",
+      "title": "只需 3 步开始出租",
+      "step1": {
+        "title": "免费创建账号",
+        "description": "在 2 分钟内创建您的房东账号。不需要支付任何初始费用或加入费。"
+      },
+      "step2": {
+        "title": "填写房源信息",
+        "description": "上传房源实景照片并补充租金要求与描述，我们的审核团队将为您核实发布。"
+      },
+      "step3": {
+        "title": "接收租房申请",
+        "description": "通过验证的意向租客将主动与您取得联系。您可以自主挑选心仪的房客签署合同。"
+      },
+      "startButton": "立即注册"
+    },
+    "testimonials": {
+      "badge": "真实房东寄语",
+      "title": "听听平台上其他房东怎么说",
+      "testimonial1": {
+        "text": "以前我在验证租客背景上浪费了太多精力。现在 Habita Perú 替我全自动做好了，让我感觉无比踏实。",
+        "name": "Juan Díaz 先生",
+        "properties": "在利马管理 6 套房源"
+      },
+      "testimonial2": {
+        "text": "智能看板真的特别直观。收租状态一目了然，每月的租金都准时划账，没有了以前的扯皮和尴尬。",
+        "name": "Rosa Vargas 女士",
+        "properties": "在圣伊西德罗运营 3 套公寓"
+      },
+      "testimonial3": {
+        "text": "数字化合同真的是颠覆性的变化。所有的签署都可以在手机上完成，效率提升了太多，非常专业。",
+        "name": "Carlos Mendoza 先生",
+        "properties": "在米拉弗洛雷斯拥有 2 套房源"
+      }
+    },
+    "cta": {
+      "title": "准备好体验智能省心的房屋租赁管理了吗？",
+      "subtitle": "立即加入秘鲁 4,800 多位信任并使用 Habita Perú 的资深房东之列。",
+      "button": "立即免费加入"
+    }
+  }
+}

@@ -22,6 +22,7 @@ export interface PropertyListing {
   avgRating: number
   reviewCount: number
   status: string
+  amenities?: string[]
   featuredUntil?: string | null
   lat?: number | null
   lng?: number | null
@@ -44,6 +45,7 @@ interface ViewProps {
   initialSort?: string
   initialCondition?: string
   initialSearchQuery?: string
+  initialAmenity?: string
 }
 
 export function PropiedadesView({
@@ -53,6 +55,7 @@ export function PropiedadesView({
   initialSort = 'recent',
   initialCondition = '',
   initialSearchQuery = '',
+  initialAmenity = '',
 }: ViewProps) {
   const { isMobile, isLoading } = useResponsive()
 
@@ -68,6 +71,7 @@ export function PropiedadesView({
   const [conditionFilter, setConditionFilter] = useState(initialCondition)
   const [nearUniversityId, setNearUniversityId] = useState<string>("")
   const [nearRadiusKm, setNearRadiusKm]     = useState<number>(2)
+  const [amenityFilter, setAmenityFilter]   = useState(initialAmenity)
 
   const handleClearFilters = () => {
     setSearchQuery("")
@@ -80,6 +84,7 @@ export function PropiedadesView({
     setConditionFilter("")
     setNearUniversityId("")
     setNearRadiusKm(2)
+    setAmenityFilter("")
   }
 
   // ── Filter logic ──────────────────────────────────────────────────────────
@@ -120,6 +125,12 @@ export function PropiedadesView({
 
     // Rooms filter
     if (minRooms > 0 && p.rooms < minRooms) return false
+
+    // Amenity filter (e.g. "wifi")
+    if (amenityFilter) {
+      const hasAmenity = (p.amenities ?? []).some(a => a.toLowerCase().includes(amenityFilter.toLowerCase()))
+      if (!hasAmenity) return false
+    }
 
     // Filtro "cerca de universidad"
     if (nearUniversityId) {
@@ -180,6 +191,8 @@ export function PropiedadesView({
       setNearUniversityId={setNearUniversityId}
       nearRadiusKm={nearRadiusKm}
       setNearRadiusKm={setNearRadiusKm}
+      conditionFilter={conditionFilter}
+      setConditionFilter={setConditionFilter}
     />
   ) : (
     <PropiedadesDesktop
@@ -206,6 +219,8 @@ export function PropiedadesView({
       setNearUniversityId={setNearUniversityId}
       nearRadiusKm={nearRadiusKm}
       setNearRadiusKm={setNearRadiusKm}
+      conditionFilter={conditionFilter}
+      setConditionFilter={setConditionFilter}
     />
   )
 }

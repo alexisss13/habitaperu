@@ -21,12 +21,15 @@ export async function GET(req: NextRequest) {
     if (type) where.type = type
     if (district) where.district = district
     if (status) where.status = status
-    if (minPrice || maxPrice) {
+    const parsedMin = minPrice ? parseFloat(minPrice) : NaN
+    const parsedMax = maxPrice ? parseFloat(maxPrice) : NaN
+    if (!isNaN(parsedMin) || !isNaN(parsedMax)) {
       where.price = {}
-      if (minPrice) where.price.gte = parseFloat(minPrice)
-      if (maxPrice) where.price.lte = parseFloat(maxPrice)
+      if (!isNaN(parsedMin)) where.price.gte = parsedMin
+      if (!isNaN(parsedMax)) where.price.lte = parsedMax
     }
-    if (minRooms) where.rooms = { gte: parseInt(minRooms) }
+    const parsedRooms = minRooms ? parseInt(minRooms) : NaN
+    if (!isNaN(parsedRooms)) where.rooms = { gte: parsedRooms }
 
     const properties = await prisma.property.findMany({
       where,

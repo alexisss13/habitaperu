@@ -72,21 +72,32 @@ export function ContractSignView({ contract, currentUserId, currentUserRole }: C
 
   useEffect(() => {
     if (viewRecorded) return
-    recordContractView(contract.id).then(() => setViewRecorded(true))
+    recordContractView(contract.id).then(() => setViewRecorded(true)).catch(() => {})
   }, [contract.id, viewRecorded])
 
   useEffect(() => {
-    const el = contractBodyRef.current
-    if (!el) return
-    const onScroll = () => {
-      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
-        setScrolledThrough(true)
-      }
+    const element = contractBodyRef.current
+    if (!element) {
+      // Si no se puede renderizar el ref aún, usamos un fallback temporal
+      setScrolledThrough(true)
+      return
     }
-    el.addEventListener("scroll", onScroll)
-    onScroll()
-    return () => el.removeEventListener("scroll", onScroll)
-  }, [])
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setScrolledThrough(true)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(element)
+    return () => {
+      observer.unobserve(element)
+      observer.disconnect()
+    }
+  }, [canSignAsTenant, canSignAsLandlord])
 
   const handleSign = async () => {
     setSigning(true)
@@ -278,8 +289,8 @@ export function ContractSignView({ contract, currentUserId, currentUserRole }: C
                 )}
                 <button
                   onClick={handleSign}
-                  disabled={signing || !viewRecorded}
-                  className="w-full py-3.5 bg-accent text-white font-bold text-sm rounded-xl hover:bg-accent/90 transition-all cursor-pointer border-none disabled:opacity-60 flex items-center justify-center gap-2"
+                  disabled={signing || !viewRecorded || !scrolledThrough}
+                  className="w-full py-3.5 bg-accent text-white font-bold text-sm rounded-xl hover:bg-accent/90 transition-all cursor-pointer border-none disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {signing ? (
                     <>
@@ -295,6 +306,11 @@ export function ContractSignView({ contract, currentUserId, currentUserRole }: C
                 </button>
                 {!viewRecorded && (
                   <p className="text-[11px] text-gray-400 text-center mt-2">Registrando visualización...</p>
+                )}
+                {viewRecorded && !scrolledThrough && (
+                  <p className="text-[11px] text-amber-600 font-semibold text-center mt-2">
+                    ⚠️ Por favor, desplázate hacia abajo y lee todo el contrato para poder firmar.
+                  </p>
                 )}
               </div>
             )}

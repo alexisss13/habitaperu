@@ -20,8 +20,8 @@ La distribución de roles de este equipo no sigue la separación clásica de "un
 | Integrante | Rol | Responsabilidades |
 |---|---|---|
 | Alexis Levano | CEO y Desarrollador Full-stack | Coordinación general del proyecto. Desarrollo completo de la plataforma: frontend, backend, modelado de base de datos, autenticación, motor de contratos legales, integración de pagos y seguridad. |
-| Carlos Carrascal | Investigación y Análisis de Mercado | Investigación del problema, análisis de la competencia (portales inmobiliarios y canales informales), segmentación de clientes, validación de la propuesta de valor. |
-| Ruth Aquino | Análisis Financiero y Modelo de Negocio | Modelo de costos del proyecto, proyecciones financieras, evaluación de viabilidad económica por etapas, estructuración del Business Model Canvas. |
+| Carlos Carrascal | Análisis Financiero y Modelo de Negocio | Modelo de costos del proyecto, proyecciones financieras, evaluación de viabilidad económica por etapas, estructuración del Business Model Canvas. |
+| Ruth Aquino | Investigación y Análisis de Mercado | Investigación del problema, análisis de la competencia (portales inmobiliarios y canales informales), segmentación de clientes, validación de la propuesta de valor. |
 
 > Nota: esta distribución de roles es modificable según el formato que la docente requiera. Se documenta así porque refleja con precisión cómo se trabajó realmente.
 
@@ -49,30 +49,33 @@ La diferenciación frente a la competencia es de enfoque, no de tamaño: mientra
 
 2.1 Cronología del trabajo realizado
 
-| Semana | Periodo | Actividad | Estado |
-|---|---|---|---|
-| Semana 1 | 23–29 abril | Investigación del problema y validación inicial con arrendadores de Trujillo | Completado |
-| Semana 2 | 30 abril–6 mayo | Diseño de wireframes y definición del Business Model Canvas | Completado |
-| Semana 3 | 7–13 mayo | Modelado de base de datos (Prisma) y configuración de autenticación (NextAuth) | Completado |
-| Semana 4 | 14–20 mayo | Desarrollo del MVP base: dashboards de arrendador, inquilino y administrador | Completado |
-| Semana 5 | 21–27 mayo | Sprint 1 — corrección de errores críticos, integración de soporte en vivo, filtro de búsqueda cerca de universidades | Completado |
-| Semana 6 | 28 mayo–3 junio | Sprint 2 — integración de pasarela de pagos (Culqi, modo simulado) y motor de verificación de identidad (KYC) | Completado |
-| Semana 7 | 4–10 junio | Sprint 3 — sistema de reseñas verificadas y notificaciones internas | Completado |
-| Semana 8 | 11–17 junio | Sprint 4 — planes de suscripción, control de descarga de contratos en PDF, datos de vista previa para redes sociales (Open Graph) | Completado |
-| Semana 9 (actual) | 18 junio en adelante | Corrección de errores de tipado, ajustes de experiencia de usuario en la página principal, preparación de documentación final | En proceso |
+| Actividad | Fecha | Estado |
+|---|---|---|
+| Investigación del problema y validación inicial con arrendadores de Trujillo | Semana 1 (23–29 abril) | Completado |
+| Diseño de wireframes y definición del Business Model Canvas | Semana 2 (30 abril–6 mayo) | Completado |
+| Modelado de base de datos (Prisma) y configuración de autenticación (NextAuth) | Semana 3 (7–13 mayo) | Completado |
+| Desarrollo Front-end: dashboards de arrendador, inquilino y administrador | Semana 4 (14–20 mayo) | Completado |
+| Desarrollo Back-end: motor de contratos, server actions y lógica de roles | Semana 4 (14–20 mayo) | Completado |
+| Sprint 1 — corrección de errores críticos, soporte en vivo, filtro cerca de universidades | Semana 5 (21–27 mayo) | Completado |
+| Sprint 2 — integración de pasarela de pagos (Culqi, modo simulado) y verificación de identidad (KYC) | Semana 6 (28 mayo–3 junio) | Completado |
+| Sprint 3 — sistema de reseñas verificadas y notificaciones internas | Semana 7 (4–10 junio) | Completado |
+| Sprint 4 — planes de suscripción, control de descarga de contratos en PDF, vista previa para redes sociales | Semana 8 (11–17 junio) | Completado |
+| Corrección de errores de tipado, ajustes de experiencia de usuario, preparación de documentación final | Semana 9 (desde 18 junio) | En proceso |
 
 
 2.2 Evidencias del avance
 
 a) Prototipos
 
-[INSERTAR CAPTURA: wireframes o diseños de Figma del flujo de búsqueda de propiedad, publicación de inmueble y firma de contrato]
+[INSERTAR CAPTURA: pantalla de inicio, registro, login, dashboard de arrendador, dashboard de inquilino, contrato digital y verificación KYC de la plataforma ya construida]
 
 Figura 1. Diseño de las interfaces.
 
-Análisis (completar con la captura insertada):
-- ¿Qué funcionalidades se observan? Describir el flujo visible: búsqueda con filtros, tarjeta de propiedad, formulario de publicación, pantalla de contrato.
-- ¿Qué mejoras se realizaron respecto al diseño inicial? Por ejemplo: simplificación del formulario de publicación de 6 a 4 pasos, ajuste del flujo de verificación de identidad para reducir abandono.
+Análisis:
+
+¿Qué funcionalidades se observan? En la pantalla de inicio se observa un buscador por distrito, universidad o dirección, filtros rápidos por tipo de propiedad (habitación, departamento, WiFi, amoblado), el precio mínimo disponible y el contador de propiedades activas, junto con sellos de confianza (propiedades verificadas, contratos seguros, soporte 24/7) y un widget de chat en vivo. En el registro, el usuario elige explícitamente su tipo de cuenta —inquilino o arrendador— antes de completar el formulario, lo que separa los dos flujos desde el primer paso. El dashboard del arrendador muestra métricas reales de gestión: ingresos del mes, propiedades ocupadas, contratos por vencer, tasa de ocupación, un semáforo de estado de pagos y las solicitudes de verificación KYC pendientes. El dashboard del inquilino resume su propiedad actual, el estado de su próximo pago, sus favoritos y su historial de pagos. La pantalla de contrato muestra el documento legal completo, con referencias explícitas a las leyes peruanas que lo respaldan, los datos de ambas partes y el estado de firma de cada una con fecha y hora. La pantalla de verificación KYC confirma cuando el perfil del inquilino queda activo y habilitado para contactar arrendadores.
+
+¿Qué mejoras se realizaron respecto al diseño inicial? El flujo de registro se simplificó para que la elección entre inquilino y arrendador ocurra en el primer paso, evitando un formulario único que mezclara campos innecesarios para cada tipo de usuario. El panel del arrendador evolucionó de mostrar solo el listado de propiedades a incluir indicadores de gestión real (ocupación, ingresos, pagos por vencer), pensados para que el arrendador tome decisiones sin salir del panel. El proceso de verificación de identidad (KYC) se simplificó para que, una vez aprobado, el perfil quede activo de inmediato sin pasos adicionales, reduciendo la fricción de adopción en esta etapa inicial del proyecto. La pantalla de contrato se diseñó para mostrar la base legal de forma visible y directa, en lugar de dejarla solo como texto al pie, como respuesta directa a la desconfianza identificada en la investigación de mercado.
 
 b) Desarrollo del aplicativo
 
@@ -101,7 +104,9 @@ Tecnologías empleadas: Next.js 15 (App Router), TypeScript, Tailwind CSS v4, Pr
 
 c) Base de datos
 
-[INSERTAR IMAGEN: diagrama entidad-relación generado desde prisma/schema.prisma, o captura de las tablas en el panel de Neon]
+[INSERTAR IMAGEN 1 — Modelo entidad-relación: diagrama Mermaid generado desde prisma/schema.prisma]
+[INSERTAR IMAGEN 2 — Tablas creadas: capturas del panel de Neon mostrando las tablas reales con datos]
+[INSERTAR IMAGEN 3 — Diagrama de base de datos: generar en dbdiagram.io con el código DBML construido desde el schema real, mostrando cada tabla con sus columnas, tipos y líneas de relación]
 
 Figura 3. Estructura de la base de datos.
 
@@ -109,7 +114,8 @@ El modelo de datos está compuesto por 9 entidades principales: User (usuarios c
 
 d) Código fuente
 
-[INSERTAR CAPTURA: vista del repositorio en GitHub mostrando commits y estructura de carpetas]
+[INSERTAR CAPTURA 1: github.com/alexisss13/habitaperu — vista raíz del repositorio mostrando la estructura de carpetas]
+[INSERTAR CAPTURA 2: github.com/alexisss13/habitaperu — pestaña "Commits" mostrando el historial de cambios]
 
 Figura 4. Organización del proyecto.
 
@@ -164,21 +170,23 @@ La plataforma está construida sobre Next.js 15 con App Router, TypeScript y Tai
 
 1. ¿Qué problemas encontraron?
 
-Durante el desarrollo aparecieron errores de tipado en TypeScript en los módulos de contratos administrativos y de inquilino, generados por inconsistencias entre los tipos de fecha (Date vs string) al pasar datos del servidor al cliente. También se identificó un error funcional en el flujo de actualización de plan de suscripción: el enlace que debía abrir automáticamente el modal de mejora de plan (?upgrade=true) no funcionaba porque ningún componente intermedio leía ese parámetro de la URL, a pesar de que el enlace ya existía en la interfaz. Adicionalmente, la página de detalle de propiedad sin prefijo de idioma no generaba metadatos de vista previa (Open Graph), por lo que al compartir un enlace de propiedad en WhatsApp o redes sociales no se mostraba la imagen ni el precio.
+El principal problema fue de organización del equipo: con un solo integrante a cargo de todo el desarrollo técnico y dos integrantes enfocados en investigación y análisis, el avance del producto dependía de una sola persona, mientras que las decisiones de negocio (segmentación, costos, modelo de ingresos) avanzaban en paralelo a un ritmo distinto. Esto generó momentos en los que el equipo de análisis proponía decisiones que aún no podían reflejarse en la plataforma por falta de tiempo de desarrollo, y viceversa: funcionalidades ya construidas que todavía no tenían un respaldo de investigación que confirmara que eran la prioridad correcta.
 
-A nivel de equipo, el principal reto fue de coordinación: con un solo integrante a cargo de todo el desarrollo técnico y tres integrantes enfocados en investigación y análisis, fue necesario sincronizar los tiempos para que los hallazgos de mercado (segmentación, costos, modelo de negocio) se tradujeran oportunamente en decisiones de producto concretas.
+También fue un reto compatibilizar los tiempos del proyecto con la carga académica regular de cada integrante, lo que en algunas semanas obligó a replantear qué actividades eran realmente indispensables para esa etapa y cuáles podían postergarse sin afectar el avance general.
+
+Adicionalmente, al no contar con usuarios reales en esta etapa, fue difícil validar con certeza si las decisiones tomadas en el modelo de negocio (por ejemplo, qué cobrar y cuándo) coincidían con lo que un arrendador o un inquilino real de Trujillo estarían dispuestos a aceptar.
 
 2. ¿Qué parte del proyecto ha sido más compleja?
 
-El motor de contratos legales: gestionar el ciclo de vida completo de un contrato (borrador, firma del inquilino, contrafirma del arrendador, activación, posible incumplimiento) requiere control de concurrencia para evitar que una propiedad se arriende dos veces al mismo tiempo, además de un registro de auditoría inmutable que sirva como evidencia legal del proceso de firma. La integración de la pasarela de pagos también exigió cuidado adicional para evitar cobros duplicados ante doble clic o reintentos de red.
+La parte más compleja no fue construir una funcionalidad puntual, sino mantener alineados el avance técnico y el avance de negocio durante todas las semanas del proyecto. Tomar una decisión de modelo de negocio y, en la misma semana, traducirla en un cambio real dentro de la plataforma exigió coordinación constante entre quien desarrollaba y quienes investigaban, sobre todo cuando una decisión de negocio implicaba revisar algo que ya estaba construido.
 
 3. ¿Cómo resolvieron esos inconvenientes?
 
-Los errores de tipado se resolvieron revisando sistemáticamente la salida del compilador de TypeScript (tsc --noEmit) y normalizando los tipos de fecha en la frontera entre servidor y cliente. El bug del flujo de actualización de plan se corrigió pasando el parámetro de la URL como prop a través de toda la cadena de componentes (página → vista → componente de escritorio/móvil) hasta el punto donde se controla la apertura del modal. El problema de control de concurrencia en contratos se resolvió con un campo de versión en la propiedad que se valida antes de cada escritura.
+Se establecieron puntos de sincronización periódicos entre el integrante a cargo del desarrollo y el equipo de investigación y análisis, de modo que cada avance de negocio se revisara junto con su viabilidad técnica antes de darlo por definitivo. Cuando una decisión de negocio no era viable de implementar a tiempo, se priorizó simplificarla en lugar de descartarla por completo, ajustando el alcance a lo que el cronograma permitía. La carga académica se manejó redistribuyendo actividades de investigación entre las semanas con menor exigencia del curso regular.
 
 4. ¿Qué actividades aún están pendientes?
 
-Activar la pasarela de pagos en modo producción (requiere RUC y cuenta bancaria registrados en Culqi), activar la API de WhatsApp Business para notificaciones automáticas (requiere aprobación de plantillas de mensaje por parte de Meta), corregir dos errores de tipado menores que persisten en módulos administrativos de contratos, y construir la aplicación móvil nativa contemplada en el roadmap de expansión.
+Validar el modelo con arrendadores e inquilinos reales fuera del entorno académico, completar la documentación final del proyecto, y activar las integraciones externas que dependen de trámites fuera del control directo del equipo (registro de RUC y cuenta bancaria para la pasarela de pagos, aprobación de plantillas de mensajería por parte del proveedor de WhatsApp Business).
 
 
 5. PLAN DE CONTINGENCIA
@@ -215,7 +223,7 @@ Riesgo: Errores de tipado o fallas técnicas
 Medidas:
 - Verificación continua con el compilador de TypeScript antes de cada entrega (tsc --noEmit)
 - Pruebas manuales del flujo completo (publicación → contacto → contrato → pago) antes de cada sprint
-- Documentación de los bugs resueltos para evitar reincidencia (ver sección 4)
+- Documentación de los bugs resueltos para evitar reincidencia
 
 Riesgo: Integración fallida entre módulos
 Medidas:
@@ -268,18 +276,25 @@ Acciones:
 
 7. REFLEXIÓN DEL EQUIPO
 
-[PLACEHOLDER — cada integrante debe completar su propia media página respondiendo, en primera persona, las siguientes preguntas. No reemplazar este contenido por texto genérico: debe reflejar la experiencia real de cada persona en el proyecto.]
+> Nota: los siguientes textos son un borrador redactado según el aporte real de cada integrante documentado en este informe. Cada persona debe revisarlos y ajustarlos con su propia voz y matices antes de la entrega final — en particular el tono personal y lo que realmente sintió o le costó, que solo cada uno puede responder con honestidad.
 
-Preguntas guía para cada integrante:
-- ¿Cuál ha sido mi principal aporte al proyecto?
-- ¿Qué competencias he desarrollado?
-- ¿Qué aprendí durante el desarrollo de la startup?
-- ¿Qué mejoraría para una siguiente versión?
+Alexis Levano — CEO y Desarrollador Full-stack
 
-[ESPACIO PARA: Alexis Levano — CEO y Desarrollador Full-stack]
+- ¿Cuál ha sido mi principal aporte al proyecto? El desarrollo completo de la plataforma de extremo a extremo: diseñé la arquitectura del sistema, modelé la base de datos, construí el motor de contratos legales con firma digital y auditoría, integré la verificación de identidad y la pasarela de pagos, y coordiné el avance general del equipo.
+- ¿Qué competencias he desarrollado? Arquitectura full-stack (Next.js, TypeScript, Prisma, PostgreSQL), diseño de flujos con implicancia legal y de seguridad, y gestión de tiempos para sostener el desarrollo técnico mientras coordinaba las decisiones de negocio del resto del equipo.
+- ¿Qué aprendí durante el desarrollo de la startup? Que mantener comunicación constante con el equipo de investigación es indispensable para no construir funcionalidades desalineadas del mercado real, y que un producto mínimo bien enfocado vale más que muchas funcionalidades a medias.
+- ¿Qué mejoraría para una siguiente versión? Distribuiría parte de la carga técnica en tareas más simples (pruebas, documentación del código) con apoyo del resto del equipo, e iniciaría la validación con usuarios reales en paralelo al desarrollo desde las primeras semanas, no después de tener el producto construido.
 
+Carlos Carrascal — Análisis Financiero y Modelo de Negocio
 
-[ESPACIO PARA: Carlos Carrascal — Investigación y Análisis de Mercado]
+- ¿Cuál ha sido mi principal aporte al proyecto? La construcción del modelo de costos del proyecto, las proyecciones financieras y la estructuración del Business Model Canvas, incluyendo la definición de las fuentes de ingreso y la evaluación de la viabilidad económica del modelo por etapas.
+- ¿Qué competencias he desarrollado? Modelado financiero para startups en etapa temprana y estructuración de modelos de negocio con información limitada.
+- ¿Qué aprendí durante el desarrollo de la startup? Que las proyecciones financieras de un proyecto que recién se está construyendo deben ser conservadoras y ajustarse constantemente según lo que el desarrollo real permite entregar, y que cada decisión de modelo de negocio tiene una implicancia técnica directa que debe conversarse con quien desarrolla antes de darla por definitiva.
+- ¿Qué mejoraría para una siguiente versión? Trabajaría con datos más cercanos al mercado real de Trujillo desde una etapa más temprana, en lugar de partir de supuestos generales.
 
+Ruth Aquino — Investigación y Análisis de Mercado
 
-[ESPACIO PARA: Ruth Aquino — Análisis Financiero y Modelo de Negocio]
+- ¿Cuál ha sido mi principal aporte al proyecto? La investigación del problema real del mercado de alquiler informal, el análisis de la competencia existente y la validación de la propuesta de valor frente a las necesidades reales de arrendadores e inquilinos.
+- ¿Qué competencias he desarrollado? Investigación de mercado, análisis competitivo y síntesis de hallazgos para que fueran útiles en decisiones de producto concretas.
+- ¿Qué aprendí durante el desarrollo de la startup? Que una buena idea no es suficiente si no se valida con el mercado real, y que investigar un mercado tan informal como el del alquiler en Trujillo exige métodos distintos a los de un mercado formal.
+- ¿Qué mejoraría para una siguiente versión? Iniciaría la validación con arrendadores e inquilinos reales desde semanas más tempranas del proyecto, en paralelo al desarrollo, en lugar de concentrar la investigación solo al inicio.

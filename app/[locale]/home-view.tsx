@@ -17,7 +17,10 @@ interface Property {
   rooms: number
   bathrooms: number
   area: number
-  _count: { reviews: number }
+  avgRating: number
+  reviewCount: number
+  amenities: string[]
+  tenantProfile: string[]
 }
 
 interface PropertyStats {

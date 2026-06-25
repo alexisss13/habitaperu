@@ -9,7 +9,6 @@ import {
   Home01Icon, 
   UserCircleIcon, 
   Cancel01Icon,
-  CheckmarkCircle01Icon,
   AlertCircleIcon
 } from "hugeicons-react"
 import { createDraftContract } from "@/app/actions/contract-actions"
@@ -77,7 +76,7 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
   const [selectedPropertyId, setSelectedPropertyId] = useState("")
   const [selectedTenantId, setSelectedTenantId] = useState("")
   const [monthlyRent, setMonthlyRent] = useState("")
-  const [currency, setCurrency] = useState("PEN")
+  const [currency] = useState("PEN")
   const [deposit, setDeposit] = useState("")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
@@ -207,7 +206,7 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
       </div>
 
       {/* Filter Horizontal Scroll */}
-      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-none mb-4 -mx-4 px-4">
+      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide mb-4 -mx-4 px-4">
         {["TODOS", "DRAFT", "PENDING_TENANT", "PENDING_LANDLORD", "ACTIVE"].map(status => (
           <button
             key={status}
@@ -227,7 +226,7 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
       <div className="space-y-4">
         {filteredContracts.length > 0 ? (
           filteredContracts.map(c => (
-            <div key={c.id} className="bg-white border border-slate-200 shadow-sm rounded-xl p-4 flex flex-col gap-3">
+            <div key={c.id} className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-3">
               <div className="flex justify-between items-start">
                 <div className="min-w-0 flex-1">
                   <h3 className="font-bold text-sm text-text truncate">{c.property.title}</h3>

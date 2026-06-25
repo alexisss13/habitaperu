@@ -237,7 +237,7 @@ export function TenantContractDesktop({ contracts }: Props) {
                 <h3 className="text-sm font-bold text-text mb-4 uppercase tracking-wider">Arrendador</h3>
                 <div className="flex items-center gap-3.5 mb-4">
                   <div className="size-12 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-lg">
-                    {activeContract.landlord.firstName[0]}{activeContract.landlord.lastName[0]}
+                    {activeContract.landlord.firstName?.[0] ?? '?'}{activeContract.landlord.lastName?.[0] ?? ''}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-text">{activeContract.landlord.firstName} {activeContract.landlord.lastName}</p>
@@ -251,7 +251,7 @@ export function TenantContractDesktop({ contracts }: Props) {
                       Teléfono: <span className="text-text-muted">{activeContract.landlord.phone}</span>
                     </p>
                     <a
-                      href={`https://wa.me/51${activeContract.landlord.phone.replace(/\D/g, "")}?text=Hola%20${activeContract.landlord.firstName},%20te%20escribo%20desde%20Habita%20Perú%20por%20el%20alquiler.`}
+                      href={`https://wa.me/51${activeContract.landlord.phone.replace(/\D/g, "").replace(/^51/, "")}?text=Hola%20${activeContract.landlord.firstName},%20te%20escribo%20desde%20Habita%20Perú%20por%20el%20alquiler.`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full h-11 bg-[#25D366] hover:bg-[#20ba56] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer no-underline"
@@ -276,7 +276,7 @@ export function TenantContractDesktop({ contracts }: Props) {
                 </div>
 
                 {activeContract.documentHash && (
-                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-3 font-mono text-[9px] break-all select-all text-slate-500 mb-4">
+                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 font-mono text-[9px] break-all select-all text-slate-500 mb-4">
                     {activeContract.documentHash}
                   </div>
                 )}

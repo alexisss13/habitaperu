@@ -28,14 +28,20 @@ export function usePagination<T>(
   // Reset to page 1 when items change (e.g. filters applied)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1)
   }, [totalItems, ...deps])
 
-  // Clamp page to valid range
+  // Clamp page to valid range safely via useEffect
+  useEffect(() => {
+    const safe = Math.min(Math.max(1, currentPage), totalPages)
+    if (safe !== currentPage) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCurrentPage(safe)
+    }
+  }, [currentPage, totalPages])
+
   const safePage = Math.min(Math.max(1, currentPage), totalPages)
-  if (safePage !== currentPage) {
-    setCurrentPage(safePage)
-  }
 
   const startIndex = (safePage - 1) * pageSize
   const endIndex = Math.min(startIndex + pageSize, totalItems)

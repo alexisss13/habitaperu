@@ -92,11 +92,11 @@ export function TenantPaymentsDesktop({ payments }: Props) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PAGADO":
-        return <span className="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-250 rounded-lg">Pagado</span>
+        return <span className="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg">Pagado</span>
       case "EN_PROCESO":
-        return <span className="px-2.5 py-1 text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-250 rounded-lg">En Proceso</span>
+        return <span className="px-2.5 py-1 text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">En Proceso</span>
       case "PENDIENTE":
-        return <span className="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 border border-amber-250 rounded-lg">Pendiente</span>
+        return <span className="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg">Pendiente</span>
       case "VENCIDO":
         return <span className="px-2.5 py-1 text-xs font-bold bg-red/10 text-red border border-red/20 rounded-lg">Vencido</span>
       default:
@@ -277,7 +277,7 @@ export function TenantPaymentsDesktop({ payments }: Props) {
             </table>
           ) : (
             <div className="text-center py-20">
-              <CreditCardIcon size={56} className="text-slate-350 mx-auto mb-4" />
+              <CreditCardIcon size={56} className="text-slate-400 mx-auto mb-4" />
               <h3 className="text-base font-bold text-text mb-1">Sin registros de pagos</h3>
               <p className="text-xs font-medium text-text-muted">
                 No tienes cuotas programadas o registradas en este momento.

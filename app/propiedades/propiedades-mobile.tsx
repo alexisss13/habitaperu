@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Search01Icon, Location01Icon, StarIcon, Building03Icon } from "hugeicons-react"
 import { Pagination } from "@/components/ui/pagination"
 import type { PropertyListing } from './propiedades-view'
+import { UNIVERSITIES } from "@/lib/universities"
 
 interface PaginationData {
   currentPage: number
@@ -17,7 +18,6 @@ interface PaginationData {
 interface MobileProps {
   properties: PropertyListing[]
   totalFiltered: number
-  originalProperties: PropertyListing[]
   searchQuery: string
   setSearchQuery: (q: string) => void
   selectedTypes: string[]
@@ -32,6 +32,8 @@ interface MobileProps {
   setNearUniversityId: (id: string) => void
   nearRadiusKm: number
   setNearRadiusKm: (km: number) => void
+  conditionFilter: string
+  setConditionFilter: (c: string) => void
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -47,6 +49,7 @@ const QUICK_FILTERS = [
   { label: "Depas", type: "type", value: "Departamento" },
   { label: "Habitaciones", type: "type", value: "Habitación" },
   { label: "Casas", type: "type", value: "Casa" },
+  { label: "Amoblados", type: "condition", value: "AMOBLADO" },
   { label: "Miraflores", type: "district", value: "Miraflores" },
   { label: "Barranco", type: "district", value: "Barranco" },
   { label: "Surco", type: "district", value: "Santiago de Surco" },
@@ -135,6 +138,10 @@ export function PropiedadesMobile({
   pagination,
   nearUniversityId,
   setNearUniversityId,
+  nearRadiusKm,
+  setNearRadiusKm,
+  conditionFilter,
+  setConditionFilter,
 }: MobileProps) {
   const handlePillClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     if (filter.type === "clear") {
@@ -147,13 +154,16 @@ export function PropiedadesMobile({
       )
     } else if (filter.type === "district") {
       setSelectedDistrict(selectedDistrict === filter.value ? "" : filter.value)
+    } else if (filter.type === "condition") {
+      setConditionFilter(conditionFilter === filter.value ? "" : filter.value)
     }
   }
 
   const isPillActive = (filter: (typeof QUICK_FILTERS)[0]) => {
-    if (filter.type === "clear") return selectedTypes.length === 0 && !selectedDistrict
+    if (filter.type === "clear") return selectedTypes.length === 0 && !selectedDistrict && !conditionFilter
     if (filter.type === "type") return selectedTypes.includes(filter.value)
     if (filter.type === "district") return selectedDistrict === filter.value
+    if (filter.type === "condition") return conditionFilter === filter.value
     return false
   }
 
@@ -199,6 +209,35 @@ export function PropiedadesMobile({
               </button>
             )
           })}
+        </div>
+
+        {/* Filtro Universitario en Mobile */}
+        <div className="px-4 pb-3 pt-1 border-t border-gray-100 flex flex-col gap-2 bg-white">
+          <div className="flex gap-2">
+            <select
+              value={nearUniversityId}
+              onChange={e => setNearUniversityId(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-700 outline-none focus:border-accent bg-gray-50 cursor-pointer"
+            >
+              <option value="">Cerca de universidad...</option>
+              {UNIVERSITIES.map(u => (
+                <option key={u.id} value={u.id}>
+                  {u.shortName} ({u.city})
+                </option>
+              ))}
+            </select>
+          </div>
+          {nearUniversityId && (
+            <div className="flex items-center gap-3 px-1 py-1">
+              <span className="text-[10px] text-gray-400 font-bold whitespace-nowrap">Radio: {nearRadiusKm} km</span>
+              <input
+                type="range" min={0.5} max={5} step={0.5}
+                value={nearRadiusKm}
+                onChange={e => setNearRadiusKm(Number(e.target.value))}
+                className="flex-1 accent-accent cursor-pointer h-1 bg-gray-200 rounded-lg appearance-none"
+              />
+            </div>
+          )}
         </div>
       </div>
 

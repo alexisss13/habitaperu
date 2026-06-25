@@ -95,7 +95,7 @@ export function PublishClient() {
 
               <div className="flex gap-8 pt-6 border-t border-gray-200 flex-wrap">
                 <div>
-                  <div className="text-[1.75rem] font-extrabold text-accent mb-1">4,800</div>
+                  <div className="text-[1.75rem] font-extrabold text-accent mb-1">{(4800).toLocaleString(locale)}</div>
                   <div className="text-sm text-gray-500 font-medium">{t('hero.stats.properties')}</div>
                 </div>
                 <div className="w-px bg-gray-200" />
@@ -105,7 +105,7 @@ export function PublishClient() {
                 </div>
                 <div className="w-px bg-gray-200" />
                 <div>
-                  <div className="text-[1.75rem] font-extrabold text-accent mb-1">12,000</div>
+                  <div className="text-[1.75rem] font-extrabold text-accent mb-1">{(12000).toLocaleString(locale)}</div>
                   <div className="text-sm text-gray-500 font-medium">{t('hero.stats.tenants')}</div>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export function PublishClient() {
                   ))}
                 </div>
                 <p className="text-[0.95rem] text-gray-500 leading-[1.7] mb-5">
-                  "{t(textKey)}"
+                  {'"'}{t(textKey)}{'"'}
                 </p>
                 <div className="flex items-center gap-3">
                   <div

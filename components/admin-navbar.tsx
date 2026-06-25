@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { signOut } from "next-auth/react"
 import { Search01Icon, Menu01Icon, Cancel01Icon } from "hugeicons-react"
 import ThemeSwitcher from "./theme-switcher"
 import { NotificationBell } from "./notification-bell"
@@ -26,6 +28,7 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
       <div className="flex items-center gap-5">
         <button
           onClick={onToggleSidebar}
+          aria-label={isSidebarCollapsed ? "Expandir menú lateral" : "Colapsar menú lateral"}
           className="size-10 rounded-lg border border-admin-border bg-transparent flex items-center justify-center cursor-pointer transition-all text-admin-text hover:bg-[var(--admin-hover-bg)] hover:border-admin-accent"
         >
           {isSidebarCollapsed ? <Menu01Icon size={20} /> : <Cancel01Icon size={20} />}
@@ -39,6 +42,7 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
           <input
             type="text"
             placeholder="Buscar usuarios, propiedades..."
+            aria-label="Buscar usuarios y propiedades"
             className="w-full h-10 pl-10 pr-3 border border-admin-border rounded-lg text-sm text-admin-text bg-admin-card-bg outline-none transition-all focus:border-admin-accent focus:shadow-[0_0_0_3px_rgba(15,52,87,0.1)]"
           />
         </div>
@@ -55,6 +59,8 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
         <div className="relative">
           <button
             onClick={() => setShowProfile(!showProfile)}
+            aria-label="Menú de usuario"
+            aria-expanded={showProfile}
             className={`flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-lg border border-admin-border cursor-pointer transition-all hover:bg-[var(--admin-hover-bg)] ${showProfile ? 'bg-[var(--admin-hover-bg)]' : 'bg-transparent'}`}
           >
             <div
@@ -76,16 +82,24 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
                 <p className="text-xs text-admin-text-muted">{user.email}</p>
               </div>
               <div className="p-2">
-                <button className="w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-admin-text cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)]">
+                <Link
+                  href="/admin/dashboard"
+                  onClick={() => setShowProfile(false)}
+                  className="block w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-admin-text no-underline cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)]"
+                >
                   Mi Perfil
-                </button>
-                <button className="w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-admin-text cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)]">
+                </Link>
+                <Link
+                  href="/admin/settings"
+                  onClick={() => setShowProfile(false)}
+                  className="block w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-admin-text no-underline cursor-pointer transition-colors hover:bg-[var(--admin-hover-bg)]"
+                >
                   Configuración
-                </button>
+                </Link>
               </div>
               <div className="p-2 border-t border-admin-border">
                 <button
-                  onClick={() => window.location.href = '/api/auth/signout'}
+                    onClick={() => signOut()}
                   className="w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-red-600 cursor-pointer transition-colors hover:bg-red-600/10"
                 >
                   Cerrar Sesión

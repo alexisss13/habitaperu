@@ -72,7 +72,7 @@ export function ProfileDesktop({ profile }: { profile: UserProfile }) {
                 className="size-20 rounded-full flex items-center justify-center text-white text-2xl font-bold"
                 style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
               >
-                {profile.firstName[0]}{profile.lastName[0]}
+                {profile.firstName?.[0] ?? '?'}{profile.lastName?.[0] ?? ''}
               </div>
               <div className="text-center">
                 <p className="font-bold text-[#151c26]">{profile.firstName} {profile.lastName}</p>

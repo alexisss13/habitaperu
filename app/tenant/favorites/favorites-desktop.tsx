@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { FavouriteIcon, Building03Icon, Location01Icon, Delete02Icon, Home01Icon } from "hugeicons-react"
-import type { FavoriteProperty } from "./page"
+import type { FavoriteProperty } from "./favorites-view"
 
 const typeLabel: Record<string, string> = {
   HABITACION: "Habitación",
@@ -41,7 +41,7 @@ export function FavoritesDesktop({ properties, onRemove }: Props) {
               Explora propiedades y guarda las que te interesen con el ícono de corazón.
             </p>
             <Link
-              href="/es/propiedades"
+              href="/propiedades"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl no-underline hover:bg-accent/90 transition-colors"
             >
               <Home01Icon size={16} />
@@ -101,7 +101,7 @@ export function FavoritesDesktop({ properties, onRemove }: Props) {
                       </p>
                     </div>
                     <Link
-                      href={`/es/propiedades/${p.id}`}
+                      href={`/propiedades/${p.id}`}
                       className="px-3 py-1.5 text-xs font-semibold text-accent border border-accent/30 rounded-lg hover:bg-accent/5 transition-all no-underline"
                     >
                       Ver propiedad

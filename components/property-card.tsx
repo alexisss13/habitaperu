@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
   Location01Icon, StarIcon, FavouriteIcon,
   Building03Icon, BedIcon, Bathtub02Icon
@@ -54,15 +55,14 @@ export function PropertyCard({
 }: PropertyCardProps) {
   const isCurrentlyFeatured =
     !!featuredUntil && new Date(featuredUntil) > new Date()
-  const [isFavorite, setIsFavorite] = useState(false)
-  const [imgErr, setImgErr] = useState(false)
-
-  useEffect(() => {
+  const [isFavorite, setIsFavorite] = useState(() => {
+    if (typeof window === 'undefined') return false
     try {
       const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      setIsFavorite(ids.includes(id))
-    } catch {}
-  }, [id])
+      return ids.includes(id)
+    } catch { return false }
+  })
+  const [imgErr, setImgErr] = useState(false)
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -80,15 +80,17 @@ export function PropertyCard({
 
   return (
     <Link href={`/propiedades/${id}`} className="no-underline block group">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-[0_8px_24px_rgba(15,52,87,0.1)] transition-all duration-200">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-[0_8px_24px_rgba(15,52,87,0.1)] transition-all duration-200">
 
         {/* Image */}
         <div className="relative h-48 bg-gray-100 overflow-hidden">
           {mainImage ? (
-            <img
+            <Image
               src={mainImage}
               alt={title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fill
+              sizes="(max-width: 768px) 100vw, 400px"
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
               onError={() => setImgErr(true)}
             />
           ) : (
@@ -163,7 +165,7 @@ export function PropertyCard({
           <div className="flex items-center justify-between">
             <div>
               <span className="text-lg font-extrabold text-accent">
-                S/ {price.toLocaleString('es-PE')}
+                {price > 0 ? `S/ ${price.toLocaleString('es-PE')}` : 'Precio a consultar'}
               </span>
               <span className="text-xs text-gray-400"> /mes</span>
             </div>

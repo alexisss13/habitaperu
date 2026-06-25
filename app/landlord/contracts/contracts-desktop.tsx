@@ -8,8 +8,6 @@ import {
   Add01Icon, 
   Home01Icon, 
   UserCircleIcon, 
-  Calendar03Icon, 
-  Wallet01Icon, 
   Cancel01Icon,
   CheckmarkCircle01Icon,
   AlertCircleIcon
@@ -189,11 +187,11 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       case "DRAFT": 
         return <span className="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded-lg">Borrador</span>
       case "PENDING_TENANT": 
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg font-medium">Espera Inquilino</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg">Espera Inquilino</span>
       case "PENDING_LANDLORD": 
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg font-medium">Espera Propietario</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">Espera Propietario</span>
       case "ACTIVE": 
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg font-medium">Activo</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg">Activo</span>
       case "FINISHED": 
         return <span className="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 rounded-lg">Finalizado</span>
       case "BREACHED_CANCELLED": 
@@ -223,7 +221,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       </div>
 
       {/* Filters Bar */}
-      <div className="flex gap-2 mb-6 bg-white p-1.5 border border-slate-200 rounded-xl max-w-max shadow-sm">
+      <div className="flex gap-2 mb-6 bg-white p-1.5 border border-slate-200 rounded-xl max-w-max">
         {["TODOS", "DRAFT", "PENDING_TENANT", "PENDING_LANDLORD", "ACTIVE"].map(status => (
           <button
             key={status}
@@ -240,7 +238,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       </div>
 
       {/* Contracts Table */}
-      <div className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         {filteredContracts.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -399,17 +397,54 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
           <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
             
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-              <div>
+            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="text-base font-bold text-text">Crear Borrador de Contrato</h3>
-                <p className="text-xs text-text-muted mt-0.5">Paso {step} de 4</p>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-slate-400 hover:text-text transition-colors bg-transparent border-0 cursor-pointer p-1"
+                >
+                  <Cancel01Icon size={20} />
+                </button>
               </div>
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-text transition-colors bg-transparent border-0 cursor-pointer p-1"
-              >
-                <Cancel01Icon size={20} />
-              </button>
+
+              {/* Visual Stepper */}
+              <div className="flex items-center justify-between">
+                {[
+                  { num: 1, label: "Propiedad" },
+                  { num: 2, label: "Inquilino" },
+                  { num: 3, label: "Detalles" },
+                  { num: 4, label: "Abono" },
+                ].map((s) => (
+                  <div key={s.num} className="flex items-center flex-1 last:flex-none">
+                    <div className="flex items-center gap-2">
+                      <div className={`size-7 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 transition-colors ${
+                        step > s.num
+                          ? "bg-emerald-500 text-white"
+                          : step === s.num
+                          ? "bg-accent text-white"
+                          : "bg-slate-200 text-slate-400"
+                      }`}>
+                        {step > s.num ? (
+                          <CheckmarkCircle01Icon size={14} />
+                        ) : (
+                          s.num
+                        )}
+                      </div>
+                      <span className={`text-[11px] font-semibold whitespace-nowrap ${
+                        step >= s.num ? "text-text" : "text-slate-400"
+                      }`}>
+                        {s.label}
+                      </span>
+                    </div>
+                    {s.num < 4 && (
+                      <div className={`flex-1 h-px mx-3 ${
+                        step > s.num ? "bg-emerald-300" : "bg-slate-200"
+                      }`} />
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Modal Body / Steps */}
@@ -595,6 +630,37 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
               {/* Step 4: Bank account details */}
               {step === 4 && (
                 <form onSubmit={handleSubmit} className="space-y-4">
+
+                  {/* Summary Preview */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Resumen del Contrato</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                      <span className="text-text-muted">Propiedad:</span>
+                      <span className="font-semibold text-text text-right">
+                        {properties.find(p => p.id === selectedPropertyId)?.title ?? "—"}
+                      </span>
+                      <span className="text-text-muted">Inquilino:</span>
+                      <span className="font-semibold text-text text-right">
+                        {(() => {
+                          const t = tenants.find(t => t.id === selectedTenantId)
+                          return t ? `${t.firstName} ${t.lastName}` : '—'
+                        })()}
+                      </span>
+                      <span className="text-text-muted">Renta Mensual:</span>
+                      <span className="font-semibold text-text text-right">{currency === "PEN" ? "S/" : "$"} {Number(monthlyRent).toLocaleString()}</span>
+                      <span className="text-text-muted">Depósito:</span>
+                      <span className="font-semibold text-text text-right">{currency === "PEN" ? "S/" : "$"} {Number(deposit).toLocaleString()}</span>
+                      <span className="text-text-muted">Vigencia:</span>
+                      <span className="font-semibold text-text text-right">
+                        {startDate ? new Date(startDate).toLocaleDateString("es-PE", { day: "numeric", month: "short" }) : "—"} 
+                        {" → "}
+                        {endDate ? new Date(endDate).toLocaleDateString("es-PE", { day: "numeric", month: "short", year: "numeric" }) : "—"}
+                      </span>
+                      <span className="text-text-muted">Día de Pago:</span>
+                      <span className="font-semibold text-text text-right">{paymentDay} de cada mes</span>
+                    </div>
+                  </div>
+
                   <h4 className="text-sm font-bold text-text mb-2">Configura tu Cuenta de Abono</h4>
                   <p className="text-xs text-text-muted leading-relaxed">
                     Los pagos mensuales serán depositados a esta cuenta bancaria. Esta información será interpolada en las cláusulas de pago del contrato (Clickwrap).

@@ -1,6 +1,6 @@
 'use client'
 
-import { UserMultiple02Icon, Building03Icon, FileValidationIcon, MoneyBag02Icon, ArrowUp01Icon, ArrowDown01Icon } from "hugeicons-react"
+import { UserMultiple02Icon, Building03Icon, FileValidationIcon, MoneyBag02Icon, ArrowUp01Icon } from "hugeicons-react"
 import AdminUserCard from "@/components/admin-user-card"
 import AdminPropertyCard from "@/components/admin-property-card"
 import type { AdminDashboardData } from './dashboard-view'
@@ -30,9 +30,8 @@ export function AdminDashboardDesktop({ data }: { data: AdminDashboardData }) {
             <div className={`${iconWrap} bg-accent/10`}>
               <UserMultiple02Icon size={24} className="text-accent" />
             </div>
-            <div className={`${badge} bg-brown/10`}>
-              <ArrowUp01Icon size={14} className="text-brown" />
-              <span className="text-xs font-semibold text-brown">12%</span>
+            <div className={`${badge} bg-accent/10`}>
+              <span className="text-xs font-semibold text-accent">{tenants} INQ</span>
             </div>
           </div>
           <div className="text-[2rem] font-bold text-admin-text mb-1">{totalUsers}</div>
@@ -46,9 +45,8 @@ export function AdminDashboardDesktop({ data }: { data: AdminDashboardData }) {
             <div className={`${iconWrap} bg-accent-secondary/10`}>
               <Building03Icon size={24} className="text-accent-secondary" />
             </div>
-            <div className={`${badge} bg-brown/10`}>
-              <ArrowUp01Icon size={14} className="text-brown" />
-              <span className="text-xs font-semibold text-brown">8%</span>
+            <div className={`${badge} bg-accent-secondary/10`}>
+              <span className="text-xs font-semibold text-accent-secondary">{disponibles} LIB</span>
             </div>
           </div>
           <div className="text-[2rem] font-bold text-admin-text mb-1">{totalProperties}</div>
@@ -62,14 +60,13 @@ export function AdminDashboardDesktop({ data }: { data: AdminDashboardData }) {
             <div className={`${iconWrap} bg-[rgba(116,133,151,0.1)]`}>
               <FileValidationIcon size={24} className="text-text-muted" />
             </div>
-            <div className={`${badge} bg-red/10`}>
-              <ArrowDown01Icon size={14} className="text-red" />
-              <span className="text-xs font-semibold text-red">3%</span>
+            <div className={`${badge} bg-brown/10`}>
+              <span className="text-xs font-semibold text-brown">{tenants + landlords} usuarios</span>
             </div>
           </div>
           <div className="text-[2rem] font-bold text-admin-text mb-1">{activeContracts}</div>
           <div className="text-sm text-admin-text-muted mb-3">Contratos Activos</div>
-          <div className="text-xs text-admin-text-muted">Renovaciones este mes</div>
+          <div className="text-xs text-admin-text-muted">{ocupadas} propiedades ocupadas</div>
         </div>
 
         {/* Revenue */}
@@ -80,7 +77,7 @@ export function AdminDashboardDesktop({ data }: { data: AdminDashboardData }) {
             </div>
             <div className={`${badge} bg-brown/10`}>
               <ArrowUp01Icon size={14} className="text-brown" />
-              <span className="text-xs font-semibold text-brown">15%</span>
+              <span className="text-xs font-semibold text-brown">S/{Math.round(totalRevenue / (activeContracts || 1)).toLocaleString()}/cto</span>
             </div>
           </div>
           <div className="text-[2rem] font-bold text-admin-text mb-1">S/ {totalRevenue.toLocaleString()}</div>

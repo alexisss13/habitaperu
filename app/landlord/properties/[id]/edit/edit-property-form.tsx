@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   ArrowLeft01Icon, ArrowRight01Icon, CheckmarkCircle01Icon,
-  AlertCircleIcon, Cancel01Icon, Target01Icon,
+  AlertCircleIcon, Target01Icon,
 } from "hugeicons-react"
 import { uploadImageAction } from "@/app/actions/upload-actions"
 

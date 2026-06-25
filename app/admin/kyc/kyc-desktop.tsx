@@ -6,8 +6,7 @@ import {
   SecurityCheckIcon, 
   CheckmarkCircle01Icon, 
   AlertCircleIcon, 
-  Cancel01Icon, 
-  FileValidationIcon 
+  Cancel01Icon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { AdminPagination } from "@/components/ui/pagination"
@@ -52,13 +51,13 @@ export function AdminKYCDesktop({ verifications }: Props) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "APROBADO":
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-[rgba(16,185,129,0.1)] text-[#10b981] rounded-full">Verificado</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-admin-success-bg text-admin-success rounded-full">Verificado</span>
       case "EN_REVISION":
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-[rgba(245,158,11,0.1)] text-[#f59e0b] rounded-full animate-pulse">En Revisión</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-admin-warning-bg text-admin-warning rounded-full animate-pulse">En Revisión</span>
       case "RECHAZADO":
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-[rgba(239,68,68,0.1)] text-[#ef4444] rounded-full">Rechazado</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-admin-error-bg text-admin-error rounded-full">Rechado</span>
       case "PENDIENTE":
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-[rgba(100,116,139,0.1)] text-[#64748b] rounded-full">Pendiente</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-admin-info-bg text-admin-info rounded-full">Pendiente</span>
       default:
         return <span className="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700 rounded-full">{status}</span>
     }
@@ -160,15 +159,15 @@ export function AdminKYCDesktop({ verifications }: Props) {
       <div className="grid grid-cols-3 gap-6 mb-8">
         <div className="bg-admin-card-bg p-5 rounded-xl border border-admin-border">
           <div className="text-xs font-bold text-admin-text-muted mb-2">EN REVISIÓN</div>
-          <div className="text-[2rem] font-bold text-[#f59e0b]">{inReviewCount}</div>
+          <div className="text-[2rem] font-bold text-admin-warning">{inReviewCount}</div>
         </div>
         <div className="bg-admin-card-bg p-5 rounded-xl border border-admin-border">
           <div className="text-xs font-bold text-admin-text-muted mb-2">VERIFICADOS</div>
-          <div className="text-[2rem] font-bold text-[#10b981]">{approvedCount}</div>
+          <div className="text-[2rem] font-bold text-admin-success">{approvedCount}</div>
         </div>
         <div className="bg-admin-card-bg p-5 rounded-xl border border-admin-border">
           <div className="text-xs font-bold text-admin-text-muted mb-2">RECHAZADOS</div>
-          <div className="text-[2rem] font-bold text-[#ef4444]">{rejectedCount}</div>
+          <div className="text-[2rem] font-bold text-admin-error">{rejectedCount}</div>
         </div>
       </div>
 
@@ -236,17 +235,17 @@ export function AdminKYCDesktop({ verifications }: Props) {
                     {formatLocalDate(v.updatedAt)}
                   </td>
                   <td className="p-4">
-                    <span className={v.dniVerified ? "text-[#10b981] font-bold" : "text-admin-text-muted"}>
+                    <span className={v.dniVerified ? "text-admin-success font-bold" : "text-admin-text-muted"}>
                       {v.dniVerified ? "✓ Verificado" : "⚙ Pendiente"}
                     </span>
                   </td>
                   <td className="p-4">
-                    <span className={v.biometricVerified ? "text-[#10b981] font-bold" : "text-admin-text-muted"}>
+                    <span className={v.biometricVerified ? "text-admin-success font-bold" : "text-admin-text-muted"}>
                       {v.biometricVerified ? "✓ Validado" : "⚙ Pendiente"}
                     </span>
                   </td>
                   <td className="p-4">
-                    <span className={v.backgroundCheck ? "text-[#10b981] font-bold" : "text-admin-text-muted"}>
+                    <span className={v.backgroundCheck ? "text-admin-success font-bold" : "text-admin-text-muted"}>
                       {v.backgroundCheck ? "✓ Limpio" : "⚙ Pendiente"}
                     </span>
                   </td>
@@ -357,11 +356,19 @@ export function AdminKYCDesktop({ verifications }: Props) {
               <div className="grid grid-cols-2 gap-4 text-xs font-bold text-admin-text bg-admin-bg p-4 rounded-xl border border-admin-border">
                 <div>
                   <span className="text-[10px] text-admin-text-muted uppercase block mb-0.5">Cotejo Biométrico Facial:</span>
-                  <span className="text-emerald-500">✓ Validado (Coincidencia 98.6%)</span>
+                  {selectedKyc.biometricVerified ? (
+                    <span className="text-admin-success">✓ Validado</span>
+                  ) : (
+                    <span className="text-admin-warning">⚙ Pendiente</span>
+                  )}
                 </div>
                 <div>
                   <span className="text-[10px] text-admin-text-muted uppercase block mb-0.5">Control de Antecedentes:</span>
-                  <span className="text-emerald-500">✓ Limpio (Sin antecedentes)</span>
+                  {selectedKyc.backgroundCheck ? (
+                    <span className="text-admin-success">✓ Limpio</span>
+                  ) : (
+                    <span className="text-admin-warning">⚙ Pendiente</span>
+                  )}
                 </div>
               </div>
 
@@ -376,7 +383,7 @@ export function AdminKYCDesktop({ verifications }: Props) {
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
                       placeholder="Ej: La imagen cargada no es legible o no corresponde al documento original..."
-                      className="w-full p-3 border border-red-650 rounded-xl text-xs font-semibold bg-admin-bg text-admin-text focus:border-red outline-none resize-none"
+                      className="w-full p-3 border border-red-400 rounded-xl text-xs font-semibold bg-admin-bg text-admin-text focus:border-red outline-none resize-none"
                     />
                   </div>
                   <div className="flex justify-end gap-2">

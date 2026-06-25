@@ -8,16 +8,17 @@ interface Responsive {
 }
 
 export function useResponsive(): Responsive {
-  const [isMobile, setIsMobile] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth < 768
+  })
 
   useEffect(() => {
-    setMounted(true)
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  return { isMobile, isDesktop: !isMobile, isLoading: !mounted }
+  return { isMobile, isDesktop: !isMobile, isLoading: false }
 }

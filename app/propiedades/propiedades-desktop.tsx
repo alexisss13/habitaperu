@@ -2,6 +2,7 @@
 
 import { PropertyCard } from "@/components/property-card"
 import { Pagination } from "@/components/ui/pagination"
+import Link from "next/link"
 import type { PropertyListing } from './propiedades-view'
 import { Search01Icon, FilterIcon, School01Icon } from "hugeicons-react"
 import { UNIVERSITIES } from "@/lib/universities"
@@ -18,7 +19,6 @@ interface PaginationData {
 interface DesktopProps {
   properties: PropertyListing[]
   totalFiltered: number
-  originalProperties: PropertyListing[]
   searchQuery: string
   setSearchQuery: (q: string) => void
   selectedTypes: string[]
@@ -39,6 +39,8 @@ interface DesktopProps {
   setNearUniversityId: (id: string) => void
   nearRadiusKm: number
   setNearRadiusKm: (km: number) => void
+  conditionFilter: string
+  setConditionFilter: (c: string) => void
 }
 
 const TYPES = ['Departamento', 'Habitación', 'Casa']
@@ -48,18 +50,19 @@ const activeFiltersCount = (
   minPrice: number | "",
   maxPrice: number | "",
   selectedDistrict: string,
-  minRooms: number
+  minRooms: number,
+  conditionFilter: string
 ) =>
   selectedTypes.length +
   (minPrice !== "" ? 1 : 0) +
   (maxPrice !== "" ? 1 : 0) +
   (selectedDistrict ? 1 : 0) +
-  (minRooms > 0 ? 1 : 0)
+  (minRooms > 0 ? 1 : 0) +
+  (conditionFilter ? 1 : 0)
 
 export function PropiedadesDesktop({
   properties,
   totalFiltered,
-  originalProperties,
   searchQuery,
   setSearchQuery,
   selectedTypes,
@@ -80,13 +83,15 @@ export function PropiedadesDesktop({
   setNearUniversityId,
   nearRadiusKm,
   setNearRadiusKm,
+  conditionFilter,
+  setConditionFilter,
 }: DesktopProps) {
   const handleTypeChange = (t: string) =>
     setSelectedTypes(prev =>
       prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
     )
 
-  const filtersActive = activeFiltersCount(selectedTypes, minPrice, maxPrice, selectedDistrict, minRooms)
+  const filtersActive = activeFiltersCount(selectedTypes, minPrice, maxPrice, selectedDistrict, minRooms, conditionFilter)
 
   return (
     <div className="min-h-screen bg-gray-50 pt-[112px]">
@@ -96,9 +101,9 @@ export function PropiedadesDesktop({
         <div className="max-w-7xl mx-auto px-6 py-7">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-4">
-            <a href="/" className="hover:text-accent transition-colors no-underline text-gray-400">
+            <Link href="/" className="hover:text-accent transition-colors no-underline text-gray-400">
               Inicio
-            </a>
+            </Link>
             <span>/</span>
             <span className="text-[#151c26] font-medium">Propiedades</span>
           </div>
@@ -265,6 +270,38 @@ export function PropiedadesDesktop({
                         {n}+
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                <div className="h-px bg-gray-100" />
+
+                {/* Condición */}
+                <div>
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2.5">
+                    Condición
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { value: '', label: 'Cualquiera' },
+                      { value: 'AMOBLADO', label: 'Amoblado' },
+                      { value: 'SIN_AMOBLAR', label: 'Sin amoblar' },
+                    ].map(c => {
+                      const active = conditionFilter === c.value
+                      return (
+                        <label key={c.value} className="flex items-center gap-2.5 cursor-pointer group">
+                          <input
+                            type="radio"
+                            name="condition"
+                            checked={active}
+                            onChange={() => setConditionFilter(c.value)}
+                            className="accent-accent cursor-pointer size-4"
+                          />
+                          <span className={`text-sm cursor-pointer transition-colors ${active ? 'text-accent font-semibold' : 'text-gray-600 group-hover:text-[#151c26]'}`}>
+                            {c.label}
+                          </span>
+                        </label>
+                      )
+                    })}
                   </div>
                 </div>
 

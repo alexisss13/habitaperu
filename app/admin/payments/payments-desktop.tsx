@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import { MoneyBag02Icon, Search01Icon, FilterIcon, CheckmarkCircle02Icon, Clock01Icon } from "hugeicons-react"
 import { usePagination } from '@/hooks/use-pagination'
 import { AdminPagination } from '@/components/ui/pagination'
@@ -40,7 +41,20 @@ const fmtDate = (d: Date | null) =>
 
 export function PaymentsDesktop({ data }: { data: PaymentsData }) {
   const { payments, stats } = data
-  const pagination = usePagination(payments, 10)
+  const [search, setSearch] = useState("")
+
+  const filtered = payments.filter(p => {
+    const q = search.toLowerCase().trim()
+    if (!q) return true
+    return (
+      `${p.contract.tenant.firstName} ${p.contract.tenant.lastName}`.toLowerCase().includes(q) ||
+      p.contract.tenant.email.toLowerCase().includes(q) ||
+      p.contract.property.title.toLowerCase().includes(q) ||
+      p.contract.property.district.toLowerCase().includes(q)
+    )
+  })
+
+  const pagination = usePagination(filtered, 10)
 
   return (
     <div className="p-10 min-h-screen">
@@ -79,6 +93,8 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
           <Search01Icon size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-text-muted" />
           <input
             type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por inquilino, propiedad..."
             className="w-full pl-10 pr-4 py-2.5 border border-admin-border rounded-lg text-sm text-admin-text bg-admin-bg outline-none focus:border-admin-accent"
           />
@@ -91,74 +107,107 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
 
       {/* Table */}
       <div className="bg-admin-card-bg rounded-xl border border-admin-border overflow-hidden">
-        <div className="grid grid-cols-[0.5fr_1.5fr_1.5fr_1fr_1fr_0.8fr_0.8fr_0.5fr] px-6 py-4 border-b border-admin-border bg-[rgba(116,133,151,0.05)] text-xs font-bold text-admin-text-muted uppercase tracking-wider">
-          <div>ID</div><div>Inquilino</div><div>Propiedad</div><div>Fecha</div>
-          <div>Monto</div><div>Método</div><div>Estado</div><div></div>
-        </div>
+        {filtered.length === 0 ? (
+          <div className="p-12 text-center flex flex-col items-center justify-center min-h-[300px]">
+            <MoneyBag02Icon size={48} className="text-admin-text-muted mb-4 animate-pulse" />
+            <h3 className="text-lg font-semibold text-admin-text mb-2">No se encontraron pagos</h3>
+            <p className="text-sm text-admin-text-muted max-w-sm">
+              No hay pagos que coincidan con tu búsqueda. Intenta con otros términos.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left">
+                <thead className="bg-[rgba(116,133,151,0.05)] border-b border-admin-border text-xs font-bold text-admin-text-muted uppercase tracking-wider">
+                  <tr>
+                    <th className="px-6 py-4 font-bold">ID</th>
+                    <th className="px-6 py-4 font-bold">Inquilino</th>
+                    <th className="px-6 py-4 font-bold">Propiedad</th>
+                    <th className="px-6 py-4 font-bold">Fecha</th>
+                    <th className="px-6 py-4 font-bold">Monto</th>
+                    <th className="px-6 py-4 font-bold">Método</th>
+                    <th className="px-6 py-4 font-bold">Estado</th>
+                    <th className="px-6 py-4"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-admin-border text-sm text-admin-text">
+                  {pagination.paginatedItems.map(p => {
+                    const badge = statusBadge(p.status)
+                    const { Icon } = badge
+                    return (
+                      <tr
+                        key={p.id}
+                        className="hover:bg-[rgba(116,133,151,0.05)] transition-colors cursor-pointer"
+                      >
+                        <td className="px-6 py-5 font-mono text-xs text-admin-text-muted">
+                          #{p.id.slice(0, 6)}
+                        </td>
 
-        {pagination.paginatedItems.map(p => {
-          const badge = statusBadge(p.status)
-          const { Icon } = badge
-          return (
-            <div
-              key={p.id}
-              className="grid grid-cols-[0.5fr_1.5fr_1.5fr_1fr_1fr_0.8fr_0.8fr_0.5fr] px-6 py-5 border-b border-admin-border items-center hover:bg-[rgba(116,133,151,0.05)] transition-colors cursor-pointer"
-            >
-              <div className="text-xs font-mono text-admin-text-muted">#{p.id.slice(0, 6)}</div>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-2.5">
+                            <div className="size-8 rounded-full flex items-center justify-center text-white font-semibold text-xs shrink-0"
+                              style={{ background: 'linear-gradient(135deg, #0f3457, #061829)' }}>
+                              {p.contract.tenant.firstName?.[0] ?? '?'}{p.contract.tenant.lastName?.[0] ?? ''}
+                            </div>
+                            <div className="font-semibold">
+                              {p.contract.tenant.firstName} {p.contract.tenant.lastName}
+                            </div>
+                          </div>
+                        </td>
 
-              <div className="flex items-center gap-2.5">
-                <div className="size-8 rounded-full flex items-center justify-center text-white font-semibold text-xs shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #0f3457, #061829)' }}>
-                  {p.contract.tenant.firstName[0]}{p.contract.tenant.lastName[0]}
-                </div>
-                <div className="text-sm font-semibold text-admin-text">
-                  {p.contract.tenant.firstName} {p.contract.tenant.lastName}
-                </div>
-              </div>
+                        <td className="px-6 py-5">
+                          <div className="font-medium mb-0.5">{p.contract.property.title}</div>
+                          <div className="text-xs text-admin-text-muted">{p.contract.property.district}</div>
+                        </td>
 
-              <div>
-                <div className="text-sm font-medium text-admin-text mb-0.5">{p.contract.property.title}</div>
-                <div className="text-xs text-admin-text-muted">{p.contract.property.district}</div>
-              </div>
+                        <td className="px-6 py-5">
+                          {fmtDate(p.paidDate || p.dueDate)}
+                        </td>
 
-              <div className="text-[0.8rem] text-admin-text">{fmtDate(p.paidDate || p.dueDate)}</div>
+                        <td className="px-6 py-5 font-bold text-base">
+                          S/ {p.amount.toLocaleString()}
+                        </td>
 
-              <div className="text-base font-bold text-admin-text">S/ {p.amount.toLocaleString()}</div>
+                        <td className="px-6 py-5">
+                          <span className={`font-semibold ${methodColor(p.paymentMethod)}`}>
+                            {methodLabel(p.paymentMethod)}
+                          </span>
+                        </td>
 
-              <div>
-                <span className={`text-xs font-semibold ${methodColor(p.paymentMethod)}`}>
-                  {methodLabel(p.paymentMethod)}
-                </span>
-              </div>
+                        <td className="px-6 py-5">
+                          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full w-fit ${badge.cls}`}>
+                            <Icon size={14} />
+                            <span className="text-xs font-semibold">{badge.label}</span>
+                          </div>
+                        </td>
 
-              <div>
-                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full w-fit ${badge.cls}`}>
-                  <Icon size={14} />
-                  <span className="text-xs font-semibold">{badge.label}</span>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button className="px-3 py-1.5 border border-admin-border rounded-md text-xs text-admin-text font-medium hover:bg-admin-bg transition-colors">
-                  Ver
-                </button>
-              </div>
+                        <td className="px-6 py-5 text-right">
+                          <button className="px-3 py-1.5 border border-admin-border rounded-md text-xs font-medium hover:bg-admin-bg transition-colors">
+                            Ver
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
-          )
-        })}
-      </div>
 
-      {/* Pagination */}
-      <div className="bg-admin-card-bg rounded-b-xl border border-t-0 border-admin-border">
-        <AdminPagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          onPageChange={pagination.setPage}
-          startIndex={pagination.startIndex}
-          endIndex={pagination.endIndex}
-          totalItems={pagination.totalItems}
-          itemLabel="pagos"
-        />
+            {/* Pagination */}
+            <div className="bg-admin-card-bg rounded-b-xl border-t border-admin-border">
+              <AdminPagination
+                currentPage={pagination.currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={pagination.setPage}
+                startIndex={pagination.startIndex}
+                endIndex={pagination.endIndex}
+                totalItems={pagination.totalItems}
+                itemLabel="pagos"
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

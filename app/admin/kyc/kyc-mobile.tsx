@@ -6,8 +6,7 @@ import {
   SecurityCheckIcon, 
   CheckmarkCircle01Icon, 
   AlertCircleIcon, 
-  Cancel01Icon, 
-  FileValidationIcon 
+  Cancel01Icon
 } from "hugeicons-react"
 import { approveKYC, rejectKYC } from "@/app/actions/kyc-actions"
 import type { AdminKYCItem } from "./kyc-view"
@@ -46,13 +45,13 @@ export function AdminKYCMobile({ verifications }: Props) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "APROBADO":
-        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-[rgba(16,185,129,0.1)] text-[#10b981] rounded">Verificado</span>
+        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-admin-success-bg text-admin-success rounded">Verificado</span>
       case "EN_REVISION":
-        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-[rgba(245,158,11,0.1)] text-[#f59e0b] rounded animate-pulse">En Revisión</span>
+        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-admin-warning-bg text-admin-warning rounded animate-pulse">En Revisión</span>
       case "RECHAZADO":
-        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-[rgba(239,68,68,0.1)] text-[#ef4444] rounded">Rechazado</span>
+        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-admin-error-bg text-admin-error rounded">Rechazado</span>
       case "PENDIENTE":
-        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-[rgba(100,116,139,0.1)] text-[#64748b] rounded">Pendiente</span>
+        return <span className="px-2 py-0.5 text-[9px] font-semibold bg-admin-info-bg text-admin-info rounded">Pendiente</span>
       default:
         return <span className="px-2 py-0.5 text-[9px] font-semibold bg-slate-100 text-slate-700 rounded">{status}</span>
     }
@@ -146,18 +145,18 @@ export function AdminKYCMobile({ verifications }: Props) {
       </div>
 
       {/* Metrics scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-none -mx-4 px-4 mb-4">
+      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mb-4">
         <div className="bg-admin-card-bg border border-admin-border p-3 rounded-xl shrink-0 w-36">
           <p className="text-[9px] font-bold text-admin-text-muted uppercase mb-0.5">En revisión</p>
-          <p className="text-lg font-bold text-[#f59e0b]">{inReviewCount}</p>
+          <p className="text-lg font-bold text-admin-warning">{inReviewCount}</p>
         </div>
         <div className="bg-admin-card-bg border border-admin-border p-3 rounded-xl shrink-0 w-36">
           <p className="text-[9px] font-bold text-admin-text-muted uppercase mb-0.5">Verificados</p>
-          <p className="text-lg font-bold text-[#10b981]">{approvedCount}</p>
+          <p className="text-lg font-bold text-admin-success">{approvedCount}</p>
         </div>
         <div className="bg-admin-card-bg border border-admin-border p-3 rounded-xl shrink-0 w-36">
           <p className="text-[9px] font-bold text-admin-text-muted uppercase mb-0.5">Rechazados</p>
-          <p className="text-lg font-bold text-[#ef4444]">{rejectedCount}</p>
+          <p className="text-lg font-bold text-admin-error">{rejectedCount}</p>
         </div>
       </div>
 
@@ -171,7 +170,7 @@ export function AdminKYCMobile({ verifications }: Props) {
           className="w-full h-10 px-3 border border-admin-border rounded-xl text-xs font-semibold focus:border-admin-accent bg-admin-bg text-admin-text outline-none"
         />
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
           {[
             { key: "TODAS", label: "Todos" },
             { key: "EN_REVISION", label: "En Revisión" },
@@ -209,15 +208,15 @@ export function AdminKYCMobile({ verifications }: Props) {
               <div className="grid grid-cols-3 gap-1 text-[9px] font-bold text-admin-text-muted border-t border-b border-admin-border py-2 text-center">
                 <div>
                   <span className="block text-[8px] uppercase">DNI</span>
-                  <span className={v.dniVerified ? "text-[#10b981]" : "text-admin-text-muted"}>{v.dniVerified ? "✓ Si" : "⚙ Pend"}</span>
+                  <span className={v.dniVerified ? "text-admin-success" : "text-admin-text-muted"}>{v.dniVerified ? "✓ Si" : "⚙ Pend"}</span>
                 </div>
                 <div>
                   <span className="block text-[8px] uppercase">Rostro</span>
-                  <span className={v.biometricVerified ? "text-[#10b981]" : "text-admin-text-muted"}>{v.biometricVerified ? "✓ Valid" : "⚙ Pend"}</span>
+                  <span className={v.biometricVerified ? "text-admin-success" : "text-admin-text-muted"}>{v.biometricVerified ? "✓ Valid" : "⚙ Pend"}</span>
                 </div>
                 <div>
                   <span className="block text-[8px] uppercase">Penal</span>
-                  <span className={v.backgroundCheck ? "text-[#10b981]" : "text-admin-text-muted"}>{v.backgroundCheck ? "✓ Limp" : "⚙ Pend"}</span>
+                  <span className={v.backgroundCheck ? "text-admin-success" : "text-admin-text-muted"}>{v.backgroundCheck ? "✓ Limp" : "⚙ Pend"}</span>
                 </div>
               </div>
 
@@ -305,11 +304,19 @@ export function AdminKYCMobile({ verifications }: Props) {
               <div className="bg-admin-bg border border-admin-border p-3 rounded-lg text-[10px] space-y-1">
                 <div className="flex justify-between">
                   <span className="text-admin-text-muted">Análisis Biométrico:</span>
-                  <span className="text-emerald-500 font-bold">✓ Validado 98.6%</span>
+                  {selectedKyc.biometricVerified ? (
+                    <span className="text-admin-success font-bold">✓ Validado</span>
+                  ) : (
+                    <span className="text-admin-warning font-bold">⚙ Pendiente</span>
+                  )}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-admin-text-muted">Antecedentes Penales:</span>
-                  <span className="text-emerald-500 font-bold">✓ Limpio</span>
+                  {selectedKyc.backgroundCheck ? (
+                    <span className="text-admin-success font-bold">✓ Limpio</span>
+                  ) : (
+                    <span className="text-admin-warning font-bold">⚙ Pendiente</span>
+                  )}
                 </div>
               </div>
 

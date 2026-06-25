@@ -72,7 +72,7 @@ export function Pagination({
   const visiblePages = getVisiblePages(currentPage, totalPages)
 
   return (
-    <div className="flex flex-col items-center gap-4 mt-8 mb-4">
+    <nav role="navigation" aria-label="Paginación" className="flex flex-col items-center gap-4 mt-8 mb-4">
       {/* Info text */}
       <p className="text-sm text-text-muted font-medium">
         Mostrando{" "}
@@ -145,7 +145,7 @@ export function Pagination({
           <ArrowRight01Icon size={16} />
         </button>
       </div>
-    </div>
+    </nav>
   )
 }
 
@@ -176,7 +176,7 @@ export function AdminPagination({
   const visiblePages = getVisiblePages(currentPage, totalPages)
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-admin-border">
+    <nav role="navigation" aria-label="Paginación" className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-admin-border">
       {/* Info text */}
       <p className="text-xs text-admin-text-muted font-medium">
         Mostrando{" "}
@@ -245,6 +245,6 @@ export function AdminPagination({
           <ArrowRight01Icon size={14} />
         </button>
       </div>
-    </div>
+    </nav>
   )
 }

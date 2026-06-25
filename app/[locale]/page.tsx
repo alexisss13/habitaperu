@@ -16,29 +16,35 @@ async function getProperties() {
             lastName: true,
           },
         },
-        _count: {
-          select: {
-            reviews: true,
-          },
+        reviews: {
+          select: { rating: true },
         },
       },
     })
-    
+
     // Convert Decimal to number for client component
-    return properties.map((property) => ({
-      id: property.id,
-      title: property.title,
-      type: property.type,
-      condition: property.condition,
-      district: property.district,
-      price: Number(property.price),
-      images: Array.isArray(property.images) ? property.images as string[] : [],
-      favorites: property.favorites,
-      rooms: property.rooms,
-      bathrooms: property.bathrooms,
-      area: Number(property.area),
-      _count: property._count,
-    }))
+    return properties.map((property) => {
+      const avgRating = property.reviews.length > 0
+        ? property.reviews.reduce((sum, r) => sum + r.rating, 0) / property.reviews.length
+        : 0
+      return {
+        id: property.id,
+        title: property.title,
+        type: property.type,
+        condition: property.condition,
+        district: property.district,
+        price: Number(property.price),
+        images: Array.isArray(property.images) ? property.images as string[] : [],
+        favorites: property.favorites,
+        rooms: property.rooms,
+        bathrooms: property.bathrooms,
+        area: Number(property.area),
+        avgRating: Math.round(avgRating * 10) / 10,
+        reviewCount: property.reviews.length,
+        amenities: Array.isArray(property.amenities) ? property.amenities as string[] : [],
+        tenantProfile: Array.isArray(property.tenantProfile) ? property.tenantProfile as string[] : [],
+      }
+    })
   } catch (error) {
     console.error('Error fetching properties:', error)
     // Return mock data for development when DB is not available
@@ -55,7 +61,10 @@ async function getProperties() {
         rooms: 2,
         bathrooms: 2,
         area: 65,
-        _count: { reviews: 24 },
+        avgRating: 4.7,
+        reviewCount: 24,
+        amenities: ['WiFi', 'Cable TV'],
+        tenantProfile: ['profesional', 'pareja'],
       },
       {
         id: '2',
@@ -69,7 +78,10 @@ async function getProperties() {
         rooms: 1,
         bathrooms: 1,
         area: 18,
-        _count: { reviews: 12 },
+        avgRating: 4.6,
+        reviewCount: 12,
+        amenities: ['WiFi', 'Agua incluida'],
+        tenantProfile: ['profesional'],
       },
       {
         id: '3',
@@ -83,7 +95,10 @@ async function getProperties() {
         rooms: 4,
         bathrooms: 3,
         area: 180,
-        _count: { reviews: 7 },
+        avgRating: 4.5,
+        reviewCount: 7,
+        amenities: ['WiFi', 'Jardín', 'Cochera'],
+        tenantProfile: ['familia'],
       },
       {
         id: '4',
@@ -97,7 +112,10 @@ async function getProperties() {
         rooms: 2,
         bathrooms: 2,
         area: 72,
-        _count: { reviews: 18 },
+        avgRating: 4.9,
+        reviewCount: 18,
+        amenities: ['WiFi', 'Cable TV', 'Seguridad 24h'],
+        tenantProfile: ['profesional', 'extranjero'],
       },
       {
         id: '5',
@@ -111,7 +129,10 @@ async function getProperties() {
         rooms: 1,
         bathrooms: 1,
         area: 20,
-        _count: { reviews: 5 },
+        avgRating: 4.4,
+        reviewCount: 5,
+        amenities: ['WiFi', 'Escritorio'],
+        tenantProfile: ['estudiante'],
       },
       {
         id: '6',
@@ -125,7 +146,10 @@ async function getProperties() {
         rooms: 2,
         bathrooms: 1,
         area: 58,
-        _count: { reviews: 9 },
+        avgRating: 0,
+        reviewCount: 0,
+        amenities: ['WiFi', 'Ascensor'],
+        tenantProfile: ['profesional'],
       },
     ]
   }

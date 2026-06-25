@@ -33,9 +33,12 @@ export async function getMessages(locale: Locale) {
     return messages.default
   } catch (error) {
     console.error(`Failed to load messages for locale: ${locale}`, error)
-    // Fallback a español si falla
-    const fallback = await import(`@/messages/${defaultLocale}.json`)
-    return fallback.default
+    try {
+      const fallback = await import(`@/messages/es.json`)
+      return fallback.default
+    } catch (fallbackError) {
+      return {}
+    }
   }
 }
 

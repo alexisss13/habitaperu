@@ -1,0 +1,293 @@
+{
+  "common": {
+    "appName": "Habita Perú",
+    "loading": "로딩 중...",
+    "search": "검색",
+    "filter": "필터",
+    "close": "닫기",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "view": "보기",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전"
+  },
+  "header": {
+    "publishProperty": "임대 매물 등록하기",
+    "login": "로그인",
+    "register": "회원가입",
+    "helpCenter": "고객센터",
+    "language": "언어",
+    "myProperties": "내 매물 관리",
+    "manageRoom": "내 방 관리",
+    "myRoom": "나의 방",
+    "searchRoom": "방 찾기",
+    "dashboardAdmin": "관리자 패널",
+    "dashboardLandlord": "내 매물 관리",
+    "dashboardTenant": "마이 패널",
+    "dashboardDefault": "대시보드",
+    "roleAdmin": "관리자",
+    "roleLandlord": "임대인",
+    "roleTenant": "임차인",
+    "logout": "로그아웃",
+    "announcement": {
+      "verified": "인증된 매물",
+      "secure": "안전한 계약",
+      "support": "24/7 고객 지원"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "월세 및 장기 임대",
+      "title": "새로운 보금자리를 만나보세요",
+      "subtitle": "학생과 직장인을 위한 쉐어하우스 및 원룸/투룸. 간편하고 안전한 월세 임대 서비스.",
+      "searchPlaceholder": "지역, 대학교명 또는 주소로 검색...",
+      "searchButton": "검색",
+      "filters": "상세 필터",
+      "from": "최저",
+      "perMonth": "/월",
+      "propertyAvailable": "개의 매물 보유 중",
+      "propertiesAvailable": "개의 매물 보유 중"
+    },
+    "filters": {
+      "room": "개인실",
+      "apartment": "아파트",
+      "wifi": "WiFi 제공",
+      "furnished": "풀옵션/가구 제공"
+    },
+    "featured": {
+      "title": "추천 임대 매물",
+      "subtitle": "검증팀이 엄선하여 믿을 수 있는 안전 인증 매물",
+      "filterAll": "전체",
+      "filterRooms": "개인실",
+      "filterApartments": "아파트",
+      "filterHouses": "단독주택",
+      "filterFurnished": "가구 포함",
+      "viewAll": "전체 매물 보기"
+    },
+    "property": {
+      "room": "개인실",
+      "rooms": "개인실",
+      "bathroom": "욕실",
+      "bathrooms": "욕실",
+      "perMonth": "/월"
+    },
+    "howItWorks": {
+      "badge": "간편한 이용 과정",
+      "title": "어떻게 이용하나요?",
+      "subtitle": "단 3단계 만에 나에게 딱 맞는 보금자리 찾기",
+      "step1": {
+        "title": "검색 및 조건 설정",
+        "description": "수천 개의 인증된 매물을 둘러보고, 다양한 필터를 사용해 원하는 방을 정확히 찾을 수 있습니다."
+      },
+      "step2": {
+        "title": "방문 예약 신청",
+        "description": "임대인에게 직접 메시지를 보내 상세 정보를 묻고 직접 방문할 일정을 손쉽게 조율합니다."
+      },
+      "step3": {
+        "title": "계약 체결 및 입주",
+        "description": "법적 효력을 갖춘 안전한 전자 계약서에 서명하고, 승인 완료 후 즉시 입주를 진행합니다."
+      }
+    },
+    "whyChoose": {
+      "badge": "플랫폼의 혜택",
+      "title": "왜 Habita Perú인가요?",
+      "subtitle": "안전성과 편의성을 동시에 잡은 신개념 임대 솔루션 제공",
+      "feature1": {
+        "title": "엄격한 매물 검증",
+        "description": "모든 등록 매물은 안전한 임대를 위해 내부 검증팀의 현장 및 서류 확인 과정을 거칩니다."
+      },
+      "feature2": {
+        "title": "법적 효력 전자 계약",
+        "description": "현행 페루 임대차 규정에 부합하며 양측의 권리를 보호하는 전자 계약서를 자동 생성합니다."
+      },
+      "feature3": {
+        "title": "보호되는 송금 시스템",
+        "description": "임차인과 임대인 모두가 안심하고 월세를 주고받을 수 있도록 에스크로 기반의 수납 관리를 지원합니다."
+      },
+      "feature4": {
+        "title": "24시간 365일 응대",
+        "description": "이용 중 문제 발생 시 언제나 도움을 드릴 수 있는 전문 헬프 데스크가 대기 중입니다."
+      }
+    },
+    "cta": {
+      "badge": "임대인 회원 전용",
+      "title": "임대 놓으실 방이 있으신가요?",
+      "subtitle": "이미 Habita Perú를 통해 체계적으로 매물을 관리 중인 {count}명 이상의 임대인과 함께하세요.",
+      "satisfaction": "사용자 만족도",
+      "averageRental": "평균 임대 기간",
+      "days": "일",
+      "button": "내 매물 등록하기 (무료)",
+      "benefits": "✓ 숨겨진 수수료 전혀 없음 · ✓ 무료 기본 광고 게재"
+    },
+    "exploreLocation": {
+      "title": "인기 지역 둘러보기",
+      "subtitle": "리마에서 가장 많은 분들이 찾는 핫한 지역의 매물 확인"
+    },
+    "studentProperties": {
+      "title": "대학생 추천 주거 공간",
+      "subtitle": "인근 대학교 통학에 유리한 최적 경로의 방 및 주택"
+    },
+    "fullApartments": {
+      "title": "아파트/독채 전체 임대",
+      "subtitle": "가족 단위 거주 또는 사생활 보호가 우선인 분들을 위한 독립형 공간"
+    },
+    "budgetRooms": {
+      "title": "실속형 가성비 방",
+      "subtitle": "시설 및 안전성은 유지하면서 주거비 부담을 크게 낮춘 실속 매물"
+    }
+  },
+  "languageSwitcher": {
+    "title": "언어 및 국가/지역 설정",
+    "currency": "통화(화폐)",
+    "suggested": "추천 언어 및 국가 설정",
+    "choose": "원하시는 언어와 사용 지역을 지정하세요",
+    "currencyPlaceholder": "외화 표시 기능이 곧 도입될 예정입니다",
+    "currencyDescription": "현재 모든 매물 가격은 페루 솔(S/) 기준으로 표시됩니다"
+  },
+  "login": {
+    "title": "로그인",
+    "welcome": "Habita Perú에 오신 것을 환영합니다",
+    "email": "이메일 주소",
+    "password": "비밀번호",
+    "continue": "로그인 진행",
+    "loading": "로그인 확인 중...",
+    "or": "또는",
+    "googleLogin": "Google 계정으로 계속",
+    "facebookLogin": "Facebook 계정으로 계속",
+    "noAccount": "아직 회원이 아니신가요?",
+    "signUp": "회원가입하기",
+    "error": "이메일 주소 혹은 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.",
+    "genericError": "로그인 처리 도중 문제가 발생했습니다. 다시 시도해 주세요.",
+    "demoCredentials": {
+      "title": "테스트 계정 정보",
+      "admin": "관리자 계정:",
+      "landlord": "임대인 계정:",
+      "tenant": "임차인 계정:"
+    }
+  },
+  "register": {
+    "title": "회원가입",
+    "welcome": "Habita Perú의 멤버가 되세요",
+    "firstName": "이름",
+    "lastName": "성(Family Name)",
+    "email": "이메일 주소",
+    "password": "비밀번호",
+    "confirmPassword": "비밀번호 확인",
+    "role": "회원 구분",
+    "tenant": "임차인(세입자)",
+    "landlord": "임대인(집주인)",
+    "continue": "회원 등록 완료",
+    "loading": "계정 생성 중...",
+    "or": "또는",
+    "googleSignup": "Google로 간편 가입",
+    "facebookSignup": "Facebook으로 간편 가입",
+    "hasAccount": "이미 회원가입을 하셨나요?",
+    "login": "로그인하러 가기",
+    "passwordMismatch": "입력하신 두 비밀번호가 일치하지 않습니다",
+    "error": "회원 등록 도중 문제가 발생했습니다. 다시 확인해 주세요.",
+    "success": "회원가입이 정상적으로 완료되었습니다"
+  },
+  "publish": {
+    "hero": {
+      "badge": "인증 임대인 전용 비즈니스 솔루션",
+      "title": "임대 소득을 보다 안전하게",
+      "titleAccent": "효율적인 통합 자산 관리",
+      "subtitle": "계약서 발급부터 세입자 신원 인증, 임대료 수납까지 한 화면에서 관리하는 똑똑한 자산 관리 플랫폼.",
+      "startButton": "지금 시작하기 (무료 등록)",
+      "watchVideo": "서비스 안내 영상 보기",
+      "stats": {
+        "properties": "운영 중인 등록 매물",
+        "contracts": "분쟁률 0% 안심 계약",
+        "tenants": "신원 인증 완료 세입자"
+      }
+    },
+    "features": {
+      "badge": "주요 핵심 기능",
+      "title": "공실 걱정 없이 안전하게 계약을 관리하세요",
+      "kyc": {
+        "title": "신원 인증 (KYC)",
+        "description": "계약 체결 전 임차 희망자의 생체 정보 인증 및 신용/배경 조회를 완벽 지원합니다.",
+        "link": "기능 더 알아보기"
+      },
+      "contracts": {
+        "title": "법적 규격 계약서",
+        "description": "페루의 최신 임대차법을 기반으로 보증 금액 및 조건이 명시된 법적 전자 계약서를 자동 생성합니다.",
+        "link": "계약서 양식 보기"
+      },
+      "dashboard": {
+        "title": "임대 관리 대시보드",
+        "description": "매월 입금 내역, 공실 현황, 입주자와의 다이렉트 소통을 지원하는 편리한 올인원 대시보드입니다.",
+        "link": "관리 화면 이동"
+      },
+      "matching": {
+        "title": "스마트 매칭 시스템",
+        "description": "공실 매물의 속성과 신뢰도가 높은 임차 후보자 프로필을 매칭하여 신속한 입주를 돕습니다.",
+        "link": "자세히 보기"
+      }
+    },
+    "dashboard": {
+      "badge": "통합 관리 대시보드",
+      "title": "임대인 전용 패널",
+      "subtitle": "보유 자산의 현황, 월세 수납 상태, 남은 계약 기간을 실시간으로 확인합니다.",
+      "payments": {
+        "title": "월세 납부 관리 (신호등 상태)",
+        "period": "2026년 4월",
+        "paid": "납부 완료",
+        "pending": "미납 (대기 중)",
+        "processing": "확인 및 송금 진행 중",
+        "viewFull": "월세 수납 상세 보기"
+      },
+      "occupancy": {
+        "title": "임대 입주율",
+        "period": "최근 6개월 기준",
+        "occupied": "입주 완료",
+        "income": "이번 달 임대 수익",
+        "activeContracts": "유지 중인 계약 건수"
+      }
+    },
+    "howToStart": {
+      "badge": "간편한 시작 절차",
+      "title": "3단계 만에 등록 완료",
+      "step1": {
+        "title": "무료 회원 가입",
+        "description": "초기 비용이나 등록 수수료 없이 단 2분 만에 임대인용 계정을 개설할 수 있습니다."
+      },
+      "step2": {
+        "title": "매물 사진 및 정보 등록",
+        "description": "사진과 함께 계약 조건, 상세 내역을 입력하시면 심사 승인팀이 확인 과정을 진행합니다."
+      },
+      "step3": {
+        "title": "입주 제안 및 계약",
+        "description": "인증된 임차 희망자들의 신청을 받아 검토한 뒤 원하는 임차인과 계약서 작성을 시작합니다."
+      },
+      "startButton": "지금 등록하기"
+    },
+    "testimonials": {
+      "badge": "임대인의 이용 후기",
+      "title": "실제 플랫폼을 이용하시는 파트너분들의 목소리",
+      "testimonial1": {
+        "text": "예전에는 임차인의 신원 조회를 하는 데 정말 많은 시간과 노력이 들었는데 플랫폼을 사용하면서 걱정이 싹 사라졌습니다.",
+        "name": "후안 디아스 님",
+        "properties": "리마 지역 6개 주택 관리"
+      },
+      "testimonial2": {
+        "text": "대시보드를 보면 매달 임대료가 제때 들어오는지 바로 보여서 자금 관리 및 운영이 너무 직관적이고 쉬워졌습니다.",
+        "name": "로사 바르가스 님",
+        "properties": "산 이시드로 지역 3개 매물 관리"
+      },
+      "testimonial3": {
+        "text": "모바일 전자 계약 덕분에 며칠씩 걸리던 미팅과 대기 시간이 대폭 단축되어 아주 스마트하고 편리하게 업무를 처리합니다.",
+        "name": "카를로스 멘도사 님",
+        "properties": "미라플로레스 지역 2개 매물 관리"
+      }
+    },
+    "cta": {
+      "title": "안정적이고 스마트한 자산 임대 관리를 시작하세요",
+      "subtitle": "이미 4,800명 이상의 선도적인 임대인들이 Habita Perú 플랫폼으로 안전하게 자산을 관리하고 있습니다.",
+      "button": "지금 무료로 시작하기"
+    }
+  }
+}

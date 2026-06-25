@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export default async function PropiedadesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; district?: string; type?: string; sort?: string; condition?: string }>
+  searchParams: Promise<{ q?: string; district?: string; type?: string; sort?: string; condition?: string; amenity?: string }>
 }) {
   const params = await searchParams
   const properties = await prisma.property.findMany({
@@ -36,6 +36,7 @@ export default async function PropiedadesPage({
       avgRating: Math.round(avgRating * 10) / 10,
       reviewCount: p.reviews.length,
       status: p.status,
+      amenities: (Array.isArray(p.amenities) ? p.amenities : []) as string[],
     }
   })
 
@@ -47,6 +48,7 @@ export default async function PropiedadesPage({
       initialType={params.type ?? ''}
       initialSort={params.sort ?? 'recent'}
       initialCondition={params.condition ?? ''}
+      initialAmenity={params.amenity ?? ''}
     />
   )
 }

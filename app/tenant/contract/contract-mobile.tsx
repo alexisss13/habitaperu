@@ -35,12 +35,12 @@ export function TenantContractMobile({ contracts }: Props) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-250 rounded">Vigente</span>
+        return <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded">Vigente</span>
       case "PENDING_TENANT":
       case "DRAFT":
-        return <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-250 rounded animate-pulse">Pendiente Firma</span>
+        return <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded animate-pulse">Pendiente Firma</span>
       case "PENDING_LANDLORD":
-        return <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-250 rounded">Propietario</span>
+        return <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded">Propietario</span>
       case "FINISHED":
         return <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 rounded">Finalizado</span>
       case "BREACHED_CANCELLED":
@@ -97,7 +97,7 @@ export function TenantContractMobile({ contracts }: Props) {
             </p>
             <Link
               href={`/contracts/${waitingContract.id}`}
-              className="w-full h-10 border border-indigo-250 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer no-underline"
+              className="w-full h-10 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer no-underline"
             >
               <span>Ver Contrato Firmado</span>
             </Link>
@@ -187,7 +187,7 @@ export function TenantContractMobile({ contracts }: Props) {
                 <h4 className="text-xs font-bold text-text mb-2 uppercase tracking-wider">Propietario</h4>
                 <div className="flex items-center gap-3">
                   <div className="size-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs">
-                    {activeContract.landlord.firstName[0]}{activeContract.landlord.lastName[0]}
+                    {activeContract.landlord.firstName?.[0] ?? '?'}{activeContract.landlord.lastName?.[0] ?? ''}
                   </div>
                   <div>
                     <p className="text-xs font-bold text-text">{activeContract.landlord.firstName} {activeContract.landlord.lastName}</p>
@@ -198,7 +198,7 @@ export function TenantContractMobile({ contracts }: Props) {
 
               {activeContract.landlord.phone && (
                 <a
-                  href={`https://wa.me/51${activeContract.landlord.phone.replace(/\D/g, "")}?text=Hola%20${activeContract.landlord.firstName},%20te%20escribo%20desde%20Habita%20Perú.`}
+                  href={`https://wa.me/51${activeContract.landlord.phone.replace(/\D/g, "").replace(/^51/, "")}?text=Hola%20${activeContract.landlord.firstName},%20te%20escribo%20desde%20Habita%20Perú.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full h-11 bg-[#25D366] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer no-underline"
@@ -252,7 +252,7 @@ export function TenantContractMobile({ contracts }: Props) {
             <h4 className="text-xs font-bold text-text-muted mb-3 uppercase tracking-wider">Historial</h4>
             <div className="space-y-3">
               {pastContracts.map(c => (
-                <div key={c.id} className="bg-white border border-slate-250 rounded-xl p-3.5 flex justify-between items-center shadow-sm">
+                <div key={c.id} className="bg-white border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-sm">
                   <div>
                     <h5 className="text-xs font-bold text-text truncate max-w-[180px]">{c.property.title}</h5>
                     <p className="text-[10px] text-text-muted mt-0.5">S/ {c.monthlyRent} • {getStatusBadge(c.status)}</p>
@@ -260,7 +260,7 @@ export function TenantContractMobile({ contracts }: Props) {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setReviewingProperty({ id: c.property.id, title: c.property.title, contractId: c.id })}
-                      className="h-9 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-250 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
+                      className="h-9 px-3.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
                     >
                       ⭐ Calificar
                     </button>

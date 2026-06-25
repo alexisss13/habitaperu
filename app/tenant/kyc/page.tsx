@@ -3,12 +3,13 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
 import { TenantKYCView } from "./kyc-view"
 import { CULQI_IS_MOCK } from "@/lib/culqi"
+import { Role } from "@prisma/client"
 
 export const dynamic = "force-dynamic"
 
 export default async function TenantKYCPage() {
   const session = await auth()
-  if (!session?.user) {
+  if (!session || session.user.role !== Role.TENANT) {
     redirect("/login")
   }
 

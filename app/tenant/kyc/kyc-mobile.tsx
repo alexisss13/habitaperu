@@ -225,7 +225,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
                       <img 
                         src={dniDocument} 
                         alt="DNI" 
-                        className="w-16 h-11 rounded object-cover border border-slate-350" 
+                        className="w-16 h-11 rounded object-cover border border-slate-300" 
                       />
                       <div>
                         <p className="text-[10px] font-bold text-text">dni_anverso.jpg</p>
@@ -246,7 +246,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
                     </p>
                   </div>
 
-                  <div className="border border-slate-250 rounded-xl h-48 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-4 text-white text-center">
+                  <div className="border border-slate-200 rounded-xl h-48 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-4 text-white text-center">
                     {isScanning ? (
                       <>
                         <div className="absolute left-0 right-0 h-0.5 bg-cyan-400 opacity-80 scanner-line" />
@@ -285,7 +285,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
                     <p className="text-[10px] text-text-muted mt-1">Confirma tu información antes del envío legal.</p>
                   </div>
 
-                  <div className="border border-slate-150 rounded-xl divide-y divide-slate-100 text-[11px] font-semibold text-text">
+                  <div className="border border-slate-100 rounded-xl divide-y divide-slate-100 text-[11px] font-semibold text-text">
                     <div className="p-3 bg-slate-50/50 flex justify-between">
                       <span className="text-text-muted">DNI:</span>
                       <span className="text-green">✓ Cargado</span>

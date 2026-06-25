@@ -120,7 +120,10 @@ export function Button({
   if (href) {
     return (
       <Link
-        href={href}
+        href={isDisabled ? '#' : href}
+        onClick={isDisabled ? (e) => e.preventDefault() : undefined}
+        tabIndex={isDisabled ? -1 : undefined}
+        aria-disabled={isDisabled ? true : undefined}
         className={cls + ' no-underline'}
         style={inlineStyle}
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}

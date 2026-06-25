@@ -57,7 +57,7 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
 
   return (
     <div className="fixed inset-0 bg-[#151c26]/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 overflow-hidden shadow-2xl relative animate-fade-in">
+      <div className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 overflow-hidden shadow-2xl relative">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
@@ -133,7 +133,7 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
                 placeholder="Cuéntanos sobre el estado del inmueble, el trato con el arrendador, comodidades, zona..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-350 rounded-xl text-sm outline-none transition-all focus:border-accent-secondary bg-white text-gray-800 placeholder-gray-400 font-semibold"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none transition-all focus:border-accent-secondary bg-white text-gray-800 placeholder-gray-400 font-semibold"
               />
               <div className="flex justify-between mt-1 text-[10px] text-gray-400 font-medium">
                 <span>Sé descriptivo y respetuoso.</span>
