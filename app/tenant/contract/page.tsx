@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
 import { TenantContractView } from "./contract-view"
 import { Role } from "@prisma/client"
-import { checkReviewEligibility } from "@/app/actions/review-actions"
+import { checkBatchReviewEligibility } from "@/app/actions/review-actions"
 
 export const dynamic = "force-dynamic"
 
@@ -42,10 +42,9 @@ export default async function TenantContractPage() {
     },
   })
 
-  // Verificar elegibilidad de reseña para cada contrato en paralelo
-  const eligibilityResults = await Promise.all(
-    contracts.map(c => checkReviewEligibility(c.id))
-  )
+  // Verificar elegibilidad de reseña batch (una sola query en lugar de N)
+  const contractIds = contracts.map(c => c.id)
+  const eligibilityResults = await checkBatchReviewEligibility(contractIds)
 
   const mappedContracts = contracts.map((c, i) => ({
     id: c.id,

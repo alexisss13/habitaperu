@@ -24,12 +24,21 @@ export interface PropertyDetail {
   reviews: Array<{ id: string; rating: number; comment: string; author: { firstName: string; lastName: string; avatar: string | null } }>
   ownerPhoneVisible: boolean
   isAuthenticated: boolean
+  status: string
 }
 
 export function PropertyDetailView({ property }: { property: PropertyDetail }) {
   const { isMobile, isLoading } = useResponsive()
   if (isLoading) return <LoadingScreen message="Cargando propiedad..." />
+
+  // Las amenidades son texto libre (seed o ingresadas a mano) y pueden traer
+  // duplicados que solo difieren en mayúsculas/espacios (ej. "WiFi" y "wifi").
+  const dedupedAmenities = Array.from(
+    new Map(property.amenities.map(a => [a.toLowerCase().trim(), a])).values()
+  )
+  const normalized = { ...property, amenities: dedupedAmenities }
+
   return isMobile
-    ? <PropertyDetailMobile property={property} />
-    : <PropertyDetailDesktop property={property} />
+    ? <PropertyDetailMobile property={normalized} />
+    : <PropertyDetailDesktop property={normalized} />
 }

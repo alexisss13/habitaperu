@@ -5,7 +5,7 @@ import Link from "next/link"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon,
   SquareIcon, Location01Icon, FlashIcon, CheckmarkCircle01Icon,
-  EyeIcon, ArrowUp01Icon
+  EyeIcon, ArrowUp01Icon, Edit01Icon, StarIcon
 } from "hugeicons-react"
 import { PaymentModal } from "@/components/ui/payment-modal"
 import { PlanUpgradeModal } from "@/components/ui/plan-upgrade-modal"
@@ -185,42 +185,58 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
                     <span className="flex items-center gap-0.5"><Bathtub02Icon size={14} /> {p.bathrooms} bañ.</span>
                     <span className="flex items-center gap-0.5"><SquareIcon size={14} /> {p.area || "--"} m²</span>
                   </div>
+                </div>
 
-                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-100">
+                <div className="mt-auto bg-slate-50 border-t border-slate-100 p-3.5 flex flex-col gap-2.5">
+                  <div className="flex justify-between items-center">
                     <div>
                       <span className="text-[9px] text-text-muted font-semibold block uppercase">Mensual</span>
                       <span className="text-sm font-extrabold text-[#151c26]">S/ {Number(p.price).toLocaleString()}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Link href={`/landlord/properties/${p.id}/edit`} className="text-xs font-bold text-accent border border-accent/30 px-2.5 py-1 rounded-lg no-underline">Editar</Link>
-                      <Link href={`/propiedades/${p.id}`} className="text-xs font-bold text-gray-400 no-underline">Ver →</Link>
+                      <Link href={`/landlord/properties/${p.id}/edit`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-bold text-slate-700 hover:text-accent hover:border-accent/40 no-underline transition-all shadow-sm" aria-label="Editar">
+                        <Edit01Icon size={12} />
+                        <span>Editar</span>
+                      </Link>
+                      <Link href={`/propiedades/${p.id}`} className="flex items-center justify-center size-8 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-blue-500 hover:border-blue-400/40 no-underline transition-all shadow-sm" aria-label="Ver publicación">
+                        <EyeIcon size={12} />
+                      </Link>
                     </div>
                   </div>
 
-                  {/* Botón destacar */}
                   {p.status === "DISPONIBLE" && (
-                    p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
-                      <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-[10px] font-semibold text-amber-700">
-                        <CheckmarkCircle01Icon size={12} className="text-amber-500" />
-                        Destacada hasta {new Date(p.featuredUntil).toLocaleDateString("es-PE")}
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        {([
-                          { days: 7 as const, label: "7d", price: "S/15" },
-                          { days: 15 as const, label: "15d", price: "S/25" },
-                          { days: 30 as const, label: "30d", price: "S/45" },
-                        ]).map(opt => (
-                          <button key={opt.days}
-                            onClick={() => setFeaturedModal({ propertyId: p.id, propertyTitle: p.title, days: opt.days })}
-                            className="flex-1 py-2 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer border-none flex flex-col items-center gap-0.5">
-                            <FlashIcon size={11} />
-                            <span>{opt.label}</span>
-                            <span className="text-amber-500">{opt.price}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )
+                    <div className="border-t border-slate-200/60 pt-2.5">
+                      {p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
+                        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 text-[9px] font-bold text-amber-800">
+                          <div className="flex items-center gap-1">
+                            <StarIcon size={10} className="text-amber-500 fill-amber-500" />
+                            <span>Destacada</span>
+                          </div>
+                          <span className="text-amber-600 font-semibold">hasta {new Date(p.featuredUntil).toLocaleDateString("es-PE")}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[9px] font-bold text-slate-500 flex items-center gap-0.5">
+                            <FlashIcon size={11} className="text-amber-500" />
+                            Destacar anuncio:
+                          </span>
+                          <div className="flex gap-1">
+                            {([
+                              { days: 7 as const, label: "7d", price: "S/15" },
+                              { days: 15 as const, label: "15d", price: "S/25" },
+                              { days: 30 as const, label: "30d", price: "S/45" },
+                            ]).map(opt => (
+                              <button key={opt.days}
+                                onClick={() => setFeaturedModal({ propertyId: p.id, propertyTitle: p.title, days: opt.days })}
+                                className="px-2 py-1 text-[9px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md cursor-pointer flex items-center gap-1 transition-colors">
+                                <span>{opt.label}</span>
+                                <span className="text-amber-500/80 font-normal">{opt.price}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

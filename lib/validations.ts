@@ -14,6 +14,16 @@ export const registerSchema = z.object({
   role: z.enum(["LANDLORD", "TENANT"]),
 })
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Email inválido"),
+  locale: z.string().optional(),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token requerido"),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+})
+
 export const propertySchema = z.object({
   title: z.string().min(10, "El título debe tener al menos 10 caracteres").max(80),
   description: z.string().min(30, "La descripción debe tener al menos 30 caracteres").max(600),

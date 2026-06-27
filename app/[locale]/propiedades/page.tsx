@@ -6,10 +6,11 @@ export const dynamic = 'force-dynamic'
 export default async function PropiedadesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ district?: string; type?: string; sort?: string; condition?: string; q?: string }>
+  searchParams: Promise<{ district?: string; type?: string; sort?: string; condition?: string; q?: string; amenity?: string }>
 }) {
   const params = await searchParams
 
+  const now = new Date()
   const properties = await prisma.property.findMany({
     where: { status: 'DISPONIBLE' },
     include: {
@@ -17,10 +18,18 @@ export default async function PropiedadesPage({
       reviews: { select: { rating: true } },
     },
     orderBy: [
-      // Featured activas primero — nulls LAST (por defecto DESC pone nulls first en PostgreSQL)
+      // Featured activas (featuredUntil > now) primero, expired como nulls
       { featuredUntil: { sort: 'desc', nulls: 'last' } },
       { createdAt: 'desc' },
     ],
+  })
+
+  // Re-order: expired featuredUntil (in the past) treated as non-featured
+  properties.sort((a, b) => {
+    const aFeatured = a.featuredUntil && a.featuredUntil > now ? 1 : 0
+    const bFeatured = b.featuredUntil && b.featuredUntil > now ? 1 : 0
+    if (aFeatured !== bFeatured) return bFeatured - aFeatured
+    return b.createdAt.getTime() - a.createdAt.getTime()
   })
 
   const mapped = properties.map(p => {
@@ -44,6 +53,7 @@ export default async function PropiedadesPage({
       featuredUntil: p.featuredUntil?.toISOString() ?? null,
       lat: p.lat ?? null,
       lng: p.lng ?? null,
+      amenities: (Array.isArray(p.amenities) ? p.amenities : []) as string[],
     }
   })
 
@@ -55,6 +65,7 @@ export default async function PropiedadesPage({
       initialType={params.type ?? ''}
       initialSort={params.sort ?? 'recent'}
       initialCondition={params.condition ?? ''}
+      initialAmenity={params.amenity ?? ''}
     />
   )
 }

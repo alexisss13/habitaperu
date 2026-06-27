@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { signOut } from "next-auth/react"
 import { Search01Icon, Menu01Icon, Cancel01Icon } from "hugeicons-react"
 import ThemeSwitcher from "./theme-switcher"
@@ -18,6 +19,20 @@ interface AdminNavbarProps {
 
 export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed }: AdminNavbarProps) {
   const [showProfile, setShowProfile] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const router = useRouter()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+    setShowSearchDropdown(false)
+    router.push(`/admin/users?search=${encodeURIComponent(searchQuery.trim())}`)
+  }
+
+  const handleSearchBlur = () => {
+    setTimeout(() => setShowSearchDropdown(false), 200)
+  }
 
   return (
     <nav
@@ -34,7 +49,7 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
           {isSidebarCollapsed ? <Menu01Icon size={20} /> : <Cancel01Icon size={20} />}
         </button>
 
-        <div className="relative w-[400px]">
+        <form onSubmit={handleSearch} className="relative w-[400px]">
           <Search01Icon
             size={18}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-text-muted pointer-events-none"
@@ -43,9 +58,32 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
             type="text"
             placeholder="Buscar usuarios, propiedades..."
             aria-label="Buscar usuarios y propiedades"
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setShowSearchDropdown(true) }}
+            onFocus={() => setShowSearchDropdown(true)}
+            onBlur={handleSearchBlur}
             className="w-full h-10 pl-10 pr-3 border border-admin-border rounded-lg text-sm text-admin-text bg-admin-card-bg outline-none transition-all focus:border-admin-accent focus:shadow-[0_0_0_3px_rgba(15,52,87,0.1)]"
           />
-        </div>
+          {showSearchDropdown && searchQuery.trim() && (
+            <div className="absolute top-11 left-0 w-full bg-admin-card-bg border border-admin-border rounded-lg shadow-lg overflow-hidden z-[200]">
+              <button
+                type="submit"
+                className="w-full px-4 py-3 text-left text-sm text-admin-text hover:bg-admin-bg cursor-pointer border-0 bg-transparent flex items-center gap-2"
+              >
+                <Search01Icon size={16} className="text-admin-text-muted" />
+                <span>Buscar "<strong>{searchQuery}</strong>" en usuarios</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowSearchDropdown(false); router.push(`/admin/properties?search=${encodeURIComponent(searchQuery.trim())}`) }}
+                className="w-full px-4 py-3 text-left text-sm text-admin-text hover:bg-admin-bg cursor-pointer border-0 bg-transparent flex items-center gap-2"
+              >
+                <Search01Icon size={16} className="text-admin-text-muted" />
+                <span>Buscar "<strong>{searchQuery}</strong>" en propiedades</span>
+              </button>
+            </div>
+          )}
+        </form>
       </div>
 
       {/* Right Section */}
@@ -99,7 +137,7 @@ export default function AdminNavbar({ user, onToggleSidebar, isSidebarCollapsed 
               </div>
               <div className="p-2 border-t border-admin-border">
                 <button
-                    onClick={() => signOut()}
+                    onClick={() => signOut({ callbackUrl: '/login' })}
                   className="w-full px-3 py-2.5 text-left bg-transparent border-none rounded-md text-sm text-red-600 cursor-pointer transition-colors hover:bg-red-600/10"
                 >
                   Cerrar Sesión

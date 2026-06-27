@@ -21,6 +21,9 @@ export interface AdminPropertyItem {
 export interface PropertiesData {
   properties: AdminPropertyItem[]
   stats: { total: number; disponible: number; ocupada: number; mantenimiento: number; avgPrice: number }
+  page?: number
+  limit?: number
+  totalPages?: number
 }
 
 export function PropertiesView({ data }: { data: PropertiesData }) {

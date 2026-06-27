@@ -15,7 +15,7 @@ import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import { Prisma, AuditAction, ContractStatus, PropertyStatus, Role } from "@prisma/client"
+import { Prisma, AuditAction, ContractStatus, KYCStatus, PropertyStatus, Role, PaymentStatus, Currency } from "@prisma/client"
 import {
   sendContractSentEmail,
   sendContractSignedByTenantEmail,
@@ -113,10 +113,26 @@ export async function signContractAsTenant(
       )
     }
 
-    // ── 2. Metadatos de la solicitud ─────────────────────────────────────────
+    // ── 2. Verificar KYC del inquilino ──────────────────────────────────────────
+    const kyc = await prisma.kYCVerification.findUnique({
+      where: { userId },
+      select: { status: true },
+    })
+    if (!kyc || kyc.status !== KYCStatus.APROBADO) {
+      return {
+        success: false,
+        error: {
+          code: "KYC_REQUIRED",
+          message: "Debes completar la verificación KYC antes de firmar un contrato.",
+          statusHint: 403,
+        },
+      }
+    }
+
+    // ── 3. Metadatos de la solicitud ─────────────────────────────────────────
     const { ipAddress, userAgent } = await extractRequestMetadata()
 
-    // ── 3. Transacción atómica ────────────────────────────────────────────────
+    // ── 4. Transacción atómica ────────────────────────────────────────────────
     const updatedContract = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // 3a. Obtener contrato con bloqueo de lectura
       const contract = await tx.contract.findUnique({
@@ -149,7 +165,6 @@ export async function signContractAsTenant(
 
       // 3c. Verificar estado válido para firma del tenant
       const validStates: ContractStatus[] = [
-        ContractStatus.DRAFT,
         ContractStatus.PENDING_TENANT,
       ]
       if (!validStates.includes(contract.status)) {
@@ -321,6 +336,10 @@ export async function counterSignAsLandlord(
           status: true,
           documentHash: true,
           landlordSignedAt: true,
+          monthlyRent: true,
+          startDate: true,
+          endDate: true,
+          paymentDay: true,
         },
       })
 
@@ -426,6 +445,33 @@ export async function counterSignAsLandlord(
         },
         select: { id: true, status: true },
       })
+
+      // 3h. Generar pagos mensuales automáticamente
+      const payments: Prisma.PaymentCreateManyInput[] = []
+      const paymentStart = new Date(contract.startDate)
+      const paymentEnd = new Date(contract.endDate)
+      let current = new Date(paymentStart.getFullYear(), paymentStart.getMonth(), contract.paymentDay)
+      if (current < paymentStart) {
+        current = new Date(paymentStart.getFullYear(), paymentStart.getMonth() + 1, contract.paymentDay)
+      }
+      const maxPayments = 36
+      let count = 0
+      while (current <= paymentEnd && count < maxPayments) {
+        payments.push({
+          contractId,
+          landlordId: contract.landlordId,
+          tenantId: contract.tenantId,
+          amount: contract.monthlyRent,
+          dueDate: current,
+          status: "PENDIENTE",
+          type: "RENT",
+        })
+        count++
+        current = new Date(current.getFullYear(), current.getMonth() + 1, contract.paymentDay)
+      }
+      if (payments.length > 0) {
+        await tx.payment.createMany({ data: payments })
+      }
 
       // Notificar al inquilino que el contrato está activo
       await createNotificationHelper(
@@ -561,6 +607,7 @@ export async function recordContractView(
       },
     })
 
+    revalidatePath(`/contracts/${contractId}`)
     return { success: true }
   } catch (error: unknown) {
     if (isKnownLegalError(error)) {
@@ -574,6 +621,312 @@ export async function recordContractView(
         message: "No se pudo registrar la visualización del contrato.",
         statusHint: 500,
       },
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// sendContractToTenant
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Envía el contrato al inquilino para su firma.
+ * Transición: DRAFT → PENDING_TENANT
+ * Solo el LANDLORD (propietario del contrato) puede enviarlo.
+ */
+export async function sendContractToTenant(
+  contractId: string,
+): Promise<ActionResult<{ contractId: string; status: ContractStatus }>> {
+  try {
+    const session = await auth()
+
+    if (!session?.user) {
+      throw new UnauthorizedLegalActionError(null, "sendContractToTenant", Role.LANDLORD)
+    }
+
+    const userId = (session.user as { id: string; role: Role }).id
+    const userRole = (session.user as { id: string; role: Role }).role
+
+    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+      throw new UnauthorizedLegalActionError(userId, "sendContractToTenant", Role.LANDLORD)
+    }
+
+    const updatedContract = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const contract = await tx.contract.findUnique({
+        where: { id: contractId },
+        select: { id: true, landlordId: true, status: true, tenantId: true },
+      })
+
+      if (!contract) {
+        throw new ContractStateError(contractId, "NOT_FOUND", "sendContractToTenant")
+      }
+
+      if (contract.landlordId !== userId) {
+        throw new UnauthorizedLegalActionError(userId, "sendContractToTenant — no es el landlord de este contrato")
+      }
+
+      if (contract.status !== ContractStatus.DRAFT) {
+        throw new ContractStateError(contractId, contract.status, "sendContractToTenant — solo contratos DRAFT pueden enviarse")
+      }
+
+      const updated = await tx.contract.update({
+        where: { id: contractId },
+        data: { status: ContractStatus.PENDING_TENANT },
+        select: { id: true, status: true },
+      })
+
+      await createNotificationHelper(
+        contract.tenantId,
+        "CONTRACT_SENT",
+        "Nuevo contrato pendiente de firma",
+        "El arrendador te ha enviado un contrato. Revísalo y fírmalo si estás de acuerdo.",
+        { contractId: contract.id },
+        tx,
+      )
+
+      return updated
+    })
+
+    revalidatePath("/landlord/contracts")
+
+    prisma.contract.findUnique({
+      where: { id: contractId },
+      select: {
+        tenant: { select: { email: true, firstName: true, lastName: true, phone: true } },
+        property: { select: { title: true } },
+      },
+    }).then(c => {
+      if (c) {
+        sendContractSentEmail(
+          c.tenant.email,
+          `${c.tenant.firstName} ${c.tenant.lastName}`,
+          c.property.title,
+          contractId,
+        ).catch(() => {})
+        if (c.tenant.phone) {
+          waSendContratoEnviado(
+            c.tenant.phone,
+            `${c.tenant.firstName} ${c.tenant.lastName}`,
+            c.property.title,
+            `${process.env.NEXT_PUBLIC_URL ?? "https://habitaperu.pe"}/contracts/${contractId}`,
+          ).catch(() => {})
+        }
+      }
+    }).catch(() => {})
+
+    return {
+      success: true,
+      data: { contractId: updatedContract.id, status: updatedContract.status },
+    }
+  } catch (error: unknown) {
+    if (isKnownLegalError(error)) {
+      return { success: false, error: error.serialize() }
+    }
+    console.error("[sendContractToTenant] Error inesperado:", error)
+    return {
+      success: false,
+      error: { code: "INTERNAL_ERROR", message: "No se pudo enviar el contrato.", statusHint: 500 },
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// finishContract
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Finaliza un contrato ACTIVE por vencimiento natural.
+ * Transición: ACTIVE → FINISHED
+ * Libera la propiedad (vuelve a DISPONIBLE) si no tiene otros contratos activos.
+ */
+export async function finishContract(
+  contractId: string,
+): Promise<ActionResult<{ contractId: string; status: ContractStatus }>> {
+  try {
+    const session = await auth()
+
+    if (!session?.user) {
+      throw new UnauthorizedLegalActionError(null, "finishContract", Role.LANDLORD)
+    }
+
+    const userId = (session.user as { id: string; role: Role }).id
+    const userRole = (session.user as { id: string; role: Role }).role
+
+    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+      throw new UnauthorizedLegalActionError(userId, "finishContract", Role.LANDLORD)
+    }
+
+    const updatedContract = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const contract = await tx.contract.findUnique({
+        where: { id: contractId },
+        select: { id: true, landlordId: true, propertyId: true, status: true, tenantId: true },
+      })
+
+      if (!contract) {
+        throw new ContractStateError(contractId, "NOT_FOUND", "finishContract")
+      }
+
+      if (contract.landlordId !== userId) {
+        throw new UnauthorizedLegalActionError(userId, "finishContract — no es el landlord")
+      }
+
+      if (contract.status !== ContractStatus.ACTIVE) {
+        throw new ContractStateError(contractId, contract.status, "finishContract — solo contratos ACTIVE pueden finalizarse")
+      }
+
+      const updated = await tx.contract.update({
+        where: { id: contractId },
+        data: { status: ContractStatus.FINISHED },
+        select: { id: true, status: true },
+      })
+
+      // Liberar propiedad si no tiene otros contratos activos
+      const otherActive = await tx.contract.count({
+        where: {
+          propertyId: contract.propertyId,
+          status: ContractStatus.ACTIVE,
+          id: { not: contractId },
+        },
+      })
+      if (otherActive === 0) {
+        await tx.property.update({
+          where: { id: contract.propertyId },
+          data: { status: PropertyStatus.DISPONIBLE },
+        })
+      }
+
+      // Notificar al inquilino (A8)
+      await createNotificationHelper(
+        contract.tenantId,
+        "CONTRACT_ACTIVE",
+        "Contrato finalizado",
+        "Tu contrato de alquiler ha finalizado por vencimiento natural.",
+        { contractId: contract.id },
+        tx,
+      )
+
+      return updated
+    })
+
+    revalidatePath("/landlord/contracts")
+    revalidatePath("/landlord/dashboard")
+    revalidatePath("/propiedades")
+
+    return {
+      success: true,
+      data: { contractId: updatedContract.id, status: updatedContract.status },
+    }
+  } catch (error: unknown) {
+    if (isKnownLegalError(error)) {
+      return { success: false, error: error.serialize() }
+    }
+    console.error("[finishContract] Error inesperado:", error)
+    return {
+      success: false,
+      error: { code: "INTERNAL_ERROR", message: "No se pudo finalizar el contrato.", statusHint: 500 },
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// breachContract
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Rescinde un contrato ACTIVE por incumplimiento (Ley 30933).
+ * Transición: ACTIVE → BREACHED_CANCELLED
+ * Libera la propiedad (vuelve a DISPONIBLE).
+ */
+export async function breachContract(
+  contractId: string,
+  reason?: string,
+): Promise<ActionResult<{ contractId: string; status: ContractStatus }>> {
+  try {
+    const session = await auth()
+
+    if (!session?.user) {
+      throw new UnauthorizedLegalActionError(null, "breachContract", Role.LANDLORD)
+    }
+
+    const userId = (session.user as { id: string; role: Role }).id
+    const userRole = (session.user as { id: string; role: Role }).role
+
+    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+      throw new UnauthorizedLegalActionError(userId, "breachContract", Role.LANDLORD)
+    }
+
+    const updatedContract = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const contract = await tx.contract.findUnique({
+        where: { id: contractId },
+        select: { id: true, landlordId: true, propertyId: true, status: true, tenantId: true },
+      })
+
+      if (!contract) {
+        throw new ContractStateError(contractId, "NOT_FOUND", "breachContract")
+      }
+
+      if (contract.landlordId !== userId) {
+        throw new UnauthorizedLegalActionError(userId, "breachContract — no es el landlord")
+      }
+
+      if (contract.status !== ContractStatus.ACTIVE) {
+        throw new ContractStateError(contractId, contract.status, "breachContract — solo contratos ACTIVE pueden rescindirse")
+      }
+
+      const updated = await tx.contract.update({
+        where: { id: contractId },
+        data: { status: ContractStatus.BREACHED_CANCELLED, terms: reason ? JSON.stringify({ breachReason: reason }) : undefined },
+        select: { id: true, status: true },
+      })
+
+      // Liberar propiedad
+      await tx.property.update({
+        where: { id: contract.propertyId },
+        data: { status: PropertyStatus.DISPONIBLE },
+      })
+
+      // Cancelar pagos pendientes o vencidos a futuro/asociados al contrato rescindido (C1)
+      await tx.payment.updateMany({
+        where: {
+          contractId: contract.id,
+          status: { in: [PaymentStatus.PENDIENTE, PaymentStatus.VENCIDO] },
+        },
+        data: {
+          status: PaymentStatus.CANCELADO,
+        },
+      })
+
+      // Notificar al inquilino
+      await createNotificationHelper(
+        contract.tenantId,
+        "CONTRACT_BREACHED",
+        "Contrato rescindido",
+        reason
+          ? `Tu contrato ha sido rescindido. Motivo: ${reason}`
+          : "Tu contrato ha sido rescindido por incumplimiento.",
+        { contractId: contract.id },
+        tx,
+      )
+
+      return updated
+    })
+
+    revalidatePath("/landlord/contracts")
+    revalidatePath("/landlord/dashboard")
+    revalidatePath("/propiedades")
+
+    return {
+      success: true,
+      data: { contractId: updatedContract.id, status: updatedContract.status },
+    }
+  } catch (error: unknown) {
+    if (isKnownLegalError(error)) {
+      return { success: false, error: error.serialize() }
+    }
+    console.error("[breachContract] Error inesperado:", error)
+    return {
+      success: false,
+      error: { code: "INTERNAL_ERROR", message: "No se pudo rescindir el contrato.", statusHint: 500 },
     }
   }
 }
@@ -690,14 +1043,30 @@ export async function createDraftContract(input: {
       select: { id: true },
     })
 
-    // Paso 2: Generar HTML en el servidor con el ID real del contrato
     const toAddress = (district: string | null) => {
       const d = district ?? "Lima"
       return d.length >= 5 ? d : `${d}, Perú`
     }
 
-    let documentHash: string
-    try {
+    const contractId = await prisma.$transaction(async (tx) => {
+      // Paso 1: Crear contrato para obtener el ID real (cuid) antes de generar el HTML
+      const contract = await tx.contract.create({
+        data: {
+          propertyId: input.propertyId,
+          landlordId: userId,
+          tenantId: input.tenantId,
+          status: ContractStatus.DRAFT,
+          monthlyRent: input.monthlyRent,
+          currency: input.currency as Currency,
+          deposit: input.deposit,
+          startDate: input.startDate,
+          endDate: input.endDate,
+          paymentDay: input.paymentDay,
+        },
+        select: { id: true },
+      })
+
+      // Paso 2: Generar HTML en el servidor con el ID real del contrato
       const html = generatePeruvianLeaseAgreement({
         contractId: contract.id,
         landlord: {
@@ -733,66 +1102,24 @@ export async function createDraftContract(input: {
         paymentDay: input.paymentDay,
         paymentAccount: input.paymentAccount,
       })
-      documentHash = createDocumentHash(html)
-    } catch (genError) {
-      // Si la generación falla, limpiar el contrato huérfano y relanzar
-      await prisma.contract.delete({ where: { id: contract.id } }).catch(() => {})
-      throw genError
-    }
+      const documentHash = createDocumentHash(html)
 
-    // Idempotencia: si ya existe un contrato con el mismo hash, devolver ese
-    const existingContract = await prisma.contract.findFirst({
-      where: { documentHash, id: { not: contract.id } },
-      select: { id: true },
+      // Paso 3: Actualizar contrato con hash y datos de cuenta bancaria
+      await tx.contract.update({
+        where: { id: contract.id },
+        data: {
+          documentHash,
+          terms: JSON.stringify({ paymentAccount: input.paymentAccount }),
+        },
+      })
+
+      return contract.id
     })
 
-    if (existingContract) {
-      await prisma.contract.delete({ where: { id: contract.id } }).catch(() => {})
-      return { success: true, data: { contractId: existingContract.id } }
-    }
-
-    // Paso 3: Actualizar contrato con hash y datos de cuenta bancaria
-    await prisma.contract.update({
-      where: { id: contract.id },
-      data: {
-        documentHash,
-        terms: JSON.stringify({ paymentAccount: input.paymentAccount }),
-      },
-    })
-
+    revalidatePath("/landlord/contracts")
     revalidatePath("/landlord/dashboard")
 
-    // Notificar al inquilino por email (non-blocking)
-    prisma.user.findUnique({
-      where: { id: input.tenantId },
-      select: { email: true, firstName: true, lastName: true, phone: true },
-    }).then(tenant => {
-      if (tenant) {
-        prisma.property.findUnique({
-          where: { id: input.propertyId },
-          select: { title: true },
-        }).then(property => {
-          if (property) {
-            sendContractSentEmail(
-              tenant.email,
-              `${tenant.firstName} ${tenant.lastName}`,
-              property.title,
-              contract.id,
-            ).catch(() => {})
-            if (tenant.phone) {
-              waSendContratoEnviado(
-                tenant.phone,
-                `${tenant.firstName} ${tenant.lastName}`,
-                property.title,
-                `${process.env.NEXT_PUBLIC_URL ?? "https://habitaperu.pe"}/contracts/${contract.id}`,
-              ).catch(() => {})
-            }
-          }
-        }).catch(() => {})
-      }
-    }).catch(() => {})
-
-    return { success: true, data: { contractId: contract.id } }
+    return { success: true, data: { contractId } }
   } catch (error: unknown) {
     if (isKnownLegalError(error)) {
       return { success: false, error: error.serialize() }

@@ -194,7 +194,7 @@ export function Header() {
                       </div>
                       <div className="border-t border-gray-100 py-1">
                         <button
-                          onClick={() => { setUserMenuOpen(false); signOut() }}
+                          onClick={() => { setUserMenuOpen(false); signOut({ callbackUrl: `/${locale}/login` }) }}
                           className={`${menuLink} text-red-500 hover:bg-red-50 w-full text-left`}
                         >
                           <Logout01Icon size={16} className="text-red-400" />

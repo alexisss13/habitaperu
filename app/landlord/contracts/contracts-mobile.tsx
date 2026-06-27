@@ -249,7 +249,7 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
                 <div className="col-span-2 mt-1">
                   <span className="block text-[10px] text-text-muted font-medium uppercase tracking-wider">Vigencia</span>
                   <span className="font-medium text-text block mt-0.5">
-                    {new Date(c.startDate).toLocaleDateString()} al {new Date(c.endDate).toLocaleDateString()}
+                    {new Date(c.startDate).toLocaleDateString("es-PE")} al {new Date(c.endDate).toLocaleDateString("es-PE")}
                   </span>
                 </div>
               </div>

@@ -88,7 +88,7 @@ export default function AdminSidebar({ user, isCollapsed }: AdminSidebarProps) {
       {/* Logout */}
       <div className="p-4 px-3 border-t border-admin-border">
         <button
-          onClick={() => signOut()}
+          onClick={() => signOut({ callbackUrl: '/login' })}
           title={isCollapsed ? 'Cerrar Sesión' : undefined}
           className={`flex items-center gap-3 rounded-lg text-red-600 bg-transparent border-none cursor-pointer transition-all duration-200 w-full font-medium text-sm hover:bg-red-600/10
             ${isCollapsed ? 'justify-center p-3' : 'justify-start px-4 py-3'}`}

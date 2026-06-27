@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
+import { ViewIcon, ViewOffIcon } from "hugeicons-react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 
 import { checkTwoFactorRequiredAction } from "@/app/actions/user-actions"
@@ -13,11 +14,13 @@ export function LoginMobile() {
   const searchParams = useSearchParams()
   const justRegistered = searchParams.get('registered') === 'true'
   const t = useTranslations('login')
+  const tc = useTranslations('common')
   const locale = useLocale()
   const [formData, setFormData] = useState({ email: "", password: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   // 2FA States
   const [require2FA, setRequire2FA] = useState(false)
@@ -29,7 +32,7 @@ export function LoginMobile() {
     try {
       if (!require2FA) {
         // Step 1: Check if 2FA is required
-        const checkResult = await checkTwoFactorRequiredAction(email, password)
+        const checkResult = await checkTwoFactorRequiredAction(email)
         if (!checkResult.success) {
           setError(checkResult.error || t('error'))
           setLoading(false)
@@ -149,6 +152,7 @@ export function LoginMobile() {
                 <input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent [appearance:none]"
                   style={{ padding: '24px 14px 10px 14px' }}
                   value={formData.email}
@@ -172,9 +176,10 @@ export function LoginMobile() {
               <div className="relative">
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent [appearance:none]"
-                  style={{ padding: '24px 14px 10px 14px' }}
+                  style={{ padding: '24px 40px 10px 14px' }}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   onFocus={() => setFocusedField('password')}
@@ -190,6 +195,20 @@ export function LoginMobile() {
                 }}>
                   {t('password')}
                 </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? tc('hidePassword') : tc('showPassword')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 size-7 flex items-center justify-center bg-transparent border-none text-gray-400 cursor-pointer"
+                >
+                  {showPassword ? <ViewOffIcon size={17} /> : <ViewIcon size={17} />}
+                </button>
+              </div>
+
+              <div className="flex justify-end -mt-1">
+                <Link href={`/${locale}/forgot-password`} className="text-xs font-semibold text-accent no-underline">
+                  {t('forgotPassword')}
+                </Link>
               </div>
             </>
           ) : (
@@ -250,14 +269,6 @@ export function LoginMobile() {
               >
                 <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
                 {t('googleLogin')}
-              </button>
-              <button
-                type="button"
-                onClick={() => signIn("facebook", { callbackUrl: `/${locale}` })}
-                className="flex items-center justify-center gap-2.5 w-full py-3 px-5 bg-white border border-gray-200 rounded-xl text-[0.8125rem] font-semibold text-gray-700 cursor-pointer transition-all hover:bg-gray-50"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                {t('facebookLogin')}
               </button>
             </div>
           )}

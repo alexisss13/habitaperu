@@ -118,7 +118,7 @@ export function TenantLayoutClient({ children, session }: TenantLayoutClientProp
                 </p>
               </div>
               <button
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: '/login' })}
                 className="size-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"
                 title="Cerrar sesión"
               >
@@ -157,7 +157,7 @@ export function TenantLayoutClient({ children, session }: TenantLayoutClientProp
                 <p className="text-[10px] text-slate-400 mt-0.5 leading-none">Inquilino</p>
               </div>
               <button
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: '/login' })}
                 className="text-xs font-bold text-red-500 hover:text-red-600 cursor-pointer"
               >
                 Salir

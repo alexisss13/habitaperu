@@ -30,9 +30,13 @@ export interface AdminKYCItem {
 
 interface Props {
   verifications: AdminKYCItem[]
+  currentFilter?: string | null
+  page?: number
+  limit?: number
+  totalPages?: number
 }
 
-export function AdminKYCView({ verifications }: Props) {
+export function AdminKYCView({ verifications, currentFilter, page, limit, totalPages }: Props) {
   const { isMobile, isLoading } = useResponsive()
 
   if (isLoading) {
@@ -40,8 +44,8 @@ export function AdminKYCView({ verifications }: Props) {
   }
 
   return isMobile ? (
-    <AdminKYCMobile verifications={verifications} />
+    <AdminKYCMobile verifications={verifications} currentFilter={currentFilter} />
   ) : (
-    <AdminKYCDesktop verifications={verifications} />
+    <AdminKYCDesktop verifications={verifications} currentFilter={currentFilter} />
   )
 }

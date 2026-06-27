@@ -18,6 +18,9 @@ export interface AdminContract {
 export interface ContractsData {
   contracts: AdminContract[]
   stats: { total: number; activo: number; vencido: number; totalValue: number }
+  page?: number
+  limit?: number
+  totalPages?: number
 }
 
 export function ContractsView({ data }: { data: ContractsData }) {

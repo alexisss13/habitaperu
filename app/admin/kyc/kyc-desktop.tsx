@@ -15,11 +15,14 @@ import type { AdminKYCItem } from "./kyc-view"
 
 interface Props {
   verifications: AdminKYCItem[]
+  currentFilter?: string | null
 }
 
-export function AdminKYCDesktop({ verifications }: Props) {
+export function AdminKYCDesktop({ verifications, currentFilter }: Props) {
   const router = useRouter()
-  const [filter, setFilter] = useState<string>("TODAS")
+  const statusToTab: Record<string, string> = { EN_REVISION: "EN_REVISION", APROBADO: "APROBADOS", RECHAZADO: "RECHAZADOS", PENDIENTE: "TODAS" }
+  const initialFilter = currentFilter ? (statusToTab[currentFilter] ?? "TODAS") : "TODAS"
+  const [filter, setFilter] = useState<string>(initialFilter)
   const [searchQuery, setSearchQuery] = useState("")
 
   // Modal review state

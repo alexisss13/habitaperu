@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { KYCStatus, Role } from "@prisma/client"
 import { createNotificationHelper } from "@/lib/notifications"
+import { sendKycApprovedEmail, sendKycRejectedEmail } from "@/lib/email"
 
 export interface ActionResult<T = null> {
   success: boolean
@@ -117,6 +118,20 @@ export async function approveKYC(
     revalidatePath("/tenant/kyc")
     revalidatePath("/tenant/dashboard")
 
+    // Enviar email de KYC aprobado
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, firstName: true }
+    }).then(user => {
+      if (user) {
+        sendKycApprovedEmail(user.email, user.firstName).catch(err => {
+          console.error("Error sending KYC approved email:", err)
+        })
+      }
+    }).catch(err => {
+      console.error("Error fetching user for KYC approved email:", err)
+    })
+
     return { success: true }
   } catch (error: any) {
     console.error("Error approving KYC:", error)
@@ -171,6 +186,20 @@ export async function rejectKYC(
     revalidatePath("/admin/kyc")
     revalidatePath("/tenant/kyc")
     revalidatePath("/tenant/dashboard")
+
+    // Enviar email de KYC rechazado
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, firstName: true }
+    }).then(user => {
+      if (user) {
+        sendKycRejectedEmail(user.email, user.firstName, reason).catch(err => {
+          console.error("Error sending KYC rejected email:", err)
+        })
+      }
+    }).catch(err => {
+      console.error("Error fetching user for KYC rejected email:", err)
+    })
 
     return { success: true }
   } catch (error: any) {

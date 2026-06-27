@@ -2,10 +2,11 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useLocale } from "@/lib/i18n-context"
+import { useLocale, useTranslations } from "@/lib/i18n-context"
 
 export function Footer() {
   const locale = useLocale()
+  const t = useTranslations("footer")
   
   return (
     <footer className="footer">
@@ -21,38 +22,38 @@ export function Footer() {
                 className="h-11 w-auto"
               />
             </Link>
-            <p>La plataforma de arrendamiento más confiable del Perú. Gestiona tus propiedades con seguridad y transparencia.</p>
+            <p>{t("description")}</p>
           </div>
 
           <div className="footer-links">
             <div className="footer-col">
-              <h5>Plataforma</h5>
-              <Link href={`/${locale}/publicar`}>Publicar propiedad</Link>
-              <Link href={`/${locale}/propiedades`}>Buscar inmueble</Link>
-              <Link href={`/${locale}/contracts`}>Contratos digitales</Link>
-              <Link href={`/${locale}/dashboard`}>Dashboard</Link>
+              <h5>{t("platform")}</h5>
+              <Link href={`/${locale}/publicar`}>{t("publishProperty")}</Link>
+              <Link href={`/${locale}/propiedades`}>{t("searchProperty")}</Link>
+              <Link href={`/${locale}/contracts`}>{t("digitalContracts")}</Link>
+              <Link href={`/${locale}/dashboard`}>{t("dashboard")}</Link>
             </div>
 
             <div className="footer-col">
-              <h5>Cuenta</h5>
-              <Link href={`/${locale}/dashboard`}>Mi perfil</Link>
-              <Link href={`/${locale}/dashboard`}>Mis alquileres</Link>
-              <Link href={`/${locale}/login`}>Iniciar sesión</Link>
-              <Link href={`/${locale}/register`}>Registrarse</Link>
+              <h5>{t("account")}</h5>
+              <Link href={`/${locale}/dashboard`}>{t("myProfile")}</Link>
+              <Link href={`/${locale}/dashboard`}>{t("myRentals")}</Link>
+              <Link href={`/${locale}/login`}>{t("login")}</Link>
+              <Link href={`/${locale}/register`}>{t("register")}</Link>
             </div>
 
             <div className="footer-col">
-              <h5>Soporte</h5>
-              <Link href="#">Centro de ayuda</Link>
-              <Link href="#">Términos de uso</Link>
-              <Link href="#">Privacidad</Link>
-              <Link href="#">Contacto</Link>
+              <h5>{t("support")}</h5>
+              <Link href="#">{t("helpCenter")}</Link>
+              <Link href="#">{t("terms")}</Link>
+              <Link href="#">{t("privacy")}</Link>
+              <Link href="#">{t("contact")}</Link>
             </div>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>© 2026 Habita Perú. Todos los derechos reservados.</p>
+          <p>{t("copyright")}</p>
           <div className="footer-social">
             <a href="#" aria-label="LinkedIn">
               <i className="fa-brands fa-linkedin-in"></i>

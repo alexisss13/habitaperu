@@ -20,6 +20,9 @@ export interface AdminUser {
 export interface UsersData {
   users: AdminUser[]
   stats: { total: number; tenants: number; landlords: number; admins: number; verified: number }
+  page?: number
+  limit?: number
+  totalPages?: number
 }
 
 export function UsersView({ data }: { data: UsersData }) {

@@ -12,7 +12,9 @@
     "view": "보기",
     "back": "뒤로",
     "next": "다음",
-    "previous": "이전"
+    "previous": "이전",
+    "showPassword": "비밀번호 표시",
+    "hidePassword": "비밀번호 숨기기"
   },
   "header": {
     "publishProperty": "임대 매물 등록하기",
@@ -161,6 +163,7 @@
     "signUp": "회원가입하기",
     "error": "이메일 주소 혹은 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.",
     "genericError": "로그인 처리 도중 문제가 발생했습니다. 다시 시도해 주세요.",
+    "forgotPassword": "비밀번호를 잊으셨나요?",
     "demoCredentials": {
       "title": "테스트 계정 정보",
       "admin": "관리자 계정:",
@@ -187,8 +190,35 @@
     "hasAccount": "이미 회원가입을 하셨나요?",
     "login": "로그인하러 가기",
     "passwordMismatch": "입력하신 두 비밀번호가 일치하지 않습니다",
+    "passwordTooShort": "비밀번호는 8자 이상이어야 합니다",
     "error": "회원 등록 도중 문제가 발생했습니다. 다시 확인해 주세요.",
     "success": "회원가입이 정상적으로 완료되었습니다"
+  },
+  "forgotPassword": {
+    "title": "비밀번호 재설정",
+    "welcome": "비밀번호 재설정 링크를 보내드립니다",
+    "email": "이메일 주소",
+    "submit": "링크 보내기",
+    "loading": "전송 중...",
+    "success": "이메일을 확인하세요",
+    "checkInbox": "해당 이메일이 등록되어 있다면 비밀번호 재설정 링크를 보내드렸습니다.",
+    "backToLogin": "로그인으로 돌아가기",
+    "error": "오류가 발생했습니다. 다시 시도해 주세요."
+  },
+  "resetPassword": {
+    "title": "새 비밀번호",
+    "welcome": "계정의 새 비밀번호를 만드세요",
+    "password": "새 비밀번호",
+    "confirmPassword": "비밀번호 확인",
+    "submit": "비밀번호 재설정",
+    "loading": "저장 중...",
+    "success": "비밀번호가 성공적으로 변경되었습니다",
+    "goToLogin": "로그인으로 이동",
+    "passwordMismatch": "비밀번호가 일치하지 않습니다",
+    "passwordTooShort": "비밀번호는 8자 이상이어야 합니다",
+    "invalidToken": "이 링크는 유효하지 않거나 만료되었습니다. 새 링크를 요청하세요.",
+    "requestNewLink": "새 링크 요청",
+    "error": "오류가 발생했습니다. 다시 시도해 주세요."
   },
   "publish": {
     "hero": {

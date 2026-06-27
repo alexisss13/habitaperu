@@ -12,7 +12,9 @@
     "view": "View",
     "back": "Back",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "header": {
     "publishProperty": "List your property",
@@ -161,6 +163,7 @@
     "signUp": "Sign up",
     "error": "Incorrect credentials. Check your email and password.",
     "genericError": "Error logging in. Please try again.",
+    "forgotPassword": "Forgot your password?",
     "demoCredentials": {
       "title": "Demo credentials",
       "admin": "Admin:",
@@ -187,8 +190,35 @@
     "hasAccount": "Already have an account?",
     "login": "Log in",
     "passwordMismatch": "Passwords don't match",
+    "passwordTooShort": "Password must be at least 8 characters",
     "error": "Error creating account. Please try again.",
     "success": "Account created successfully"
+  },
+  "forgotPassword": {
+    "title": "Reset password",
+    "welcome": "We'll send you a link to reset your password",
+    "email": "Email address",
+    "submit": "Send link",
+    "loading": "Sending...",
+    "success": "Check your inbox",
+    "checkInbox": "If that email exists in our system, we sent a link to reset your password.",
+    "backToLogin": "Back to login",
+    "error": "Something went wrong. Please try again."
+  },
+  "resetPassword": {
+    "title": "New password",
+    "welcome": "Create a new password for your account",
+    "password": "New password",
+    "confirmPassword": "Confirm password",
+    "submit": "Reset password",
+    "loading": "Saving...",
+    "success": "Your password has been updated successfully",
+    "goToLogin": "Go to login",
+    "passwordMismatch": "Passwords don't match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "invalidToken": "This link is invalid or has expired. Request a new one.",
+    "requestNewLink": "Request new link",
+    "error": "Something went wrong. Please try again."
   },
   "publish": {
     "hero": {
@@ -289,5 +319,45 @@
       "subtitle": "Join more than 4,800 landlords who already manage their properties with Habita Peru.",
       "button": "Start now — it's free"
     }
+  },
+  "footer": {
+    "description": "Peru's most trusted rental platform. Manage your properties with security and transparency.",
+    "platform": "Platform",
+    "publishProperty": "Publish property",
+    "searchProperty": "Search property",
+    "digitalContracts": "Digital contracts",
+    "dashboard": "Dashboard",
+    "account": "Account",
+    "myProfile": "My profile",
+    "myRentals": "My rentals",
+    "login": "Log in",
+    "register": "Register",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "terms": "Terms of use",
+    "privacy": "Privacy",
+    "contact": "Contact",
+    "copyright": "© 2026 Habita Peru. All rights reserved."
+  },
+  "writeReview": {
+    "title": "Write Review",
+    "successTitle": "Review Sent!",
+    "successMessage": "Thank you very much for your review. Your opinion helps other tenants make better decisions.",
+    "propertyLabel": "Property",
+    "ratingLabel": "Property Rating",
+    "ratingExcellent": "Excellent (5/5)",
+    "ratingVeryGood": "Very good (4/5)",
+    "ratingGood": "Good (3/5)",
+    "ratingRegular": "Regular (2/5)",
+    "ratingBad": "Bad (1/5)",
+    "reviewLabel": "Your Review / Experience",
+    "placeholder": "Tell us about the property status, landlord interaction, amenities, area...",
+    "respectfulHint": "Be descriptive and respectful.",
+    "characters": "characters",
+    "cancel": "Cancel",
+    "submit": "Submit Review",
+    "submitting": "Submitting...",
+    "errorDetailed": "Please write a detailed comment.",
+    "errorGeneric": "An error occurred while sending your review."
   }
 }

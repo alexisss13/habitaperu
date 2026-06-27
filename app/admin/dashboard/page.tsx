@@ -1,12 +1,20 @@
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
+import { Role } from "@prisma/client"
 import { AdminDashboardView } from './dashboard-view'
 
 export default async function AdminDashboard() {
+  const session = await auth()
+  if (!session || session.user.role !== Role.ADMIN) {
+    redirect("/login")
+  }
+
   const [
     totalUsers,
     totalProperties,
     activeContracts,
-    totalPayments,
+    paidPayments,
     recentUsers,
     recentProperties,
     usersByRole,
@@ -15,7 +23,10 @@ export default async function AdminDashboard() {
     prisma.user.count(),
     prisma.property.count(),
     prisma.contract.count({ where: { status: 'ACTIVE' } }),
-    prisma.payment.aggregate({ _sum: { amount: true } }),
+    prisma.payment.aggregate({
+      _sum: { amount: true },
+      where: { status: 'PAGADO' }
+    }),
     prisma.user.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
@@ -38,7 +49,7 @@ export default async function AdminDashboard() {
       totalUsers,
       totalProperties,
       activeContracts,
-      totalRevenue: Number(totalPayments._sum.amount || 0),
+      totalRevenue: Number(paidPayments._sum.amount || 0),
       tenants: usersByRole.find(u => u.role === 'TENANT')?._count || 0,
       landlords: usersByRole.find(u => u.role === 'LANDLORD')?._count || 0,
       disponibles: propertiesByStatus.find(p => p.status === 'DISPONIBLE')?._count || 0,

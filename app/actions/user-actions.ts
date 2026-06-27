@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import bcrypt from "bcryptjs"
+import { Role, ContractStatus } from "@prisma/client"
 
 export async function updateProfileAction(data: {
   firstName: string
@@ -72,22 +72,31 @@ export async function toggleTwoFactorAction() {
  * Checks if a user has 2FA enabled, after validating email and password.
  * This prevents leaking whether 2FA is enabled for wrong passwords/emails.
  */
-export async function checkTwoFactorRequiredAction(email: string, password: string) {
-  if (!email || !password) {
-    return { success: false, error: "Datos incompletos", twoFactorRequired: false }
+export async function checkHasActiveContract() {
+  const session = await auth()
+  if (!session?.user?.id || session.user.role !== Role.TENANT) {
+    return { hasActiveContract: false }
+  }
+
+  const active = await prisma.contract.findFirst({
+    where: { tenantId: session.user.id, status: ContractStatus.ACTIVE },
+    select: { id: true },
+  })
+
+  return { hasActiveContract: !!active }
+}
+
+export async function checkTwoFactorRequiredAction(email: string) {
+  if (!email) {
+    return { success: false, error: "Email requerido", twoFactorRequired: false }
   }
 
   const user = await prisma.user.findUnique({
     where: { email: email.toLowerCase().trim() },
-    select: { password: true, twoFactorEnabled: true }
+    select: { twoFactorEnabled: true }
   })
 
   if (!user) {
-    return { success: false, error: "Credenciales incorrectas", twoFactorRequired: false }
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password)
-  if (!isPasswordValid) {
     return { success: false, error: "Credenciales incorrectas", twoFactorRequired: false }
   }
 

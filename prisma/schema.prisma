@@ -60,6 +60,7 @@ enum PaymentStatus {
   PENDIENTE
   EN_PROCESO
   VENCIDO
+  CANCELADO
 }
 
 enum KYCStatus {
@@ -67,6 +68,46 @@ enum KYCStatus {
   EN_REVISION
   APROBADO
   RECHAZADO
+}
+
+enum PaymentType {
+  RENT
+  SUCCESS_FEE
+  KYC_FEE
+  FEATURED
+  SUBSCRIPTION
+}
+
+enum ReviewType {
+  PROPERTY_REVIEW
+  TENANT_REVIEW
+}
+
+enum NotificationType {
+  CONTRACT_SENT
+  CONTRACT_SIGN
+  CONTRACT_ACTIVE
+  CONTRACT_BREACHED
+  PAYMENT_SUBMIT
+  PAYMENT_APPROVE
+  PAYMENT_REJECT
+  PAYMENT_SUCCESS
+  FEATURED_ACTIVATED
+  KYC_SUBMIT
+  KYC_APPROVE
+  KYC_REJECT
+  NEW_REVIEW
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum Currency {
+  PEN
+  USD
 }
 
 /// Acciones registradas en el Audit Trail criptográfico
@@ -99,8 +140,12 @@ model User {
   verified           Boolean   @default(false)
   twoFactorEnabled   Boolean   @default(false)
 
+  /// Token de un solo uso para "olvidé mi contraseña" (null cuando no hay solicitud activa)
+  resetToken         String?   @unique
+  resetTokenExpiry   DateTime?
+
   /// Plan de suscripción activo (FREE, PRO, BUSINESS)
-  subscriptionPlan    String    @default("FREE")
+  subscriptionPlan    SubscriptionPlan @default(FREE)
   subscriptionEndsAt  DateTime?
   /// Pago único de verificación KYC del tenant (S/9.90)
   kycFeePaid          Boolean   @default(false)
@@ -118,27 +163,13 @@ model User {
   reviewsGiven        Review[]       @relation("ReviewAuthor")
   reviewsReceived     Review[]       @relation("ReviewTarget")
   notifications       Notification[]
-  sessions            Session[]
   auditLogs           AuditLog[]
 
   @@index([email])
   @@index([role])
 }
 
-model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  device    String
-  location  String?
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
+// Session model removed (not used by NextAuth v5 JWT strategy)
 
 model Property {
   id          String            @id @default(cuid())
@@ -212,7 +243,7 @@ model Contract {
   status     ContractStatus @default(DRAFT)
 
   monthlyRent Decimal       @db.Decimal(10, 2)
-  currency    String        @default("PEN")
+  currency    Currency      @default(PEN)
   startDate   DateTime
   endDate     DateTime
   /// Día del mes en que vence el pago (1-31)
@@ -242,7 +273,7 @@ model Contract {
   @@index([propertyId, status])
   /// Índice compuesto: consultas del dashboard del inquilino
   @@index([tenantId, status])
-  @@index([landlordId])
+  @@index([landlordId, status, endDate])
 }
 
 /// Registro inmutable del Audit Trail criptográfico.
@@ -293,8 +324,7 @@ model Payment {
   paidDate    DateTime?
   status      PaymentStatus @default(PENDIENTE)
 
-  /// RENT | SUCCESS_FEE | KYC_FEE | FEATURED | SUBSCRIPTION
-  type          String        @default("RENT")
+  type          PaymentType   @default(RENT)
   paymentMethod String?
   receipt       String?
   notes         String?
@@ -307,6 +337,7 @@ model Payment {
   @@index([tenantId])
   @@index([status])
   @@index([dueDate])
+  @@index([status, dueDate])
 }
 
 model KYCVerification {
@@ -347,8 +378,7 @@ model Review {
   targetId   String
   target     User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
 
-  /// PROPERTY_REVIEW = tenant califica propiedad | TENANT_REVIEW = landlord califica inquilino
-  reviewType String   @default("PROPERTY_REVIEW")
+  reviewType ReviewType   @default(PROPERTY_REVIEW)
 
   /// Contrato al que pertenece esta reseña (para verificación y contexto)
   contractId String?
@@ -366,18 +396,19 @@ model Review {
 }
 
 model Notification {
-  id       String   @id @default(cuid())
+  id        String           @id @default(cuid())
 
-  userId   String
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type     String
-  title    String
-  message  String
-  read     Boolean  @default(false)
-  metadata Json?
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  metadata  Json?
 
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   @@index([userId])
   @@index([read])

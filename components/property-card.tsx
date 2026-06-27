@@ -109,7 +109,7 @@ export function PropertyCard({
             <span className="text-[11px] font-semibold bg-white/92 text-[#151c26] px-2 py-0.5 rounded-full shadow-sm">
               {TYPE_LABEL[type] ?? type}
             </span>
-            {statusBadge && (
+            {statusBadge && status !== 'DISPONIBLE' && (
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${statusBadge.cls}`}>
                 {statusBadge.label}
               </span>
@@ -124,6 +124,7 @@ export function PropertyCard({
             <FavouriteIcon
               size={15}
               className={isFavorite ? 'text-red-500' : 'text-gray-400'}
+              fill={isFavorite ? 'currentColor' : 'none'}
             />
           </button>
 

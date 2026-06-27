@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { Role } from "@prisma/client"
+import { Role, ContractStatus, ReviewType } from "@prisma/client"
 import { createNotificationHelper } from "@/lib/notifications"
 
 const MIN_DAYS_FOR_REVIEW = 30
@@ -36,7 +36,7 @@ export async function createPropertyReview({
       id: contractId,
       propertyId,
       tenantId,
-      status: { in: ["ACTIVE", "FINISHED"] },
+      status: { in: [ContractStatus.ACTIVE, ContractStatus.FINISHED] },
     },
     select: {
       id: true,
@@ -52,7 +52,7 @@ export async function createPropertyReview({
   }
 
   // Gate: mínimo 30 días desde que el contrato se activó
-  if (contract.status === "ACTIVE" && contract.landlordSignedAt) {
+  if (contract.status === ContractStatus.ACTIVE && contract.landlordSignedAt) {
     const daysSinceActive = Math.floor(
       (Date.now() - new Date(contract.landlordSignedAt).getTime()) / (1000 * 60 * 60 * 24)
     )
@@ -65,7 +65,7 @@ export async function createPropertyReview({
   }
 
   const existing = await prisma.review.findFirst({
-    where: { propertyId, authorId: tenantId, reviewType: "PROPERTY_REVIEW" },
+    where: { propertyId, authorId: tenantId, reviewType: ReviewType.PROPERTY_REVIEW },
   })
   if (existing) return { success: false, error: "Ya calificaste esta propiedad." }
 
@@ -74,7 +74,7 @@ export async function createPropertyReview({
       propertyId,
       authorId: tenantId,
       targetId: contract.property.ownerId,
-      reviewType: "PROPERTY_REVIEW",
+      reviewType: ReviewType.PROPERTY_REVIEW,
       contractId,
       rating: Math.min(5, Math.max(1, Math.round(rating))),
       comment: comment.trim(),
@@ -120,7 +120,7 @@ export async function createTenantReview({
     where: {
       id: contractId,
       landlordId,
-      status: { in: ["ACTIVE", "FINISHED"] },
+      status: { in: [ContractStatus.ACTIVE, ContractStatus.FINISHED] },
     },
     select: {
       id: true,
@@ -137,7 +137,7 @@ export async function createTenantReview({
     return { success: false, error: "No se encontró el contrato." }
   }
 
-  if (contract.status === "ACTIVE" && contract.landlordSignedAt) {
+  if (contract.status === ContractStatus.ACTIVE && contract.landlordSignedAt) {
     const daysSinceActive = Math.floor(
       (Date.now() - new Date(contract.landlordSignedAt).getTime()) / (1000 * 60 * 60 * 24)
     )
@@ -150,7 +150,7 @@ export async function createTenantReview({
   }
 
   const existing = await prisma.review.findFirst({
-    where: { contractId, authorId: landlordId, reviewType: "TENANT_REVIEW" },
+    where: { contractId, authorId: landlordId, reviewType: ReviewType.TENANT_REVIEW },
   })
   if (existing) return { success: false, error: "Ya calificaste a este inquilino para este contrato." }
 
@@ -159,7 +159,7 @@ export async function createTenantReview({
       propertyId: contract.propertyId,
       authorId: landlordId,
       targetId: contract.tenantId,
-      reviewType: "TENANT_REVIEW",
+      reviewType: ReviewType.TENANT_REVIEW,
       contractId,
       rating: Math.min(5, Math.max(1, Math.round(rating))),
       comment: comment.trim(),
@@ -208,19 +208,19 @@ export async function checkReviewEligibility(contractId: string) {
     (role === Role.LANDLORD && contract.landlordId === userId)
 
   if (!isParty) return { eligible: false, alreadyReviewed: false, daysRemaining: 0 }
-  if (!["ACTIVE", "FINISHED"].includes(contract.status)) {
+  if (![ContractStatus.ACTIVE, ContractStatus.FINISHED].includes(contract.status)) {
     return { eligible: false, alreadyReviewed: false, daysRemaining: 0 }
   }
 
   let daysRemaining = 0
-  if (contract.status === "ACTIVE" && contract.landlordSignedAt) {
+  if (contract.status === ContractStatus.ACTIVE && contract.landlordSignedAt) {
     const daysSince = Math.floor(
       (Date.now() - new Date(contract.landlordSignedAt).getTime()) / (1000 * 60 * 60 * 24)
     )
     daysRemaining = Math.max(0, MIN_DAYS_FOR_REVIEW - daysSince)
   }
 
-  const reviewType = role === Role.LANDLORD ? "TENANT_REVIEW" : "PROPERTY_REVIEW"
+  const reviewType = role === Role.LANDLORD ? ReviewType.TENANT_REVIEW : ReviewType.PROPERTY_REVIEW
   const existing = await prisma.review.findFirst({
     where: { contractId, authorId: userId, reviewType },
   })
@@ -230,6 +230,69 @@ export async function checkReviewEligibility(contractId: string) {
     alreadyReviewed: !!existing,
     daysRemaining,
   }
+}
+
+/**
+ * Versión batch de checkReviewEligibility para evitar N+1 queries.
+ * Recibe múltiples contractIds y devuelve resultados en un solo query.
+ */
+export async function checkBatchReviewEligibility(contractIds: string[]) {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return contractIds.map(() => ({ eligible: false, alreadyReviewed: false, daysRemaining: 0 }))
+  }
+
+  const userId = session.user.id
+  const role = session.user.role
+
+  // Un solo query para todos los contratos
+  const contracts = await prisma.contract.findMany({
+    where: { id: { in: contractIds } },
+    select: {
+      id: true,
+      status: true,
+      landlordSignedAt: true,
+      tenantId: true,
+      landlordId: true,
+    },
+  })
+
+  // Un solo query para todas las reseñas existentes del usuario
+  const reviewType = role === Role.LANDLORD ? ReviewType.TENANT_REVIEW : ReviewType.PROPERTY_REVIEW
+  const existingReviews = await prisma.review.findMany({
+    where: { contractId: { in: contractIds }, authorId: userId, reviewType },
+    select: { contractId: true },
+  })
+  const reviewedSet = new Set(existingReviews.map(r => r.contractId))
+
+  const resultMap = new Map<string, { eligible: boolean; alreadyReviewed: boolean; daysRemaining: number }>()
+
+  for (const contract of contracts) {
+    const isParty =
+      (role === Role.TENANT && contract.tenantId === userId) ||
+      (role === Role.LANDLORD && contract.landlordId === userId)
+
+    let eligible = false
+    let daysRemaining = 0
+
+    if (isParty && [ContractStatus.ACTIVE, ContractStatus.FINISHED].includes(contract.status)) {
+      if (contract.status === ContractStatus.ACTIVE && contract.landlordSignedAt) {
+        const daysSince = Math.floor(
+          (Date.now() - new Date(contract.landlordSignedAt).getTime()) / (1000 * 60 * 60 * 24)
+        )
+        daysRemaining = Math.max(0, MIN_DAYS_FOR_REVIEW - daysSince)
+      }
+      eligible = daysRemaining === 0
+    }
+
+    resultMap.set(contract.id, {
+      eligible,
+      alreadyReviewed: reviewedSet.has(contract.id),
+      daysRemaining,
+    })
+  }
+
+  return contractIds.map(id => resultMap.get(id) ?? { eligible: false, alreadyReviewed: false, daysRemaining: 0 })
 }
 
 // Mantener compatibilidad con el modal existente
@@ -249,7 +312,7 @@ export async function createReviewAction({
     where: {
       propertyId,
       tenantId: session.user.id,
-      status: { in: ["ACTIVE", "FINISHED"] },
+      status: { in: [ContractStatus.ACTIVE, ContractStatus.FINISHED] },
     },
     select: { id: true },
   })
@@ -276,7 +339,7 @@ export async function checkReviewEligibilityAction(propertyId: string) {
     where: {
       propertyId,
       tenantId: session.user.id,
-      status: { in: ["ACTIVE", "FINISHED"] },
+      status: { in: [ContractStatus.ACTIVE, ContractStatus.FINISHED] },
     },
     select: { id: true },
   })

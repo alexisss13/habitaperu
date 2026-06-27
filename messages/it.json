@@ -12,7 +12,9 @@
     "view": "Vedi",
     "back": "Indietro",
     "next": "Avanti",
-    "previous": "Precedente"
+    "previous": "Precedente",
+    "showPassword": "Mostra password",
+    "hidePassword": "Nascondi password"
   },
   "header": {
     "publishProperty": "Pubblica la tua proprietà",
@@ -161,6 +163,7 @@
     "signUp": "Registrati",
     "error": "Credenziali errate. Verifica la tua email e password.",
     "genericError": "Errore durante l'accesso. Riprova.",
+    "forgotPassword": "Hai dimenticato la password?",
     "demoCredentials": {
       "title": "Credenziali demo",
       "admin": "Admin:",
@@ -187,8 +190,35 @@
     "hasAccount": "Hai già un account?",
     "login": "Accedi",
     "passwordMismatch": "Le password non corrispondono",
+    "passwordTooShort": "La password deve contenere almeno 8 caratteri",
     "error": "Errore durante la creazione dell'account. Riprova.",
     "success": "Account creato con successo"
+  },
+  "forgotPassword": {
+    "title": "Recupera password",
+    "welcome": "Ti invieremo un link per reimpostare la tua password",
+    "email": "E-mail",
+    "submit": "Invia link",
+    "loading": "Invio in corso...",
+    "success": "Controlla la tua email",
+    "checkInbox": "Se questa email esiste nel nostro sistema, ti abbiamo inviato un link per reimpostare la password.",
+    "backToLogin": "Torna al login",
+    "error": "Si è verificato un errore. Riprova."
+  },
+  "resetPassword": {
+    "title": "Nuova password",
+    "welcome": "Crea una nuova password per il tuo account",
+    "password": "Nuova password",
+    "confirmPassword": "Conferma password",
+    "submit": "Reimposta password",
+    "loading": "Salvataggio...",
+    "success": "La tua password è stata aggiornata con successo",
+    "goToLogin": "Vai al login",
+    "passwordMismatch": "Le password non corrispondono",
+    "passwordTooShort": "La password deve contenere almeno 8 caratteri",
+    "invalidToken": "Questo link non è valido o è scaduto. Richiedine uno nuovo.",
+    "requestNewLink": "Richiedi nuovo link",
+    "error": "Si è verificato un errore. Riprova."
   },
   "publish": {
     "hero": {

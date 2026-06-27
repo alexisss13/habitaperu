@@ -34,6 +34,7 @@ interface MobileProps {
   setNearRadiusKm: (km: number) => void
   conditionFilter: string
   setConditionFilter: (c: string) => void
+  amenityFilter: string
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -142,6 +143,7 @@ export function PropiedadesMobile({
   setNearRadiusKm,
   conditionFilter,
   setConditionFilter,
+  amenityFilter,
 }: MobileProps) {
   const handlePillClick = (filter: (typeof QUICK_FILTERS)[0]) => {
     if (filter.type === "clear") {
@@ -160,7 +162,8 @@ export function PropiedadesMobile({
   }
 
   const isPillActive = (filter: (typeof QUICK_FILTERS)[0]) => {
-    if (filter.type === "clear") return selectedTypes.length === 0 && !selectedDistrict && !conditionFilter
+    if (filter.type === "clear")
+      return selectedTypes.length === 0 && !selectedDistrict && !conditionFilter && !nearUniversityId && !amenityFilter
     if (filter.type === "type") return selectedTypes.includes(filter.value)
     if (filter.type === "district") return selectedDistrict === filter.value
     if (filter.type === "condition") return conditionFilter === filter.value
@@ -265,7 +268,9 @@ export function PropiedadesMobile({
             <Building03Icon size={40} className="mx-auto mb-3 text-gray-200" />
             <p className="font-bold text-gray-500 text-sm">Sin resultados</p>
             <p className="text-xs text-gray-400 mt-1 mb-4">
-              Intenta cambiar los filtros seleccionados
+              {nearUniversityId
+                ? 'Todavía ninguna propiedad tiene ubicación registrada cerca de esa universidad.'
+                : 'Intenta cambiar los filtros seleccionados'}
             </p>
             <button
               onClick={onClearFilters}

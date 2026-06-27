@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
+import { ViewIcon, ViewOffIcon } from "hugeicons-react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 
 type Role = 'TENANT' | 'LANDLORD'
@@ -11,6 +12,7 @@ type Role = 'TENANT' | 'LANDLORD'
 export function RegisterMobile() {
   const router = useRouter()
   const t = useTranslations('register')
+  const tc = useTranslations('common')
   const locale = useLocale()
   const [formData, setFormData] = useState({
     email: "", password: "", confirmPassword: "",
@@ -19,10 +21,16 @@ export function RegisterMobile() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const passwordTooShort = formData.password.length > 0 && formData.password.length < 8
+  const passwordsMismatch = formData.confirmPassword.length > 0 && formData.password !== formData.confirmPassword
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    if (formData.password.length < 8) { setError(t('passwordTooShort')); return }
     if (formData.password !== formData.confirmPassword) { setError(t('passwordMismatch')); return }
     setLoading(true)
     try {
@@ -35,7 +43,18 @@ export function RegisterMobile() {
         const data = await response.json()
         throw new Error(data.error || t('error'))
       }
-      router.push(`/${locale}/login?registered=true`)
+
+      // Auto-login: the user just typed this password, no need to ask again.
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      })
+      if (result?.error) {
+        router.push(`/${locale}/login?registered=true`)
+        return
+      }
+      router.push(formData.role === 'LANDLORD' ? '/landlord/dashboard' : `/${locale}`)
     } catch (err: unknown) {
       setError((err as Error).message || t('error'))
     } finally {
@@ -103,11 +122,12 @@ export function RegisterMobile() {
             </div>
           </div>
 
-          {(['firstName', 'lastName', 'email', 'password', 'confirmPassword'] as const).map((field) => (
+          {(['firstName', 'lastName', 'email'] as const).map((field) => (
             <div key={field} className="relative">
               <input
                 id={field}
-                type={field.toLowerCase().includes('password') ? 'password' : field === 'email' ? 'email' : 'text'}
+                type={field === 'email' ? 'email' : 'text'}
+                autoComplete={field === 'email' ? 'email' : field === 'firstName' ? 'given-name' : 'family-name'}
                 className={inputClass}
                 style={inputPad}
                 value={formData[field]}
@@ -121,6 +141,70 @@ export function RegisterMobile() {
               </label>
             </div>
           ))}
+
+          {/* Password */}
+          <div>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                className={inputClass}
+                style={{ ...inputPad, paddingRight: '40px' }}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onFocus={() => setFocusedField('password')}
+                onBlur={() => setFocusedField(null)}
+                required
+              />
+              <label htmlFor="password" className="absolute left-3.5 pointer-events-none transition-all" style={labelStyle('password')}>
+                {t('password')}
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? tc('hidePassword') : tc('showPassword')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 size-7 flex items-center justify-center bg-transparent border-none text-gray-400 cursor-pointer"
+              >
+                {showPassword ? <ViewOffIcon size={17} /> : <ViewIcon size={17} />}
+              </button>
+            </div>
+            {passwordTooShort && (
+              <p className="text-[0.6875rem] text-red-500 mt-1 ml-1">{t('passwordTooShort')}</p>
+            )}
+          </div>
+
+          {/* Confirm password */}
+          <div>
+            <div className="relative">
+              <input
+                id="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                className={inputClass}
+                style={{ ...inputPad, paddingRight: '40px' }}
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onFocus={() => setFocusedField('confirmPassword')}
+                onBlur={() => setFocusedField(null)}
+                required
+              />
+              <label htmlFor="confirmPassword" className="absolute left-3.5 pointer-events-none transition-all" style={labelStyle('confirmPassword')}>
+                {t('confirmPassword')}
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                aria-label={showConfirmPassword ? tc('hidePassword') : tc('showPassword')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 size-7 flex items-center justify-center bg-transparent border-none text-gray-400 cursor-pointer"
+              >
+                {showConfirmPassword ? <ViewOffIcon size={17} /> : <ViewIcon size={17} />}
+              </button>
+            </div>
+            {passwordsMismatch && (
+              <p className="text-[0.6875rem] text-red-500 mt-1 ml-1">{t('passwordMismatch')}</p>
+            )}
+          </div>
 
           <button
             type="submit"
@@ -143,13 +227,6 @@ export function RegisterMobile() {
           >
             <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
             {t('googleSignup')}
-          </button>
-          <button type="button"
-            onClick={() => signIn("facebook", { callbackUrl: `/${locale}` })}
-            className="flex items-center justify-center gap-2.5 w-full py-3.5 px-5 bg-white border border-gray-300 rounded-lg text-[0.8125rem] font-semibold text-gray-700 cursor-pointer transition-all hover:bg-gray-50"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            {t('facebookSignup')}
           </button>
 
           <div className="flex-1 min-h-4" />

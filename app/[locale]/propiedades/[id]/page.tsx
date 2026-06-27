@@ -140,6 +140,7 @@ export default async function PropertyDetailPage({ params }: Props) {
         reviews: property.reviews,
         ownerPhoneVisible,
         isAuthenticated: !!session?.user,
+        status: property.status,
       }}
     />
   )

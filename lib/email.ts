@@ -168,6 +168,21 @@ export async function sendPaymentOverdueEmail(
   })
 }
 
+export async function sendPasswordResetEmail(to: string, firstName: string, resetUrl: string) {
+  if (!process.env.RESEND_API_KEY) return
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: "Restablece tu contraseña — Habita Perú",
+    html: base("Restablecer contraseña", `
+      <h2>Hola, ${safe(firstName)}</h2>
+      <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta. Este enlace es válido por 1 hora.</p>
+      <a class="btn" href="${safe(resetUrl)}">Crear nueva contraseña</a>
+      <p>Si no solicitaste este cambio, puedes ignorar este correo — tu contraseña actual seguirá funcionando.</p>
+    `),
+  })
+}
+
 export async function sendKycApprovedEmail(to: string, firstName: string) {
   if (!process.env.RESEND_API_KEY) return
   await resend.emails.send({
@@ -179,6 +194,33 @@ export async function sendKycApprovedEmail(to: string, firstName: string) {
       <p>Tu identidad ha sido verificada exitosamente. Tu perfil ahora muestra el badge <span class="badge-green">Verificado</span>.</p>
       <p>Esto genera mayor confianza con los arrendadores y te ayuda a acceder a las mejores propiedades.</p>
       <a class="btn" href="${process.env.NEXTAUTH_URL}/tenant/dashboard">Ir a mi panel</a>
+    `),
+  })
+}
+
+export async function sendPaymentApprovedEmail(
+  to: string,
+  tenantName: string,
+  propertyTitle: string,
+  amount: number,
+  period: string,
+) {
+  if (!process.env.RESEND_API_KEY) return
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `Pago aprobado — ${safe(propertyTitle)}`,
+    html: base("Pago aprobado", `
+      <h2>Hola, ${safe(tenantName)}</h2>
+      <p>El arrendador ha <strong>aprobado</strong> tu comprobante de pago.</p>
+      <div class="card">
+        <p><strong>${safe(propertyTitle)}</strong></p>
+        <p>Monto: <strong>S/ ${Number(amount).toLocaleString('es-PE')}</strong></p>
+        <p>Período: <strong>${safe(period)}</strong></p>
+        <p>Estado: <span class="badge-green">Pagado</span></p>
+      </div>
+      <p>Gracias por mantener tus pagos al día.</p>
+      <a class="btn" href="${process.env.NEXTAUTH_URL}/tenant/payments">Mis pagos</a>
     `),
   })
 }

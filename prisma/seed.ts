@@ -1,4 +1,4 @@
-import { PrismaClient, Role, PropertyType, PropertyCondition, PropertyStatus, ContractStatus, PaymentStatus, KYCStatus } from '@prisma/client'
+import { PrismaClient, Role, PropertyType, PropertyCondition, PropertyStatus, ContractStatus, PaymentStatus, KYCStatus, NotificationType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -14,7 +14,6 @@ async function main() {
     await prisma.contract.deleteMany()
     await prisma.kYCVerification.deleteMany()
     await prisma.property.deleteMany()
-    await prisma.session.deleteMany()
     await prisma.user.deleteMany()
     console.log('✅ Datos existentes eliminados')
   } catch (error) {
@@ -849,7 +848,7 @@ async function main() {
   await prisma.notification.create({
     data: {
       userId: landlord1.id,
-      type: 'payment',
+      type: NotificationType.PAYMENT_SUCCESS,
       title: 'Pago recibido',
       message: 'Carlos Ramírez ha pagado S/ 1,800 por el mes de abril',
       metadata: { contractId: contract1.id, amount: 1800 },
@@ -859,7 +858,7 @@ async function main() {
   await prisma.notification.create({
     data: {
       userId: landlord2.id,
-      type: 'payment',
+      type: NotificationType.PAYMENT_SUBMIT,
       title: 'Pago pendiente',
       message: 'María López tiene un pago pendiente de S/ 750',
       metadata: { contractId: contract2.id, amount: 750 },

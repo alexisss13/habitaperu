@@ -124,7 +124,7 @@ export function LandlordLayoutClient({ children, session }: LandlordLayoutClient
                 </p>
               </div>
               <button
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: '/login' })}
                 className="size-8 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 transition-all cursor-pointer"
                 title="Cerrar sesión"
               >

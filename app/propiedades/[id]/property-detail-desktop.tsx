@@ -161,6 +161,21 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
               <span className="text-xs font-bold text-accent bg-accent/8 px-2.5 py-1 rounded-full">
                 {typeLabel(p.type)}
               </span>
+              {p.status === "DISPONIBLE" && (
+                <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                  Disponible
+                </span>
+              )}
+              {p.status === "OCUPADA" && (
+                <span className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full">
+                  Ocupada
+                </span>
+              )}
+              {p.status === "MANTENIMIENTO" && (
+                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                  Mantenimiento
+                </span>
+              )}
             </div>
             <h1 className="text-3xl font-extrabold text-[#151c26] mb-3 leading-tight">{p.title}</h1>
             <div className="flex items-center gap-3 text-sm flex-wrap">
@@ -197,7 +212,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors border-none bg-transparent cursor-pointer"
               style={{ color: isFavorite ? '#ef4444' : '#374151' }}
             >
-              <FavouriteIcon size={16} />
+              <FavouriteIcon size={16} fill={isFavorite ? 'currentColor' : 'none'} />
               {isFavorite ? 'Guardado' : 'Guardar'}
             </button>
           </div>
@@ -396,9 +411,19 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
 
                 <div className="h-px bg-gray-100 mb-5" />
 
-                {/* Contact form */}
-                {/* KYC gate — solo usuarios verificados pueden contactar */}
-                {!p.isAuthenticated ? (
+                {p.status !== "DISPONIBLE" ? (
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center mb-4">
+                    <Building03Icon size={32} className="text-slate-400 mx-auto mb-3" />
+                    <p className="font-bold text-[#151c26] text-sm mb-1">
+                      Propiedad no disponible
+                    </p>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      {p.status === "OCUPADA"
+                        ? "Esta propiedad se encuentra ocupada actualmente por otro inquilino."
+                        : "Esta propiedad se encuentra temporalmente en mantenimiento."}
+                    </p>
+                  </div>
+                ) : !p.isAuthenticated ? (
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center mb-4">
                     <LockPasswordIcon size={32} className="text-slate-400 mx-auto mb-3" />
                     <p className="font-bold text-[#151c26] text-sm mb-1">

@@ -12,7 +12,9 @@
     "view": "查看",
     "back": "返回",
     "next": "下一步",
-    "previous": "上一步"
+    "previous": "上一步",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码"
   },
   "header": {
     "publishProperty": "发布房源",
@@ -161,6 +163,7 @@
     "signUp": "立即免费注册",
     "error": "邮箱或密码输入不正确，请重新检查并输入。",
     "genericError": "登录请求处理失败，请稍后重试。",
+    "forgotPassword": "忘记密码？",
     "demoCredentials": {
       "title": "演示体验账号",
       "admin": "管理员账户:",
@@ -187,8 +190,35 @@
     "hasAccount": "您已经拥有账户？",
     "login": "前往登录",
     "passwordMismatch": "两次输入的密码不一致，请重新检查",
+    "passwordTooShort": "密码至少需要8个字符",
     "error": "注册失败，请检查填写内容或稍后重试。",
     "success": "恭喜，您的账户已创建成功"
+  },
+  "forgotPassword": {
+    "title": "重置密码",
+    "welcome": "我们将向您发送重置密码的链接",
+    "email": "电子邮箱",
+    "submit": "发送链接",
+    "loading": "发送中...",
+    "success": "请查看您的邮箱",
+    "checkInbox": "如果该邮箱已注册，我们已发送重置密码的链接。",
+    "backToLogin": "返回登录",
+    "error": "出现错误，请重试。"
+  },
+  "resetPassword": {
+    "title": "新密码",
+    "welcome": "为您的账户创建新密码",
+    "password": "新密码",
+    "confirmPassword": "确认密码",
+    "submit": "重置密码",
+    "loading": "保存中...",
+    "success": "密码已成功更新",
+    "goToLogin": "前往登录",
+    "passwordMismatch": "密码不一致",
+    "passwordTooShort": "密码至少需要8个字符",
+    "invalidToken": "该链接无效或已过期，请重新申请。",
+    "requestNewLink": "申请新链接",
+    "error": "出现错误，请重试。"
   },
   "publish": {
     "hero": {

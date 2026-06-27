@@ -41,6 +41,7 @@ interface DesktopProps {
   setNearRadiusKm: (km: number) => void
   conditionFilter: string
   setConditionFilter: (c: string) => void
+  amenityFilter: string
 }
 
 const TYPES = ['Departamento', 'Habitación', 'Casa']
@@ -51,14 +52,18 @@ const activeFiltersCount = (
   maxPrice: number | "",
   selectedDistrict: string,
   minRooms: number,
-  conditionFilter: string
+  conditionFilter: string,
+  nearUniversityId: string,
+  amenityFilter: string
 ) =>
   selectedTypes.length +
   (minPrice !== "" ? 1 : 0) +
   (maxPrice !== "" ? 1 : 0) +
   (selectedDistrict ? 1 : 0) +
   (minRooms > 0 ? 1 : 0) +
-  (conditionFilter ? 1 : 0)
+  (conditionFilter ? 1 : 0) +
+  (nearUniversityId ? 1 : 0) +
+  (amenityFilter ? 1 : 0)
 
 export function PropiedadesDesktop({
   properties,
@@ -85,13 +90,14 @@ export function PropiedadesDesktop({
   setNearRadiusKm,
   conditionFilter,
   setConditionFilter,
+  amenityFilter,
 }: DesktopProps) {
   const handleTypeChange = (t: string) =>
     setSelectedTypes(prev =>
       prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
     )
 
-  const filtersActive = activeFiltersCount(selectedTypes, minPrice, maxPrice, selectedDistrict, minRooms, conditionFilter)
+  const filtersActive = activeFiltersCount(selectedTypes, minPrice, maxPrice, selectedDistrict, minRooms, conditionFilter, nearUniversityId, amenityFilter)
 
   return (
     <div className="min-h-screen bg-gray-50 pt-[112px]">
@@ -373,7 +379,9 @@ export function PropiedadesDesktop({
                   Sin resultados
                 </p>
                 <p className="text-sm text-gray-400 mb-5">
-                  Intenta cambiar o limpiar los filtros seleccionados.
+                  {nearUniversityId
+                    ? 'Todavía ninguna propiedad tiene ubicación registrada cerca de esa universidad. Prueba sin ese filtro.'
+                    : 'Intenta cambiar o limpiar los filtros seleccionados.'}
                 </p>
                 <button
                   onClick={onClearFilters}

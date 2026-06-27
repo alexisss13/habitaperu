@@ -4,7 +4,9 @@ import Google from "next-auth/providers/google"
 import Facebook from "next-auth/providers/facebook"
 import { prisma } from "@/lib/db"
 import bcrypt from "bcryptjs"
+import { randomUUID } from "crypto"
 import { Role } from "@prisma/client"
+import { sendWelcomeEmail } from "@/lib/email"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -68,14 +70,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id as string
-        token.role = (user as any).role
+        if (account?.provider && account.provider !== 'credentials') {
+          // OAuth (Google/Facebook): no adapter is configured, so there's no
+          // automatic link between the OAuth identity and our User table.
+          // Find-or-create the canonical app user by email and use ITS id/role —
+          // otherwise token.id/role stay undefined and every role-gated feature breaks.
+          let appUser = await prisma.user.findUnique({ where: { email: user.email! } })
+          if (!appUser) {
+            const [firstName, ...rest] = (user.name || 'Usuario').trim().split(' ')
+            appUser = await prisma.user.create({
+              data: {
+                email: user.email!,
+                // OAuth-only accounts never use this password to sign in.
+                password: await bcrypt.hash(randomUUID(), 10),
+                firstName: firstName || 'Usuario',
+                lastName: rest.join(' '),
+                avatar: user.image ?? undefined,
+                role: 'TENANT',
+              },
+            })
+            // Fire welcome email async — no await to avoid blocking JWT creation
+            sendWelcomeEmail(appUser.email, appUser.firstName).catch(() => {})
+          }
+          token.id = appUser.id
+          token.role = appUser.role
+        } else {
+          token.id = user.id as string
+          token.role = (user as any).role
+        }
         // Check active contract for tenants at sign-in (stored in JWT so no extra DB call later)
-        if ((user as any).role === 'TENANT') {
+        if (token.role === 'TENANT') {
           const active = await prisma.contract.findFirst({
-            where: { tenantId: user.id as string, status: 'ACTIVE' },
+            where: { tenantId: token.id as string, status: 'ACTIVE' },
             select: { id: true },
           })
           token.hasActiveContract = !!active

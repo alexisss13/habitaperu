@@ -221,6 +221,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
           <FavouriteIcon
             size={18}
             className={isFavorite ? "text-red-500" : "text-gray-500"}
+            fill={isFavorite ? 'currentColor' : 'none'}
           />
         </button>
 
@@ -231,10 +232,27 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
           </div>
         )}
 
-        {/* Type badge */}
-        <span className="absolute bottom-3 left-3 bg-white/90 text-[#151c26] text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
-          {typeLabel(p.type)}
-        </span>
+        {/* Badges */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+          <span className="bg-white/90 text-[#151c26] text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
+            {typeLabel(p.type)}
+          </span>
+          {p.status === "DISPONIBLE" && (
+            <span className="bg-emerald-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
+              Disponible
+            </span>
+          )}
+          {p.status === "OCUPADA" && (
+            <span className="bg-indigo-600 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
+              Ocupada
+            </span>
+          )}
+          {p.status === "MANTENIMIENTO" && (
+            <span className="bg-amber-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
+              Mantenimiento
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -400,7 +418,11 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
           </p>
         </div>
         <div className="flex gap-2 shrink-0">
-          {!p.isAuthenticated ? (
+          {p.status !== "DISPONIBLE" ? (
+            <span className="px-4 py-2.5 bg-gray-100 text-gray-400 rounded-xl font-bold text-xs whitespace-nowrap">
+              No disponible
+            </span>
+          ) : !p.isAuthenticated ? (
             <Link
               href="/login"
               className="px-4 py-2.5 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline whitespace-nowrap"

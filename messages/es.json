@@ -12,7 +12,9 @@
     "view": "Ver",
     "back": "Volver",
     "next": "Siguiente",
-    "previous": "Anterior"
+    "previous": "Anterior",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
   },
   "header": {
     "publishProperty": "Publica tu propiedad",
@@ -161,6 +163,7 @@
     "signUp": "Regístrate",
     "error": "Credenciales incorrectas. Verifica tu email y contraseña.",
     "genericError": "Error al iniciar sesión. Intenta nuevamente.",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
     "demoCredentials": {
       "title": "Credenciales de prueba",
       "admin": "Admin:",
@@ -187,8 +190,35 @@
     "hasAccount": "¿Ya tienes cuenta?",
     "login": "Inicia sesión",
     "passwordMismatch": "Las contraseñas no coinciden",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
     "error": "Error al crear la cuenta. Intenta nuevamente.",
     "success": "Cuenta creada exitosamente"
+  },
+  "forgotPassword": {
+    "title": "Recuperar contraseña",
+    "welcome": "Te enviaremos un enlace para restablecer tu contraseña",
+    "email": "Correo electrónico",
+    "submit": "Enviar enlace",
+    "loading": "Enviando...",
+    "success": "Revisa tu correo",
+    "checkInbox": "Si el correo existe en nuestro sistema, te enviamos un enlace para restablecer tu contraseña.",
+    "backToLogin": "Volver a iniciar sesión",
+    "error": "Ocurrió un error. Intenta nuevamente."
+  },
+  "resetPassword": {
+    "title": "Nueva contraseña",
+    "welcome": "Crea una nueva contraseña para tu cuenta",
+    "password": "Nueva contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "submit": "Restablecer contraseña",
+    "loading": "Guardando...",
+    "success": "Tu contraseña fue actualizada correctamente",
+    "goToLogin": "Ir a iniciar sesión",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+    "invalidToken": "Este enlace no es válido o ha expirado. Solicita uno nuevo.",
+    "requestNewLink": "Solicitar nuevo enlace",
+    "error": "Ocurrió un error. Intenta nuevamente."
   },
   "publish": {
     "hero": {
@@ -289,5 +319,45 @@
       "subtitle": "Únete a más de 4,800 arrendadores que ya gestionan sus propiedades con Habita Perú.",
       "button": "Comenzar ahora — es gratis"
     }
+  },
+  "footer": {
+    "description": "La plataforma de arrendamiento más confiable del Perú. Gestiona tus propiedades con seguridad y transparencia.",
+    "platform": "Plataforma",
+    "publishProperty": "Publicar propiedad",
+    "searchProperty": "Buscar inmueble",
+    "digitalContracts": "Contratos digitales",
+    "dashboard": "Dashboard",
+    "account": "Cuenta",
+    "myProfile": "Mi perfil",
+    "myRentals": "Mis alquileres",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "support": "Soporte",
+    "helpCenter": "Centro de ayuda",
+    "terms": "Términos de uso",
+    "privacy": "Privacidad",
+    "contact": "Contacto",
+    "copyright": "© 2026 Habita Perú. Todos los derechos reservados."
+  },
+  "writeReview": {
+    "title": "Escribir Reseña",
+    "successTitle": "¡Calificación Enviada!",
+    "successMessage": "Muchas gracias por tu reseña. Tu opinión ayuda a otros inquilinos a tomar mejores decisiones.",
+    "propertyLabel": "Inmueble",
+    "ratingLabel": "Calificación del Inmueble",
+    "ratingExcellent": "Excelente (5/5)",
+    "ratingVeryGood": "Muy bueno (4/5)",
+    "ratingGood": "Bueno (3/5)",
+    "ratingRegular": "Regular (2/5)",
+    "ratingBad": "Malo (1/5)",
+    "reviewLabel": "Tu Reseña / Experiencia",
+    "placeholder": "Cuéntanos sobre el estado del inmueble, el trato con el arrendador, comodidades, zona...",
+    "respectfulHint": "Sé descriptivo y respetuoso.",
+    "characters": "caracteres",
+    "cancel": "Cancelar",
+    "submit": "Publicar Calificación",
+    "submitting": "Enviando...",
+    "errorDetailed": "Por favor escribe un comentario detallado.",
+    "errorGeneric": "Ocurrió un error al enviar la calificación."
   }
 }

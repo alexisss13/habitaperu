@@ -176,7 +176,6 @@ export function PropiedadesView({
     <PropiedadesMobile
       properties={pagination.paginatedItems}
       totalFiltered={sorted.length}
-      originalProperties={properties}
       searchQuery={searchQuery}
       setSearchQuery={setSearchQuery}
       selectedTypes={selectedTypes}
@@ -193,12 +192,12 @@ export function PropiedadesView({
       setNearRadiusKm={setNearRadiusKm}
       conditionFilter={conditionFilter}
       setConditionFilter={setConditionFilter}
+      amenityFilter={amenityFilter}
     />
   ) : (
     <PropiedadesDesktop
       properties={pagination.paginatedItems}
       totalFiltered={sorted.length}
-      originalProperties={properties}
       searchQuery={searchQuery}
       setSearchQuery={setSearchQuery}
       selectedTypes={selectedTypes}
@@ -221,6 +220,7 @@ export function PropiedadesView({
       setNearRadiusKm={setNearRadiusKm}
       conditionFilter={conditionFilter}
       setConditionFilter={setConditionFilter}
+      amenityFilter={amenityFilter}
     />
   )
 }

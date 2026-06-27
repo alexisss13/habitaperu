@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { StarIcon, Cancel01Icon, CheckmarkCircle01Icon } from "hugeicons-react"
 import { createPropertyReview } from "@/app/actions/review-actions"
+import { useTranslations } from "@/lib/i18n-context"
 
 interface WriteReviewModalProps {
   propertyId: string
@@ -13,6 +14,7 @@ interface WriteReviewModalProps {
 }
 
 export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClose, onSuccess }: WriteReviewModalProps) {
+  const t = useTranslations("writeReview")
   const [rating, setRating] = useState(5)
   const [hoverRating, setHoverRating] = useState<number | null>(null)
   const [comment, setComment] = useState("")
@@ -23,7 +25,7 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!comment.trim()) {
-      setError("Por favor escribe un comentario detallado.")
+      setError(t("errorDetailed"))
       return
     }
 
@@ -45,11 +47,11 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
           onClose()
         }, 2000)
       } else {
-        setError(res.error || "Ocurrió un error al enviar la calificación.")
+        setError(res.error || t("errorGeneric"))
       }
     } catch (err: any) {
       console.error(err)
-      setError(err.message || "Ocurrió un error al enviar la calificación.")
+      setError(err.message || t("errorGeneric"))
     } finally {
       setLoading(false)
     }
@@ -61,7 +63,7 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-          <h3 className="font-bold text-gray-900 text-base">Escribir Reseña</h3>
+          <h3 className="font-bold text-gray-900 text-base">{t("title")}</h3>
           <button
             onClick={onClose}
             className="size-8 rounded-full flex items-center justify-center hover:bg-slate-200 transition-colors text-gray-400 hover:text-gray-700 bg-transparent border-none cursor-pointer"
@@ -76,9 +78,9 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
             <div className="size-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <CheckmarkCircle01Icon size={40} />
             </div>
-            <h4 className="text-lg font-bold text-gray-900">¡Calificación Enviada!</h4>
+            <h4 className="text-lg font-bold text-gray-900">{t("successTitle")}</h4>
             <p className="text-sm text-gray-600 max-w-xs mx-auto">
-              Muchas gracias por tu reseña. Tu opinión ayuda a otros inquilinos a tomar mejores decisiones.
+              {t("successMessage")}
             </p>
           </div>
         ) : (
@@ -90,13 +92,13 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
             )}
 
             <div>
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Inmueble</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">{t("propertyLabel")}</span>
               <h4 className="text-sm font-bold text-gray-800 leading-snug">{propertyTitle}</h4>
             </div>
 
             {/* Stars Selector */}
             <div>
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-2">Calificación del Inmueble</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-2">{t("ratingLabel")}</span>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -118,26 +120,34 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
                   </button>
                 ))}
                 <span className="text-xs font-bold text-gray-700 ml-2">
-                  {rating === 5 ? "Excelente (5/5)" : rating === 4 ? "Muy bueno (4/5)" : rating === 3 ? "Bueno (3/5)" : rating === 2 ? "Regular (2/5)" : "Malo (1/5)"}
+                  {rating === 5
+                    ? t("ratingExcellent")
+                    : rating === 4
+                    ? t("ratingVeryGood")
+                    : rating === 3
+                    ? t("ratingGood")
+                    : rating === 2
+                    ? t("ratingRegular")
+                    : t("ratingBad")}
                 </span>
               </div>
             </div>
 
             {/* Comment Field */}
             <div>
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1.5">Tu Reseña / Experiencia</span>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1.5">{t("reviewLabel")}</span>
               <textarea
                 rows={4}
                 required
                 maxLength={500}
-                placeholder="Cuéntanos sobre el estado del inmueble, el trato con el arrendador, comodidades, zona..."
+                placeholder={t("placeholder")}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl text-sm outline-none transition-all focus:border-accent-secondary bg-white text-gray-800 placeholder-gray-400 font-semibold"
               />
               <div className="flex justify-between mt-1 text-[10px] text-gray-400 font-medium">
-                <span>Sé descriptivo y respetuoso.</span>
-                <span>{comment.length}/500 caracteres</span>
+                <span>{t("respectfulHint")}</span>
+                <span>{comment.length}/500 {t("characters")}</span>
               </div>
             </div>
 
@@ -149,14 +159,14 @@ export function WriteReviewModal({ propertyId, contractId, propertyTitle, onClos
                 disabled={loading}
                 className="px-4 py-2 border border-slate-300 hover:bg-slate-50 text-gray-700 rounded-lg text-xs font-semibold cursor-pointer transition-colors"
               >
-                Cancelar
+                {t("cancel")}
               </button>
               <button
                 type="submit"
                 disabled={loading}
                 className="px-5 py-2.5 bg-accent hover:bg-accent-dark text-white rounded-lg text-xs font-semibold cursor-pointer transition-all hover:-translate-y-px disabled:opacity-50"
               >
-                {loading ? "Enviando..." : "Publicar Calificación"}
+                {loading ? t("submitting") : t("submit")}
               </button>
             </div>
           </form>

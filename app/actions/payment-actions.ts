@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { PaymentStatus, Role } from "@prisma/client"
+import { sendPaymentApprovedEmail } from "@/lib/email"
 import { createNotificationHelper } from "@/lib/notifications"
 
 export interface ActionResult<T = null> {
@@ -104,12 +105,14 @@ export async function approvePayment(
     // Buscar el pago y verificar propiedad
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
-      select: {
-        id: true,
-        landlordId: true,
-        tenantId: true,
-        status: true,
-      }
+      include: {
+        contract: {
+          select: { property: { select: { title: true } } },
+        },
+        tenant: {
+          select: { firstName: true, email: true },
+        },
+      },
     })
 
     if (!payment) {
@@ -138,6 +141,18 @@ export async function approvePayment(
       { paymentId: payment.id }
     )
 
+    // Enviar email de confirmación de pago
+    const periodLabel = payment.dueDate
+      ? new Intl.DateTimeFormat("es-PE", { month: "long", year: "numeric", timeZone: "America/Lima" }).format(payment.dueDate)
+      : "Mes actual"
+    await sendPaymentApprovedEmail(
+      payment.tenant.email,
+      payment.tenant.firstName,
+      payment.contract.property.title,
+      Number(payment.amount),
+      periodLabel,
+    )
+
     revalidatePath("/landlord/payments")
     revalidatePath("/landlord/dashboard")
     revalidatePath("/tenant/payments")
@@ -147,6 +162,39 @@ export async function approvePayment(
   } catch (error: any) {
     console.error("Error approving payment:", error)
     return { success: false, error: error.message || "Ocurrió un error al aprobar el pago." }
+  }
+}
+
+export async function markOverduePayments(): Promise<ActionResult<{ updated: number }>> {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return { success: false, error: "No autorizado. Inicie sesión." }
+    }
+
+    const userRole = session.user.role
+    if (userRole !== Role.ADMIN && userRole !== Role.LANDLORD) {
+      return { success: false, error: "Solo administradores y arrendadores pueden marcar pagos como vencidos." }
+    }
+
+    const now = new Date()
+    const result = await prisma.payment.updateMany({
+      where: {
+        status: { in: [PaymentStatus.PENDIENTE, PaymentStatus.EN_PROCESO] },
+        dueDate: { lt: now },
+      },
+      data: { status: PaymentStatus.VENCIDO },
+    })
+
+    revalidatePath("/landlord/payments")
+    revalidatePath("/landlord/dashboard")
+    revalidatePath("/tenant/payments")
+    revalidatePath("/tenant/dashboard")
+    revalidatePath("/admin/payments")
+    return { success: true, data: { updated: result.count } }
+  } catch (error: any) {
+    console.error("Error marking overdue payments:", error)
+    return { success: false, error: error.message || "Ocurrió un error al marcar pagos vencidos." }
   }
 }
 

@@ -5,7 +5,7 @@ import Link from "next/link"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon, SquareIcon,
   Location01Icon, StarIcon, EyeIcon, FlashIcon,
-  CheckmarkCircle01Icon, ArrowUp01Icon
+  CheckmarkCircle01Icon, ArrowUp01Icon, Edit01Icon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
@@ -271,52 +271,74 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
                   </div>
 
                   <div className="h-px bg-slate-100 my-2" />
+                </div>
 
-                  <div className="mt-auto pt-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <div>
-                        <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider block">Precio mensual</span>
-                        <span className="text-lg font-extrabold text-[#151c26]">
-                          S/ {Number(p.price).toLocaleString()}
-                        </span>
-                      </div>
+                <div className="mt-auto bg-slate-50 border-t border-slate-100 p-5 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider block">Precio mensual</span>
+                      <span className="text-base font-extrabold text-[#151c26]">
+                        S/ {Number(p.price).toLocaleString()}
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <Link
                         href={`/landlord/properties/${p.id}/edit`}
-                        className="flex-1 text-center text-xs font-bold text-white bg-accent px-3 py-2 rounded-xl hover:brightness-110 no-underline transition-all shadow-sm"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:text-accent hover:border-accent/40 no-underline transition-all shadow-sm"
+                        aria-label="Editar propiedad"
                       >
-                        Editar
+                        <Edit01Icon size={14} />
+                        <span>Editar</span>
                       </Link>
                       <Link
                         href={`/propiedades/${p.id}`}
-                        className="flex-1 text-center text-xs font-bold text-text border border-slate-200 px-3 py-2 rounded-xl hover:bg-slate-50 no-underline transition-all"
+                        className="flex items-center justify-center size-8 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-blue-500 hover:border-blue-400/40 no-underline transition-all shadow-sm"
+                        aria-label="Ver publicación"
                       >
-                        Ver publicación
+                        <EyeIcon size={14} />
                       </Link>
                     </div>
+                  </div>
 
-                    {/* Botón destacar */}
-                    {p.status === "DISPONIBLE" && (
-                      p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
-                        <div className="mt-2 flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-xs font-semibold text-amber-700">
-                          <CheckmarkCircle01Icon size={13} className="text-amber-500" />
-                          Destacada hasta {new Date(p.featuredUntil).toLocaleDateString("es-PE")}
+                  {/* Botón destacar */}
+                  {p.status === "DISPONIBLE" && (
+                    <div className="border-t border-slate-200/60 pt-3">
+                      {p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
+                        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-[11px] font-bold text-amber-800">
+                          <div className="flex items-center gap-1.5">
+                            <StarIcon size={12} className="text-amber-500 fill-amber-500" />
+                            <span>Destacada</span>
+                          </div>
+                          <span className="text-amber-600 font-semibold">hasta {new Date(p.featuredUntil).toLocaleDateString("es-PE")}</span>
                         </div>
                       ) : (
-                        <div className="mt-2">
-                          <FeaturedButton
-                            propertyId={p.id}
-                            propertyTitle={p.title}
-                            onSelect={(days) => setFeaturedModal({ propertyId: p.id, propertyTitle: p.title, days })}
-                          />
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+                            <FlashIcon size={12} className="text-amber-500" />
+                            Destacar anuncio:
+                          </span>
+                          <div className="flex gap-1.5">
+                            {([
+                              { days: 7 as const, label: "7d", price: "S/15" },
+                              { days: 15 as const, label: "15d", price: "S/25" },
+                              { days: 30 as const, label: "30d", price: "S/45" },
+                            ]).map(opt => (
+                              <button
+                                key={opt.days}
+                                onClick={() => setFeaturedModal({ propertyId: p.id, propertyTitle: p.title, days: opt.days })}
+                                className="px-2.5 py-1 text-[10px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-md cursor-pointer flex items-center gap-1 transition-colors"
+                              >
+                                <span>{opt.label}</span>
+                                <span className="text-amber-500/80 font-normal">{opt.price}</span>
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      )
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-
               </div>
             )
           })}
@@ -381,47 +403,3 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
   )
 }
 
-// Sub-componente: selector de duración para destacar
-function FeaturedButton({
-  onSelect,
-}: {
-  propertyId: string
-  propertyTitle: string
-  onSelect: (days: 7 | 15 | 30) => void
-}) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-bold px-3 py-2 rounded-xl border-none cursor-pointer transition-all"
-      >
-        <FlashIcon size={13} />
-        Destacar propiedad
-      </button>
-
-      {open && (
-        <div className="absolute bottom-full mb-2 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl z-20 overflow-hidden">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pt-3 pb-1">
-            Elige duración
-          </p>
-          {([
-            { days: 7, price: "S/ 15", label: "7 días" },
-            { days: 15, price: "S/ 25", label: "15 días" },
-            { days: 30, price: "S/ 45", label: "30 días" },
-          ] as const).map(opt => (
-            <button
-              key={opt.days}
-              onClick={() => { setOpen(false); onSelect(opt.days) }}
-              className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-semibold text-slate-700 hover:bg-amber-50 border-none cursor-pointer transition-colors text-left"
-            >
-              <span>{opt.label}</span>
-              <span className="font-bold text-amber-600">{opt.price}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}

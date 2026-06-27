@@ -17,6 +17,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
+import { PaymentStatus, PaymentType as PrismaPaymentType, ContractStatus, Role, SubscriptionPlan } from "@prisma/client"
 import {
   createCulqiCharge,
   CULQI_IS_MOCK,
@@ -51,6 +52,7 @@ export async function processSuccessFee(
       select: {
         id: true,
         landlordId: true,
+        tenantId: true,
         status: true,
         successFeePaid: true,
         landlord: { select: { email: true, firstName: true, lastName: true } },
@@ -60,7 +62,7 @@ export async function processSuccessFee(
 
     if (!contract) return { success: false, error: "Contrato no encontrado." }
     if (contract.landlordId !== userId) return { success: false, error: "No autorizado." }
-    if (contract.status !== "ACTIVE") return { success: false, error: "El contrato debe estar activo." }
+    if (contract.status !== ContractStatus.ACTIVE) return { success: false, error: "El contrato debe estar activo." }
     if (contract.successFeePaid) return { success: true, isMock: CULQI_IS_MOCK }
 
     const charge = await createCulqiCharge({
@@ -82,14 +84,12 @@ export async function processSuccessFee(
         data: {
           contractId,
           landlordId: contract.landlordId,
-          tenantId: (await prisma.contract.findUnique({
-            where: { id: contractId }, select: { tenantId: true }
-          }))!.tenantId,
+          tenantId: contract.tenantId,
           amount: PRICES.SUCCESS_FEE / 100,
           dueDate: new Date(),
           paidDate: new Date(),
-          status: "PAGADO",
-          type: "SUCCESS_FEE",
+          status: PaymentStatus.PAGADO,
+          type: PrismaPaymentType.SUCCESS_FEE,
           paymentMethod: CULQI_IS_MOCK ? "SIMULACIÓN" : "CULQI",
           notes: charge.chargeId,
         },
@@ -105,7 +105,11 @@ export async function processSuccessFee(
     )
 
     revalidatePath(`/landlord/contracts`)
+    revalidatePath(`/contracts/${contractId}`)
     revalidatePath(`/es/contracts/${contractId}`)
+    revalidatePath(`/en/contracts/${contractId}`)
+    revalidatePath("/landlord/payments")
+    revalidatePath("/admin/payments")
 
     return { success: true, isMock: CULQI_IS_MOCK }
   } catch (err) {
@@ -119,7 +123,7 @@ export async function processSuccessFee(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function processPlanUpgrade(
-  plan: "PRO" | "BUSINESS",
+  plan: SubscriptionPlan,
   culqiToken: string = "mock"
 ): Promise<PaymentActionResult> {
   try {
@@ -127,7 +131,7 @@ export async function processPlanUpgrade(
     if (!session?.user) return { success: false, error: "No autorizado." }
 
     const userId = session.user.id
-    if ((session.user as any).role !== "LANDLORD") return { success: false, error: "Solo arrendadores pueden suscribirse." }
+    if ((session.user as any).role !== Role.LANDLORD) return { success: false, error: "Solo arrendadores pueden suscribirse." }
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -243,7 +247,9 @@ export async function processFeaturedListing(
     )
 
     revalidatePath("/landlord/properties")
+    revalidatePath("/propiedades")
     revalidatePath("/es/propiedades")
+    revalidatePath("/en/propiedades")
 
     return { success: true, isMock: CULQI_IS_MOCK }
   } catch (err) {

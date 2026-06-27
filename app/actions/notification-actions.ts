@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 
 export interface ActionResult<T = null> {
   success: boolean
@@ -64,6 +65,10 @@ export async function markNotificationAsRead(id: string): Promise<ActionResult> 
       data: { read: true }
     })
 
+    revalidatePath("/admin/dashboard")
+    revalidatePath("/landlord/dashboard")
+    revalidatePath("/tenant/dashboard")
+
     return { success: true }
   } catch (error: any) {
     console.error("Error marking notification as read:", error)
@@ -84,6 +89,10 @@ export async function markAllNotificationsAsRead(): Promise<ActionResult> {
       where: { userId, read: false },
       data: { read: true }
     })
+
+    revalidatePath("/admin/dashboard")
+    revalidatePath("/landlord/dashboard")
+    revalidatePath("/tenant/dashboard")
 
     return { success: true }
   } catch (error: any) {
@@ -114,6 +123,10 @@ export async function deleteNotification(id: string): Promise<ActionResult> {
     await prisma.notification.delete({
       where: { id }
     })
+
+    revalidatePath("/admin/dashboard")
+    revalidatePath("/landlord/dashboard")
+    revalidatePath("/tenant/dashboard")
 
     return { success: true }
   } catch (error: any) {

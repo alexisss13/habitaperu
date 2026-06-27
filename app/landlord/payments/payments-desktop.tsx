@@ -586,7 +586,7 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
 
                   <div className="bg-slate-50 p-4 border border-slate-200 rounded-xl text-[11px] leading-relaxed text-slate-600">
                     <span className="font-bold text-text block mb-1">Plantilla Mensaje:</span>
-                    {'"'}{`Hola ${reminderPayment.tenantName.split(" ")[0]}, te recordamos que tienes una cuota de arriendo vencida el ${new Date(reminderPayment.dueDate).toLocaleDateString()} por S/ ${reminderPayment.amount} para el inmueble ${reminderPayment.propertyName}. Por favor registra tu voucher en Habita Perú. Gracias.`}{'"'}
+                    {'"'}{`Hola ${reminderPayment.tenantName.split(" ")[0]}, te recordamos que tienes una cuota de arriendo vencida el ${new Date(reminderPayment.dueDate).toLocaleDateString("es-PE")} por S/ ${reminderPayment.amount} para el inmueble ${reminderPayment.propertyName}. Por favor registra tu voucher en Habita Perú. Gracias.`}{'"'}
                   </div>
 
                   <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">

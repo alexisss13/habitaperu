@@ -12,7 +12,9 @@
     "view": "Voir",
     "back": "Retour",
     "next": "Suivant",
-    "previous": "Précédent"
+    "previous": "Précédent",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe"
   },
   "header": {
     "publishProperty": "Publiez votre propriété",
@@ -161,6 +163,7 @@
     "signUp": "Inscrivez-vous",
     "error": "Identifiants incorrects. Veuillez vérifier votre e-mail et votre mot de passe.",
     "genericError": "Erreur lors de la connexion. Veuillez réessayer.",
+    "forgotPassword": "Mot de passe oublié ?",
     "demoCredentials": {
       "title": "Identifiants de démonstration",
       "admin": "Admin :",
@@ -187,8 +190,35 @@
     "hasAccount": "Vous avez déjà un compte ?",
     "login": "Se connecter",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
     "error": "Erreur lors de la création du compte. Veuillez réessayer.",
     "success": "Compte créé avec succès"
+  },
+  "forgotPassword": {
+    "title": "Réinitialiser le mot de passe",
+    "welcome": "Nous vous enverrons un lien pour réinitialiser votre mot de passe",
+    "email": "E-mail",
+    "submit": "Envoyer le lien",
+    "loading": "Envoi en cours...",
+    "success": "Vérifiez votre boîte mail",
+    "checkInbox": "Si cet e-mail existe dans notre système, nous vous avons envoyé un lien de réinitialisation.",
+    "backToLogin": "Retour à la connexion",
+    "error": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "resetPassword": {
+    "title": "Nouveau mot de passe",
+    "welcome": "Créez un nouveau mot de passe pour votre compte",
+    "password": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "submit": "Réinitialiser le mot de passe",
+    "loading": "Enregistrement...",
+    "success": "Votre mot de passe a été mis à jour avec succès",
+    "goToLogin": "Aller à la connexion",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "invalidToken": "Ce lien est invalide ou a expiré. Demandez-en un nouveau.",
+    "requestNewLink": "Demander un nouveau lien",
+    "error": "Une erreur s'est produite. Veuillez réessayer."
   },
   "publish": {
     "hero": {

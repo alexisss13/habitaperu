@@ -12,7 +12,9 @@
     "view": "Ver",
     "back": "Voltar",
     "next": "Próximo",
-    "previous": "Anterior"
+    "previous": "Anterior",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha"
   },
   "header": {
     "publishProperty": "Publique sua propriedade",
@@ -161,6 +163,7 @@
     "signUp": "Cadastre-se",
     "error": "Credenciais incorretas. Verifique seu e-mail e senha.",
     "genericError": "Erro ao entrar. Tente novamente.",
+    "forgotPassword": "Esqueceu sua senha?",
     "demoCredentials": {
       "title": "Credenciais de demonstração",
       "admin": "Admin:",
@@ -187,8 +190,35 @@
     "hasAccount": "Já tem uma conta?",
     "login": "Entrar",
     "passwordMismatch": "As senhas não coincidem",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
     "error": "Erro ao criar a conta. Tente novamente.",
     "success": "Conta criada com sucesso"
+  },
+  "forgotPassword": {
+    "title": "Recuperar senha",
+    "welcome": "Enviaremos um link para redefinir sua senha",
+    "email": "E-mail",
+    "submit": "Enviar link",
+    "loading": "Enviando...",
+    "success": "Verifique seu e-mail",
+    "checkInbox": "Se o e-mail existir em nosso sistema, enviamos um link para redefinir sua senha.",
+    "backToLogin": "Voltar para o login",
+    "error": "Ocorreu um erro. Tente novamente."
+  },
+  "resetPassword": {
+    "title": "Nova senha",
+    "welcome": "Crie uma nova senha para sua conta",
+    "password": "Nova senha",
+    "confirmPassword": "Confirmar senha",
+    "submit": "Redefinir senha",
+    "loading": "Salvando...",
+    "success": "Sua senha foi atualizada com sucesso",
+    "goToLogin": "Ir para o login",
+    "passwordMismatch": "As senhas não coincidem",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+    "invalidToken": "Este link é inválido ou expirou. Solicite um novo.",
+    "requestNewLink": "Solicitar novo link",
+    "error": "Ocorreu um erro. Tente novamente."
   },
   "publish": {
     "hero": {

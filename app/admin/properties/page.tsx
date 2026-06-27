@@ -1,11 +1,28 @@
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
+import { Role, PropertyStatus } from "@prisma/client"
 import { PropertiesView } from './properties-view'
+export default async function PropertiesPage(props: { searchParams?: Promise<{ page?: string; limit?: string }> }) {
+  const session = await auth()
+  if (!session || session.user.role !== Role.ADMIN) {
+    redirect("/login")
+  }
 
-export default async function PropertiesPage() {
-  const properties = await prisma.property.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { owner: { select: { firstName: true, lastName: true, email: true } } }
-  })
+  const searchParams = await props.searchParams
+  const page = Math.max(1, parseInt(searchParams?.page ?? "1") || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams?.limit ?? "25") || 25))
+  const skip = (page - 1) * limit
+
+  const [properties, total] = await Promise.all([
+    prisma.property.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: { owner: { select: { firstName: true, lastName: true, email: true } } }
+    }),
+    prisma.property.count(),
+  ])
 
   const mapped = properties.map(p => ({
     ...p,
@@ -14,15 +31,15 @@ export default async function PropertiesPage() {
     images: (Array.isArray(p.images) ? p.images : []) as string[]
   }))
 
-  const stats = {
-    total: mapped.length,
-    disponible: mapped.filter(p => p.status === 'DISPONIBLE').length,
-    ocupada: mapped.filter(p => p.status === 'OCUPADA').length,
-    mantenimiento: mapped.filter(p => p.status === 'MANTENIMIENTO').length,
-    avgPrice: mapped.length > 0
-      ? Math.round(mapped.reduce((s, p) => s + p.price, 0) / mapped.length)
-      : 0
-  }
+  const [disponible, ocupada, mantenimiento] = await Promise.all([
+    prisma.property.count({ where: { status: PropertyStatus.DISPONIBLE } }),
+    prisma.property.count({ where: { status: PropertyStatus.OCUPADA } }),
+    prisma.property.count({ where: { status: PropertyStatus.MANTENIMIENTO } }),
+  ])
 
-  return <PropertiesView data={{ properties: mapped, stats }} />
+  const avgPrice = total > 0 ? await prisma.property.aggregate({ _avg: { price: true } }).then(r => Math.round(Number(r._avg.price ?? 0))) : 0
+
+  const stats = { total, disponible, ocupada, mantenimiento, avgPrice }
+
+  return <PropertiesView data={{ properties: mapped, stats, page, limit, totalPages: Math.ceil(total / limit) }} />
 }

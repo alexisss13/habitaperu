@@ -22,6 +22,9 @@ export interface AdminPayment {
 export interface PaymentsData {
   payments: AdminPayment[]
   stats: { total: number; pagado: number; pendiente: number; totalAmount: number; thisMonth: number }
+  page?: number
+  limit?: number
+  totalPages?: number
 }
 
 export function PaymentsView({ data }: { data: PaymentsData }) {

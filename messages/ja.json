@@ -12,7 +12,9 @@
     "view": "見る",
     "back": "戻る",
     "next": "次へ",
-    "previous": "前へ"
+    "previous": "前へ",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを隠す"
   },
   "header": {
     "publishProperty": "物件を掲載する",
@@ -161,6 +163,7 @@
     "signUp": "新規会員登録",
     "error": "メールアドレスまたはパスワードが正しくありません。再度ご確認ください。",
     "genericError": "ログイン中にエラーが発生しました。もう一度お試しください。",
+    "forgotPassword": "パスワードをお忘れですか？",
     "demoCredentials": {
       "title": "デモ用ログイン情報",
       "admin": "管理者アカウント:",
@@ -187,8 +190,35 @@
     "hasAccount": "すでにアカウントをお持ちですか？",
     "login": "ログインする",
     "passwordMismatch": "パスワードが一致しません",
+    "passwordTooShort": "パスワードは8文字以上である必要があります",
     "error": "アカウント作成中にエラーが発生しました。再度お試しください。",
     "success": "アカウントを作成しました"
+  },
+  "forgotPassword": {
+    "title": "パスワードを再設定",
+    "welcome": "パスワード再設定用のリンクをお送りします",
+    "email": "メールアドレス",
+    "submit": "リンクを送信",
+    "loading": "送信中...",
+    "success": "メールをご確認ください",
+    "checkInbox": "そのメールアドレスが登録されている場合、パスワード再設定用のリンクを送信しました。",
+    "backToLogin": "ログインに戻る",
+    "error": "エラーが発生しました。もう一度お試しください。"
+  },
+  "resetPassword": {
+    "title": "新しいパスワード",
+    "welcome": "アカウントの新しいパスワードを作成してください",
+    "password": "新しいパスワード",
+    "confirmPassword": "パスワードの確認",
+    "submit": "パスワードを再設定",
+    "loading": "保存中...",
+    "success": "パスワードが正常に更新されました",
+    "goToLogin": "ログインへ",
+    "passwordMismatch": "パスワードが一致しません",
+    "passwordTooShort": "パスワードは8文字以上である必要があります",
+    "invalidToken": "このリンクは無効または期限切れです。新しいリンクをリクエストしてください。",
+    "requestNewLink": "新しいリンクをリクエスト",
+    "error": "エラーが発生しました。もう一度お試しください。"
   },
   "publish": {
     "hero": {

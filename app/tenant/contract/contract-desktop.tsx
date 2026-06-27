@@ -417,7 +417,7 @@ export function TenantContractDesktop({ contracts }: Props) {
                         {c.landlord.firstName} {c.landlord.lastName}
                       </td>
                       <td className="p-4 text-text-muted font-medium">
-                        {new Date(c.startDate).toLocaleDateString()} - {new Date(c.endDate).toLocaleDateString()}
+                        {new Date(c.startDate).toLocaleDateString("es-PE")} - {new Date(c.endDate).toLocaleDateString("es-PE")}
                       </td>
                       <td className="p-4 font-bold text-text">
                         S/ {c.monthlyRent.toLocaleString()}

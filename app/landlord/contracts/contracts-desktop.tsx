@@ -270,7 +270,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-xs font-medium text-text">
-                        {new Date(c.startDate).toLocaleDateString()} al {new Date(c.endDate).toLocaleDateString()}
+                        {new Date(c.startDate).toLocaleDateString("es-PE")} al {new Date(c.endDate).toLocaleDateString("es-PE")}
                       </div>
                     </td>
                     <td className="px-6 py-4">
