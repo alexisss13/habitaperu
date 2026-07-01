@@ -480,7 +480,7 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
           </div>
 
           <Link
-            href="/publicar"
+            href="/publicar/onboarding"
             className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white text-sm font-bold no-underline"
             style={{ background: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)' }}
           >
@@ -510,7 +510,7 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="font-bold text-[#151c26] text-[11px] uppercase tracking-wide mb-1">Arrendadores</p>
-            <Link href="/publicar" className="text-gray-500 no-underline">Publicar propiedad</Link>
+            <Link href="/publicar/onboarding" className="text-gray-500 no-underline">Publicar propiedad</Link>
             <Link href="/landlord/dashboard" className="text-gray-500 no-underline">Mi panel</Link>
             <Link href="/landlord/contracts" className="text-gray-500 no-underline">Contratos</Link>
           </div>

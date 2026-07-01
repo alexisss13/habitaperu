@@ -166,7 +166,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
         <div className="absolute bottom-[-10%] left-[-5%] size-[600px] rounded-full z-0 blur-[80px]"
           style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.06) 0%, transparent 70%)' }} />
 
-        <div className="max-w-[1400px] mx-auto px-10 w-full relative z-[1]">
+        <div className="max-w-7xl mx-auto px-6 w-full relative z-[1]">
           <div className="grid grid-cols-2 gap-20 items-center">
             {/* Left Content */}
             <div>
@@ -268,7 +268,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
 
       {/* FEATURED PROPERTIES */}
       <section className="py-20 bg-white">
-        <div className="max-w-[1400px] mx-auto px-10">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="mb-10">
             <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-3">{t('featured.title')}</h2>
             <p className="text-base text-gray-500 max-w-[600px]">{t('featured.subtitle')}</p>
@@ -308,7 +308,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
         <div className="absolute top-[10%] right-[-5%] size-[400px] rounded-full blur-[60px]"
           style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.1) 0%, transparent 70%)' }} />
 
-        <div className="max-w-[1200px] mx-auto px-10 relative z-[1]">
+        <div className="max-w-7xl mx-auto px-6 relative z-[1]">
           <div className="text-center mb-16">
             <div className="inline-block px-5 py-2 rounded-full border border-brown/20 mb-4"
                style={{ background: 'linear-gradient(135deg, rgba(15,52,87,0.08) 0%, rgba(143,130,114,0.1) 100%)' }}>
@@ -370,7 +370,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
         <div className="absolute bottom-[-10%] left-[-5%] size-[500px] rounded-full blur-[60px]"
           style={{ background: 'radial-gradient(circle, rgba(15,52,87,0.06) 0%, transparent 70%)' }} />
 
-        <div className="max-w-[1200px] mx-auto px-10 relative z-[1]">
+        <div className="max-w-7xl mx-auto px-6 relative z-[1]">
           <div className="text-center mb-16">
             <div className="inline-block px-5 py-2 rounded-full border border-brown/20 mb-4"
               style={{ background: 'linear-gradient(135deg, rgba(143,130,114,0.12) 0%, rgba(15,52,87,0.08) 100%)' }}>
@@ -426,7 +426,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
 
       {/* EXPLORE BY LOCATION */}
       <section className="py-20" style={{ background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)' }}>
-        <div className="max-w-[1400px] mx-auto px-10">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-end mb-8">
             <div>
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('exploreLocation.title')}</h2>
@@ -494,7 +494,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
 
       {/* STUDENT PROPERTIES */}
       <section className="py-20 bg-white">
-        <div className="max-w-[1400px] mx-auto px-10">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-end mb-8">
             <div>
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('studentProperties.title')}</h2>
@@ -518,7 +518,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
 
       {/* FULL APARTMENTS */}
       <section className="py-20" style={{ background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)' }}>
-        <div className="max-w-[1400px] mx-auto px-10">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-end mb-8">
             <div>
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('fullApartments.title')}</h2>
@@ -541,7 +541,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
 
       {/* BUDGET ROOMS */}
       <section className="py-20 bg-white">
-        <div className="max-w-[1400px] mx-auto px-10">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between items-end mb-8">
             <div>
               <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('budgetRooms.title')}</h2>
@@ -613,7 +613,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
             </div>
 
             <div className="shrink-0">
-              <Link href={`/${locale}/publicar`}
+              <Link href={`/${locale}/publicar/onboarding`}
                 className="inline-flex items-center gap-3 py-[18px] px-10 !text-white text-base font-bold rounded-2xl no-underline transition-all border-2 border-cream/20 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(143,130,114,0.5)]"
                 style={{ background: 'linear-gradient(135deg, #8f8272 0%, #6d6558 100%)', boxShadow: '0 8px 32px rgba(143,130,114,0.4)' }}
               >

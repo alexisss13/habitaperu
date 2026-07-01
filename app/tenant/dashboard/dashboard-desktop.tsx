@@ -1,6 +1,7 @@
 'use client'
 
 import Link from "next/link"
+import { PanelPageHeader } from "@/components/panel-page-header"
 import {
   Home01Icon, Search01Icon, FavouriteIcon, FileValidationIcon,
   Wallet01Icon, CheckmarkCircle02Icon, AlertCircleIcon, Clock05Icon,
@@ -35,39 +36,35 @@ export function TenantDashboardDesktop({ session, data }: Props) {
   const firstName = session.user.name?.split(" ")[0] ?? "Inquilino"
 
   return (
-    <div className="px-6 py-7 max-w-5xl">
-      {/* Greeting */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-extrabold text-[#151c26] mb-0.5">
-          Hola, {firstName} <span role="img" aria-hidden="true">👋</span>
-        </h1>
-        <p className="text-sm text-gray-400">
-          Este es tu resumen de actividad como inquilino
-        </p>
-      </div>
+    <div className="px-6 py-8 max-w-7xl mx-auto">
+      <PanelPageHeader
+        icon={<Home01Icon size={32} className="text-admin-accent" />}
+        title={`Hola, ${firstName}`}
+        subtitle="Este es tu resumen de actividad como inquilino"
+      />
 
       {/* KPI cards */}
       <div className="grid grid-cols-3 gap-5 mb-8">
         {/* Propiedad activa */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-panel-card-bg rounded-2xl shadow-sm border border-panel-border p-5">
           <div className="flex items-center gap-2.5 mb-3">
             <div className="size-9 rounded-xl bg-accent/8 flex items-center justify-center">
               <Home01Icon size={18} className="text-accent" />
             </div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Propiedad</p>
+            <p className="text-xs font-bold text-panel-text-muted uppercase tracking-wide">Propiedad</p>
           </div>
           {data.activeProperty ? (
             <>
-              <p className="font-bold text-[#151c26] text-sm leading-snug line-clamp-2 mb-1">
+              <p className="font-bold text-panel-text text-sm leading-snug line-clamp-2 mb-1">
                 {data.activeProperty.title}
               </p>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-panel-text-muted">
                 S/ {data.activeProperty.price.toLocaleString("es-PE")}/mes
               </p>
             </>
           ) : (
             <>
-              <p className="font-semibold text-gray-400 text-sm">Sin contrato activo</p>
+              <p className="font-semibold text-panel-text-muted text-sm">Sin contrato activo</p>
               <Link href="/propiedades" className="text-xs text-accent font-semibold no-underline hover:underline mt-1 block">
                 Buscar propiedad →
               </Link>
@@ -76,39 +73,39 @@ export function TenantDashboardDesktop({ session, data }: Props) {
         </div>
 
         {/* Próximo pago */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-panel-card-bg rounded-2xl shadow-sm border border-panel-border p-5">
           <div className="flex items-center gap-2.5 mb-3">
             <div className="size-9 rounded-xl bg-green/10 flex items-center justify-center">
               <Wallet01Icon size={18} className="text-green" />
             </div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Próximo pago</p>
+            <p className="text-xs font-bold text-panel-text-muted uppercase tracking-wide">Próximo pago</p>
           </div>
           {data.nextPayment ? (
             <>
-              <p className="text-xl font-extrabold text-[#151c26]">
+              <p className="text-xl font-extrabold text-panel-text">
                 S/ {data.nextPayment.amount.toLocaleString("es-PE")}
               </p>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-panel-text-muted mt-0.5">
                 Vence el {formatDate(data.nextPayment.dueDate)}
               </p>
             </>
           ) : (
             <>
               <p className="font-bold text-green text-sm">Al día ✓</p>
-              <p className="text-xs text-gray-400 mt-0.5">Sin pagos pendientes</p>
+              <p className="text-xs text-panel-text-muted mt-0.5">Sin pagos pendientes</p>
             </>
           )}
         </div>
 
         {/* Favoritos */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-panel-card-bg rounded-2xl shadow-sm border border-panel-border p-5">
           <div className="flex items-center gap-2.5 mb-3">
-            <div className="size-9 rounded-xl bg-red-50 flex items-center justify-center">
-              <FavouriteIcon size={18} className="text-red-400" />
+            <div className="size-9 rounded-xl bg-accent-secondary/10 flex items-center justify-center">
+              <FavouriteIcon size={18} className="text-accent-secondary" />
             </div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Favoritos</p>
+            <p className="text-xs font-bold text-panel-text-muted uppercase tracking-wide">Favoritos</p>
           </div>
-          <p className="text-xl font-extrabold text-[#151c26]">{data.favoritesCount}</p>
+          <p className="text-xl font-extrabold text-panel-text">{data.favoritesCount}</p>
           <Link href="/tenant/favorites" className="text-xs text-accent font-semibold no-underline hover:underline mt-0.5 block">
             Ver guardados →
           </Link>
@@ -116,8 +113,8 @@ export function TenantDashboardDesktop({ session, data }: Props) {
       </div>
 
       {/* Quick actions */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
-        <h2 className="text-base font-bold text-[#151c26] mb-4">Acciones rápidas</h2>
+      <div className="bg-panel-card-bg shadow-sm border border-panel-border p-6 mb-6">
+        <h2 className="text-base font-bold text-panel-text mb-4">Acciones rápidas</h2>
         <div className="grid grid-cols-4 gap-3">
           {[
             { href: "/propiedades", Icon: Search01Icon, label: "Buscar propiedades", accent: true },
@@ -131,7 +128,7 @@ export function TenantDashboardDesktop({ session, data }: Props) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold no-underline transition-all group ${
                 accent
                   ? "text-white hover:opacity-90"
-                  : "bg-gray-50 text-[#151c26] hover:bg-gray-100"
+                  : "bg-panel-hover-bg text-panel-text hover:bg-panel-hover-bg"
               }`}
               style={accent ? { background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" } : {}}
             >
@@ -144,21 +141,21 @@ export function TenantDashboardDesktop({ session, data }: Props) {
       </div>
 
       {/* Payment history */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="bg-panel-card-bg shadow-sm border border-panel-border p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-bold text-[#151c26]">Historial de pagos</h2>
+          <h2 className="text-base font-bold text-panel-text">Historial de pagos</h2>
           <Link href="/tenant/payments" className="text-xs font-semibold text-accent no-underline hover:underline">
             Ver todos →
           </Link>
         </div>
 
         {data.paymentHistory.length === 0 ? (
-          <div className="py-10 text-center bg-gray-50 rounded-xl">
-            <CheckmarkCircle02Icon size={40} className="text-gray-200 mx-auto mb-3" />
-            <p className="text-sm font-semibold text-gray-400">Sin historial de pagos aún</p>
+          <div className="py-10 text-center bg-panel-hover-bg rounded-xl">
+            <CheckmarkCircle02Icon size={40} className="text-panel-text-dim mx-auto mb-3" />
+            <p className="text-sm font-semibold text-panel-text-muted">Sin historial de pagos aún</p>
           </div>
         ) : (
-          <div className="flex flex-col divide-y divide-gray-50">
+          <div className="flex flex-col divide-y divide-panel-border">
             {data.paymentHistory.map((p) => {
               const cfg = paymentStatusConfig[p.status as keyof typeof paymentStatusConfig]
                 ?? paymentStatusConfig.PENDING
@@ -166,13 +163,13 @@ export function TenantDashboardDesktop({ session, data }: Props) {
               return (
                 <div key={p.id} className="flex items-center justify-between py-3">
                   <div>
-                    <p className="text-sm font-semibold text-[#151c26]">{p.month}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-sm font-semibold text-panel-text">{p.month}</p>
+                    <p className="text-xs text-panel-text-muted">
                       {p.status === "PAID" ? `Pagado el ${p.date}` : `Vence el ${p.date}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <p className="text-sm font-bold text-[#151c26]">
+                    <p className="text-sm font-bold text-panel-text">
                       S/ {p.amount.toLocaleString("es-PE")}
                     </p>
                     <span className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.cls}`}>

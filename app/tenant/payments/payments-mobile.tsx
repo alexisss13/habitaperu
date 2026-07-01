@@ -99,7 +99,7 @@ export function TenantPaymentsMobile({ payments }: Props) {
       case "VENCIDO":
         return <span className="px-2 py-0.5 text-[9px] font-bold bg-red/10 text-red border border-red/20 rounded animate-pulse">Vencido</span>
       default:
-        return <span className="px-2 py-0.5 text-[9px] font-bold bg-slate-100 text-slate-700 border border-slate-200 rounded">{status}</span>
+        return <span className="px-2 py-0.5 text-[9px] font-bold bg-panel-hover-bg text-panel-text-dim border border-panel-border rounded">{status}</span>
     }
   }
 
@@ -146,32 +146,32 @@ export function TenantPaymentsMobile({ payments }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-bg-2 pb-24">
+    <div className="min-h-screen bg-panel-bg pb-24">
       {/* Header */}
       <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-text">Mis Pagos</h1>
-        <p className="text-xs font-medium text-text-muted mt-1">Registra y consulta tus cuotas mensuales</p>
+        <h1 className="text-2xl font-bold text-admin-text mb-2">Mis Pagos</h1>
+        <p className="text-sm text-admin-text-muted">Registra y consulta tus cuotas mensuales</p>
       </div>
 
       {/* Metrics horizontal scroll */}
       <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mb-4">
-        <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3.5 shrink-0 w-44">
-          <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Próximo Pago</p>
+        <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-xl p-3.5 shrink-0 w-44">
+          <p className="text-[9px] font-bold text-panel-text-muted uppercase tracking-wider mb-0.5">Próximo Pago</p>
           {nextPayment ? (
             <>
-              <p className="text-lg font-bold text-[#151c26]">S/ {nextPayment.amount}</p>
-              <p className="text-[9px] text-text-muted mt-0.5">Vence: {formatLocalDate(nextPayment.dueDate)}</p>
+              <p className="text-lg font-bold text-panel-text">S/ {nextPayment.amount}</p>
+              <p className="text-[9px] text-panel-text-muted mt-0.5">Vence: {formatLocalDate(nextPayment.dueDate)}</p>
             </>
           ) : (
             <>
               <p className="text-lg font-bold text-emerald-600">Al día</p>
-              <p className="text-[9px] text-text-muted mt-0.5">Sin pagos pendientes</p>
+              <p className="text-[9px] text-panel-text-muted mt-0.5">Sin pagos pendientes</p>
             </>
           )}
         </div>
 
-        <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3.5 shrink-0 w-44">
-          <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Estado Cuenta</p>
+        <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-xl p-3.5 shrink-0 w-44">
+          <p className="text-[9px] font-bold text-panel-text-muted uppercase tracking-wider mb-0.5">Estado Cuenta</p>
           {pendingPayments.some(p => p.status === "VENCIDO") ? (
             <p className="text-lg font-bold text-red">Atrasado</p>
           ) : pendingPayments.length > 0 ? (
@@ -179,13 +179,13 @@ export function TenantPaymentsMobile({ payments }: Props) {
           ) : (
             <p className="text-lg font-bold text-emerald-600 font-bold">Al día</p>
           )}
-          <p className="text-[9px] text-text-muted mt-0.5">{pendingPayments.length} pendientes</p>
+          <p className="text-[9px] text-panel-text-muted mt-0.5">{pendingPayments.length} pendientes</p>
         </div>
 
-        <div className="bg-white border border-slate-200 shadow-sm rounded-xl p-3.5 shrink-0 w-44">
-          <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Total Abonado</p>
+        <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-xl p-3.5 shrink-0 w-44">
+          <p className="text-[9px] font-bold text-panel-text-muted uppercase tracking-wider mb-0.5">Total Abonado</p>
           <p className="text-lg font-bold text-emerald-700">S/ {totalPaid.toLocaleString()}</p>
-          <p className="text-[9px] text-text-muted mt-0.5">Alquileres liquidados</p>
+          <p className="text-[9px] text-panel-text-muted mt-0.5">Alquileres liquidados</p>
         </div>
       </div>
 
@@ -193,21 +193,21 @@ export function TenantPaymentsMobile({ payments }: Props) {
       <div className="px-4 space-y-3">
         {payments.length > 0 ? (
           payments.map(p => (
-            <div key={p.id} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+            <div key={p.id} className="bg-panel-card-bg border border-panel-border rounded-xl p-4 shadow-sm flex flex-col gap-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-sm text-text truncate max-w-[200px]">{p.propertyName}</h3>
-                  <p className="text-[10px] text-text-muted mt-0.5">Cuota: {getMonthName(p.dueDate)}</p>
+                  <h3 className="font-bold text-sm text-panel-text truncate max-w-[200px]">{p.propertyName}</h3>
+                  <p className="text-[10px] text-panel-text-muted mt-0.5">Cuota: {getMonthName(p.dueDate)}</p>
                 </div>
                 {getStatusBadge(p.status)}
               </div>
 
-              <div className="flex justify-between items-center text-[11px] font-semibold text-text-muted">
+              <div className="flex justify-between items-center text-[11px] font-semibold text-panel-text-muted">
                 <span>Vence: {formatLocalDate(p.dueDate)}</span>
-                <span className="text-sm font-extrabold text-[#151c26]">S/ {p.amount.toLocaleString()}</span>
+                <span className="text-sm font-extrabold text-panel-text">S/ {p.amount.toLocaleString()}</span>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end">
+              <div className="pt-3 border-t border-panel-border flex justify-end">
                 {["PENDIENTE", "VENCIDO"].includes(p.status) && (
                   <button
                     onClick={() => setSelectedPayment(p)}
@@ -219,7 +219,7 @@ export function TenantPaymentsMobile({ payments }: Props) {
                 {["EN_PROCESO", "PAGADO"].includes(p.status) && (
                   <button
                     onClick={() => setPreviewPayment(p)}
-                    className="w-full h-10 border border-slate-200 text-slate-700 rounded-lg font-bold text-xs cursor-pointer bg-white"
+                    className="w-full h-10 border border-panel-border text-panel-text-dim rounded-lg font-bold text-xs cursor-pointer bg-panel-card-bg"
                   >
                     Ver Detalles / Voucher
                   </button>
@@ -228,10 +228,10 @@ export function TenantPaymentsMobile({ payments }: Props) {
             </div>
           ))
         ) : (
-          <div className="text-center py-16 bg-white border border-slate-200 rounded-xl px-4">
-            <CreditCardIcon size={36} className="text-slate-300 mx-auto mb-3" />
-            <h4 className="text-xs font-bold text-text mb-1">Sin historial</h4>
-            <p className="text-[10px] text-text-muted">No registras cuotas creadas.</p>
+          <div className="text-center py-16 bg-panel-card-bg border border-panel-border rounded-xl px-4">
+            <CreditCardIcon size={36} className="text-panel-text-dim mx-auto mb-3" />
+            <h4 className="text-xs font-bold text-panel-text mb-1">Sin historial</h4>
+            <p className="text-[10px] text-panel-text-muted">No registras cuotas creadas.</p>
           </div>
         )}
       </div>
@@ -239,17 +239,17 @@ export function TenantPaymentsMobile({ payments }: Props) {
       {/* MOBILE MODAL 1: Subir Comprobante */}
       {selectedPayment && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
-          <div className="bg-white border-t border-slate-200 shadow-2xl rounded-t-2xl w-full max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+          <div className="bg-panel-card-bg border-t border-panel-border shadow-2xl rounded-t-2xl w-full max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
             
             {/* Header */}
-            <div className="bg-slate-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between sticky top-0 z-10">
+            <div className="bg-panel-hover-bg border-b border-panel-border px-5 py-4 flex items-center justify-between sticky top-0 z-10">
               <div>
-                <h3 className="text-sm font-bold text-text">Pagar Cuota</h3>
-                <p className="text-[10px] text-text-muted mt-0.5">{getMonthName(selectedPayment.dueDate)} • S/ {selectedPayment.amount}</p>
+                <h3 className="text-sm font-bold text-panel-text">Pagar Cuota</h3>
+                <p className="text-[10px] text-panel-text-muted mt-0.5">{getMonthName(selectedPayment.dueDate)} • S/ {selectedPayment.amount}</p>
               </div>
               <button 
                 onClick={() => setSelectedPayment(null)}
-                className="p-1.5 text-text-muted hover:text-text bg-transparent border-0 cursor-pointer rounded-lg hover:bg-slate-100"
+                className="p-1.5 text-panel-text-muted hover:text-panel-text bg-transparent border-0 cursor-pointer rounded-lg hover:bg-panel-hover-bg"
               >
                 <Cancel01Icon size={18} />
               </button>
@@ -295,11 +295,11 @@ export function TenantPaymentsMobile({ payments }: Props) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-text-muted mb-1.5 uppercase">Método</label>
+                <label className="block text-[10px] font-bold text-panel-text-muted mb-1.5 uppercase">Método</label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full h-11 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent"
+                  className="w-full h-11 px-3 border border-panel-border rounded-xl text-xs font-semibold focus:border-accent"
                 >
                   <option value="BCP">Banco de Crédito (BCP)</option>
                   <option value="BBVA">Banco BBVA</option>
@@ -313,7 +313,7 @@ export function TenantPaymentsMobile({ payments }: Props) {
               {/* Receipt File upload */}
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-[10px] font-bold text-text-muted uppercase">Voucher (Carga de Foto)</label>
+                  <label className="block text-[10px] font-bold text-panel-text-muted uppercase">Voucher (Carga de Foto)</label>
                   <div className="flex gap-2">
                     {uploading && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
                     <button
@@ -326,12 +326,12 @@ export function TenantPaymentsMobile({ payments }: Props) {
                   </div>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-2">
+                <div className="border border-panel-border rounded-xl p-3 bg-panel-hover-bg space-y-2">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleFileUpload}
-                    className="text-[10px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
+                    className="text-[10px] text-panel-text-dim file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
                   />
                   <input
                     type="text"
@@ -339,30 +339,30 @@ export function TenantPaymentsMobile({ payments }: Props) {
                     value={receiptUrl}
                     onChange={(e) => setReceiptUrl(e.target.value)}
                     placeholder="O pega la URL del voucher aquí"
-                    className="w-full h-9 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent bg-white"
+                    className="w-full h-9 px-3 border border-panel-border rounded-xl text-xs font-semibold focus:border-accent bg-panel-card-bg"
                   />
                 </div>
 
                 {receiptUrl && (
-                  <div className="mt-3 border border-slate-100 rounded-xl p-2 bg-slate-50 flex items-center gap-3">
+                  <div className="mt-3 border border-panel-border rounded-xl p-2 bg-panel-hover-bg flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={receiptUrl} alt="Comprobante" className="size-10 rounded object-cover border border-slate-200" />
+                    <img src={receiptUrl} alt="Comprobante" className="size-10 rounded object-cover border border-panel-border" />
                     <div>
-                      <p className="text-[10px] font-bold text-text">voucher.png</p>
-                      <p className="text-[9px] text-text-muted">Archivo listo para verificación</p>
+                      <p className="text-[10px] font-bold text-panel-text">voucher.png</p>
+                      <p className="text-[9px] text-panel-text-muted">Archivo listo para verificación</p>
                     </div>
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-text-muted mb-1.5 uppercase">Comentarios (Opcional)</label>
+                <label className="block text-[10px] font-bold text-panel-text-muted mb-1.5 uppercase">Comentarios (Opcional)</label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Mensaje al arrendador..."
-                  className="w-full p-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent resize-none"
+                  className="w-full p-3 border border-panel-border rounded-xl text-xs font-semibold focus:border-accent resize-none"
                 />
               </div>
 
@@ -377,7 +377,7 @@ export function TenantPaymentsMobile({ payments }: Props) {
                 <button
                   type="button"
                   onClick={() => setSelectedPayment(null)}
-                  className="w-full h-11 border border-slate-200 bg-white rounded-xl text-xs font-bold text-text-muted cursor-pointer"
+                  className="w-full h-11 border border-panel-border bg-panel-card-bg rounded-xl text-xs font-bold text-panel-text-muted cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -391,47 +391,47 @@ export function TenantPaymentsMobile({ payments }: Props) {
       {/* MOBILE MODAL 2: Ver Detalles */}
       {previewPayment && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
-          <div className="bg-white border-t border-slate-200 shadow-2xl rounded-t-2xl w-full max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
+          <div className="bg-panel-card-bg border-t border-panel-border shadow-2xl rounded-t-2xl w-full max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
             
             {/* Header */}
-            <div className="bg-slate-50 border-b border-slate-200 px-5 py-4 flex items-center justify-between sticky top-0 z-10">
+            <div className="bg-panel-hover-bg border-b border-panel-border px-5 py-4 flex items-center justify-between sticky top-0 z-10">
               <div>
-                <h3 className="text-sm font-bold text-text">Detalle de Pago</h3>
-                <p className="text-[10px] text-text-muted mt-0.5">{previewPayment.propertyName} • Cuota {getMonthName(previewPayment.dueDate)}</p>
+                <h3 className="text-sm font-bold text-panel-text">Detalle de Pago</h3>
+                <p className="text-[10px] text-panel-text-muted mt-0.5">{previewPayment.propertyName} • Cuota {getMonthName(previewPayment.dueDate)}</p>
               </div>
               <button 
                 onClick={() => setPreviewPayment(null)}
-                className="p-1.5 text-text-muted hover:text-text bg-transparent border-0 cursor-pointer rounded-lg hover:bg-slate-100"
+                className="p-1.5 text-panel-text-muted hover:text-panel-text bg-transparent border-0 cursor-pointer rounded-lg hover:bg-panel-hover-bg"
               >
                 <Cancel01Icon size={18} />
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-5 space-y-4 pb-8 text-xs font-semibold text-text">
-              <div className="bg-slate-50 p-3.5 rounded-xl space-y-2">
+            <div className="p-5 space-y-4 pb-8 text-xs font-semibold text-panel-text">
+              <div className="bg-panel-hover-bg p-3.5 rounded-xl space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Monto:</span>
+                  <span className="text-panel-text-muted">Monto:</span>
                   <span className="font-extrabold text-sm">S/ {previewPayment.amount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Estado:</span>
+                  <span className="text-panel-text-muted">Estado:</span>
                   <span>{getStatusBadge(previewPayment.status)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Vencimiento:</span>
+                  <span className="text-panel-text-muted">Vencimiento:</span>
                   <span>{formatLocalDate(previewPayment.dueDate)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Fecha de Pago:</span>
+                  <span className="text-panel-text-muted">Fecha de Pago:</span>
                   <span>{previewPayment.paidDate ? formatLocalDate(previewPayment.paidDate) : "—"}</span>
                 </div>
               </div>
 
               {previewPayment.receipt && (
                 <div className="space-y-2.5">
-                  <span className="text-[10px] text-text-muted uppercase block">Voucher</span>
-                  <div className="border border-slate-200 rounded-xl overflow-hidden relative h-40 bg-slate-100 flex items-center justify-center">
+                  <span className="text-[10px] text-panel-text-muted uppercase block">Voucher</span>
+                  <div className="border border-panel-border rounded-xl overflow-hidden relative h-40 bg-panel-hover-bg flex items-center justify-center">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={previewPayment.receipt} 
@@ -439,15 +439,15 @@ export function TenantPaymentsMobile({ payments }: Props) {
                       className="w-full h-full object-contain"
                     />
                   </div>
-                  <div className="space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[10px]">
+                  <div className="space-y-1 bg-panel-hover-bg p-2.5 rounded-lg border border-panel-border text-[10px]">
                     <div className="flex justify-between">
-                      <span className="text-text-muted">Método:</span>
+                      <span className="text-panel-text-muted">Método:</span>
                       <span>{previewPayment.paymentMethod || "—"}</span>
                     </div>
                     {previewPayment.notes && (
-                      <div className="pt-1.5 border-t border-slate-100 mt-1">
-                        <span className="text-text-muted block mb-0.5">Notas:</span>
-                        <p className="font-normal text-text leading-normal">{previewPayment.notes}</p>
+                      <div className="pt-1.5 border-t border-panel-border mt-1">
+                        <span className="text-panel-text-muted block mb-0.5">Notas:</span>
+                        <p className="font-normal text-panel-text leading-normal">{previewPayment.notes}</p>
                       </div>
                     )}
                   </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -185,7 +186,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "DRAFT": 
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded-lg">Borrador</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-panel-hover-bg text-panel-text-dim border border-panel-border rounded-lg">Borrador</span>
       case "PENDING_TENANT": 
         return <span className="px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg">Espera Inquilino</span>
       case "PENDING_LANDLORD": 
@@ -193,35 +194,35 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       case "ACTIVE": 
         return <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg">Activo</span>
       case "FINISHED": 
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200 rounded-lg">Finalizado</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-panel-hover-bg text-panel-text-dim border border-panel-border rounded-lg">Finalizado</span>
       case "BREACHED_CANCELLED": 
         return <span className="px-2.5 py-1 text-xs font-semibold bg-red/10 text-red border border-red/20 rounded-lg">Rescindido</span>
       default: 
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded-lg">{status}</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-panel-hover-bg text-panel-text-dim border border-panel-border rounded-lg">{status}</span>
     }
   }
 
   return (
-    <div className="py-8 px-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2 text-text">Gestión de Contratos</h1>
-          <p className="text-base font-medium text-text-muted">
-            Crea, visualiza y firma digitalmente contratos con validez legal peruana
-          </p>
-        </div>
-        <button
-          onClick={handleOpenModal}
-          className="h-12 px-5 rounded-xl text-sm font-bold text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer"
-          style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
-        >
-          <Add01Icon size={18} />
-          <span>Crear Contrato</span>
-        </button>
-      </div>
+    <div className="max-w-7xl mx-auto px-6 py-8">
+
+      <PanelPageHeader
+        icon={<FileValidationIcon size={32} className="text-admin-accent" />}
+        title="Gestión de Contratos"
+        subtitle="Crea, visualiza y firma digitalmente contratos con validez legal peruana"
+        actions={
+          <button
+            onClick={handleOpenModal}
+            className="h-12 px-5 rounded-xl text-sm font-bold text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer"
+            style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
+          >
+            <Add01Icon size={18} />
+            <span>Crear Contrato</span>
+          </button>
+        }
+      />
 
       {/* Filters Bar */}
-      <div className="flex gap-2 mb-6 bg-white p-1.5 border border-slate-200 rounded-xl max-w-max">
+      <div className="flex gap-2 mb-6 bg-panel-card-bg p-1.5 border border-panel-border rounded-xl max-w-max">
         {["TODOS", "DRAFT", "PENDING_TENANT", "PENDING_LANDLORD", "ACTIVE"].map(status => (
           <button
             key={status}
@@ -229,7 +230,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
             className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               filter === status 
                 ? "bg-[#151c26] text-white shadow-sm" 
-                : "text-text-muted hover:text-text hover:bg-slate-50"
+                : "text-panel-text-muted hover:text-panel-text hover:bg-panel-hover-bg"
             }`}
           >
             {status === "TODOS" ? "Todos" : status === "DRAFT" ? "Borradores" : status === "PENDING_TENANT" ? "Pendientes Inquilino" : status === "PENDING_LANDLORD" ? "Por Contrafirmar" : "Activos"}
@@ -238,38 +239,38 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       </div>
 
       {/* Contracts Table */}
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="bg-panel-card-bg border border-panel-border rounded-xl overflow-hidden">
         {filteredContracts.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/50">
-                  <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Propiedad</th>
-                  <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Inquilino</th>
-                  <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Renta Mensual</th>
-                  <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Vigencia</th>
-                  <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Estado</th>
-                  <th className="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider text-right">Acciones</th>
+                <tr className="border-b border-panel-border bg-panel-hover-bg/50">
+                  <th className="px-6 py-4 text-xs font-bold text-panel-text-muted uppercase tracking-wider">Propiedad</th>
+                  <th className="px-6 py-4 text-xs font-bold text-panel-text-muted uppercase tracking-wider">Inquilino</th>
+                  <th className="px-6 py-4 text-xs font-bold text-panel-text-muted uppercase tracking-wider">Renta Mensual</th>
+                  <th className="px-6 py-4 text-xs font-bold text-panel-text-muted uppercase tracking-wider">Vigencia</th>
+                  <th className="px-6 py-4 text-xs font-bold text-panel-text-muted uppercase tracking-wider">Estado</th>
+                  <th className="px-6 py-4 text-xs font-bold text-panel-text-muted uppercase tracking-wider text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {pagination.paginatedItems.map(c => (
-                  <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={c.id} className="hover:bg-panel-hover-bg/50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-sm text-text">{c.property.title}</div>
-                      <div className="text-xs text-text-muted mt-0.5">{c.property.district}</div>
+                      <div className="font-bold text-sm text-panel-text">{c.property.title}</div>
+                      <div className="text-xs text-panel-text-muted mt-0.5">{c.property.district}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-sm text-text">{c.tenant.firstName} {c.tenant.lastName}</div>
-                      <div className="text-xs text-text-muted mt-0.5">{c.tenant.email}</div>
+                      <div className="font-semibold text-sm text-panel-text">{c.tenant.firstName} {c.tenant.lastName}</div>
+                      <div className="text-xs text-panel-text-muted mt-0.5">{c.tenant.email}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-semibold text-sm text-text">
+                      <span className="font-semibold text-sm text-panel-text">
                         S/ {Number(c.monthlyRent).toLocaleString()}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-xs font-medium text-text">
+                      <div className="text-xs font-medium text-panel-text">
                         {new Date(c.startDate).toLocaleDateString("es-PE")} al {new Date(c.endDate).toLocaleDateString("es-PE")}
                       </div>
                     </td>
@@ -295,7 +296,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                           className={`inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-lg border transition-all no-underline ${
                             c.status === "PENDING_LANDLORD"
                               ? "bg-accent border-accent text-white hover:brightness-110"
-                              : "bg-white border-slate-200 text-text-muted hover:border-slate-300 hover:text-text"
+                              : "bg-panel-card-bg border-panel-border text-panel-text-muted hover:border-slate-300 hover:text-panel-text"
                           }`}
                         >
                           {c.status === "PENDING_LANDLORD" ? "Contrafirmar" : "Ver Contrato"}
@@ -309,9 +310,9 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
           </div>
         ) : (
           <div className="text-center py-16 px-4">
-            <FileValidationIcon size={48} className="text-slate-300 mx-auto mb-4" />
-            <h3 className="text-sm font-semibold text-text mb-1">Sin contratos</h3>
-            <p className="text-xs font-medium text-text-muted">No se encontraron contratos para el filtro seleccionado.</p>
+            <FileValidationIcon size={48} className="text-panel-text-dim mx-auto mb-4" />
+            <h3 className="text-sm font-semibold text-panel-text mb-1">Sin contratos</h3>
+            <p className="text-xs font-medium text-panel-text-muted">No se encontraron contratos para el filtro seleccionado.</p>
           </div>
         )}
       </div>
@@ -332,16 +333,16 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       {/* Modal: calificar inquilino */}
       {tenantReviewModal && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
-              <h3 className="text-base font-bold text-text">Calificar a {tenantReviewModal.tenantName}</h3>
-              <button onClick={() => setTenantReviewModal(null)} className="text-slate-400 hover:text-text bg-transparent border-0 cursor-pointer p-1">
+          <div className="bg-panel-card-bg rounded-2xl border border-panel-border shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="px-6 py-4 border-b border-panel-border flex items-center justify-between bg-panel-hover-bg/50">
+              <h3 className="text-base font-bold text-panel-text">Calificar a {tenantReviewModal.tenantName}</h3>
+              <button onClick={() => setTenantReviewModal(null)} className="text-panel-text-dim hover:text-panel-text bg-transparent border-0 cursor-pointer p-1">
                 <Cancel01Icon size={20} />
               </button>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Calificación</p>
+                <p className="text-xs font-bold text-panel-text-dim uppercase tracking-wide mb-2">Calificación</p>
                 <div className="flex gap-2">
                   {[1,2,3,4,5].map(s => (
                     <button key={s} type="button" onClick={() => setTenantReviewRating(s)}
@@ -352,14 +353,14 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                 </div>
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Comentario</p>
+                <p className="text-xs font-bold text-panel-text-dim uppercase tracking-wide mb-1.5">Comentario</p>
                 <textarea rows={3} value={tenantReviewComment} onChange={e => setTenantReviewComment(e.target.value)}
                   placeholder="Puntualidad de pagos, cuidado del inmueble, comunicación..."
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm resize-none focus:border-accent outline-none" />
+                  className="w-full px-3 py-2.5 border border-panel-border rounded-xl text-sm resize-none focus:border-accent outline-none" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button onClick={() => setTenantReviewModal(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-500 border border-slate-200 rounded-lg bg-white hover:bg-slate-50 cursor-pointer">
+                  className="px-4 py-2 text-xs font-bold text-panel-text-dim border border-panel-border rounded-lg bg-panel-card-bg hover:bg-panel-hover-bg cursor-pointer">
                   Cancelar
                 </button>
                 <button
@@ -394,15 +395,15 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       {/* Creation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[150] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="bg-panel-card-bg rounded-2xl border border-panel-border shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
             
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50">
+            <div className="px-6 py-4 border-b border-panel-border bg-panel-hover-bg/50">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-base font-bold text-text">Crear Borrador de Contrato</h3>
+                <h3 className="text-base font-bold text-panel-text">Crear Borrador de Contrato</h3>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="text-slate-400 hover:text-text transition-colors bg-transparent border-0 cursor-pointer p-1"
+                  className="text-panel-text-dim hover:text-panel-text transition-colors bg-transparent border-0 cursor-pointer p-1"
                 >
                   <Cancel01Icon size={20} />
                 </button>
@@ -423,7 +424,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                           ? "bg-emerald-500 text-white"
                           : step === s.num
                           ? "bg-accent text-white"
-                          : "bg-slate-200 text-slate-400"
+                          : "bg-panel-hover-bg text-panel-text-dim"
                       }`}>
                         {step > s.num ? (
                           <CheckmarkCircle01Icon size={14} />
@@ -432,14 +433,14 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                         )}
                       </div>
                       <span className={`text-[11px] font-semibold whitespace-nowrap ${
-                        step >= s.num ? "text-text" : "text-slate-400"
+                        step >= s.num ? "text-panel-text" : "text-panel-text-dim"
                       }`}>
                         {s.label}
                       </span>
                     </div>
                     {s.num < 4 && (
                       <div className={`flex-1 h-px mx-3 ${
-                        step > s.num ? "bg-emerald-300" : "bg-slate-200"
+                        step > s.num ? "bg-emerald-300" : "bg-panel-hover-bg"
                       }`} />
                     )}
                   </div>
@@ -459,31 +460,31 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
               {/* Step 1: Property Selection */}
               {step === 1 && (
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-text mb-2">Selecciona la Propiedad</h4>
+                  <h4 className="text-sm font-bold text-panel-text mb-2">Selecciona la Propiedad</h4>
                   {properties.length > 0 ? (
                     <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
                       {properties.map(p => (
                         <div 
                           key={p.id}
                           onClick={() => handlePropertySelect(p.id, p.price)}
-                          className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 hover:border-accent rounded-xl cursor-pointer transition-colors group"
+                          className="flex items-center justify-between p-4 bg-panel-hover-bg border border-panel-border hover:border-accent rounded-xl cursor-pointer transition-colors group"
                         >
                           <div>
-                            <div className="font-bold text-sm text-text group-hover:text-accent transition-colors">{p.title}</div>
-                            <div className="text-xs text-text-muted mt-1">{p.address}, {p.district}</div>
+                            <div className="font-bold text-sm text-panel-text group-hover:text-accent transition-colors">{p.title}</div>
+                            <div className="text-xs text-panel-text-muted mt-1">{p.address}, {p.district}</div>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-sm text-text">S/ {p.price.toLocaleString()}</div>
-                            <div className="text-[10px] text-text-muted mt-0.5">mensual</div>
+                            <div className="font-bold text-sm text-panel-text">S/ {p.price.toLocaleString()}</div>
+                            <div className="text-[10px] text-panel-text-muted mt-0.5">mensual</div>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                      <Home01Icon size={32} className="text-slate-300 mx-auto mb-2" />
-                      <p className="text-xs font-semibold text-text mb-1">Sin propiedades disponibles</p>
-                      <p className="text-[10px] text-text-muted">Debes registrar y tener libre al menos una propiedad.</p>
+                    <div className="text-center py-10 bg-panel-hover-bg rounded-xl border border-dashed border-panel-border">
+                      <Home01Icon size={32} className="text-panel-text-dim mx-auto mb-2" />
+                      <p className="text-xs font-semibold text-panel-text mb-1">Sin propiedades disponibles</p>
+                      <p className="text-[10px] text-panel-text-muted">Debes registrar y tener libre al menos una propiedad.</p>
                     </div>
                   )}
                 </div>
@@ -492,37 +493,37 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
               {/* Step 2: Tenant Selection */}
               {step === 2 && (
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-text mb-2">Selecciona al Inquilino</h4>
+                  <h4 className="text-sm font-bold text-panel-text mb-2">Selecciona al Inquilino</h4>
                   {tenants.length > 0 ? (
                     <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
                       {tenants.map(t => (
                         <div 
                           key={t.id}
                           onClick={() => handleTenantSelect(t.id)}
-                          className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 hover:border-accent rounded-xl cursor-pointer transition-colors group"
+                          className="flex items-center gap-3 p-4 bg-panel-hover-bg border border-panel-border hover:border-accent rounded-xl cursor-pointer transition-colors group"
                         >
-                          <div className="size-10 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
-                            <UserCircleIcon size={20} className="text-slate-500" />
+                          <div className="size-10 rounded-full bg-panel-hover-bg flex items-center justify-center shrink-0">
+                            <UserCircleIcon size={20} className="text-panel-text-dim" />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="font-bold text-sm text-text group-hover:text-accent transition-colors">
+                            <div className="font-bold text-sm text-panel-text group-hover:text-accent transition-colors">
                               {t.firstName} {t.lastName}
                             </div>
-                            <div className="text-xs text-text-muted truncate mt-0.5">{t.email}</div>
+                            <div className="text-xs text-panel-text-muted truncate mt-0.5">{t.email}</div>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                      <UserCircleIcon size={32} className="text-slate-300 mx-auto mb-2" />
-                      <p className="text-xs font-semibold text-text mb-1">Sin inquilinos en el sistema</p>
-                      <p className="text-[10px] text-text-muted">No hay inquilinos registrados en este momento.</p>
+                    <div className="text-center py-10 bg-panel-hover-bg rounded-xl border border-dashed border-panel-border">
+                      <UserCircleIcon size={32} className="text-panel-text-dim mx-auto mb-2" />
+                      <p className="text-xs font-semibold text-panel-text mb-1">Sin inquilinos en el sistema</p>
+                      <p className="text-[10px] text-panel-text-muted">No hay inquilinos registrados en este momento.</p>
                     </div>
                   )}
                   <button 
                     onClick={() => setStep(1)}
-                    className="mt-4 text-xs font-bold text-text-muted hover:text-text bg-transparent border-0 cursor-pointer"
+                    className="mt-4 text-xs font-bold text-panel-text-muted hover:text-panel-text bg-transparent border-0 cursor-pointer"
                   >
                     &larr; Volver a seleccionar propiedad
                   </button>
@@ -532,28 +533,28 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
               {/* Step 3: Financials and dates */}
               {step === 3 && (
                 <form onSubmit={handleStep3Submit} className="space-y-4">
-                  <h4 className="text-sm font-bold text-text mb-2">Detalles del Alquiler</h4>
+                  <h4 className="text-sm font-bold text-panel-text mb-2">Detalles del Alquiler</h4>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Moneda</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Moneda</label>
                       <select 
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                       >
                         <option value="PEN">Soles (PEN)</option>
                         <option value="USD">Dólares (USD)</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Monto de Renta</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Monto de Renta</label>
                       <input 
                         type="number"
                         required
                         value={monthlyRent}
                         onChange={(e) => setMonthlyRent(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                         placeholder="1800"
                       />
                     </div>
@@ -561,18 +562,18 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Depósito Garantía</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Depósito Garantía</label>
                       <input 
                         type="number"
                         required
                         value={deposit}
                         onChange={(e) => setDeposit(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                         placeholder="1800"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Día de Pago (Mensual)</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Día de Pago (Mensual)</label>
                       <input 
                         type="number"
                         required
@@ -580,7 +581,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                         max="31"
                         value={paymentDay}
                         onChange={(e) => setPaymentDay(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                         placeholder="5"
                       />
                     </div>
@@ -588,32 +589,32 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Fecha de Inicio</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Fecha de Inicio</label>
                       <input 
                         type="date"
                         required
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Fecha de Término</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Fecha de Término</label>
                       <input 
                         type="date"
                         required
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-4 flex items-center justify-between border-t border-slate-100">
+                  <div className="pt-4 flex items-center justify-between border-t border-panel-border">
                     <button 
                       type="button"
                       onClick={() => setStep(2)}
-                      className="text-xs font-bold text-text-muted hover:text-text bg-transparent border-0 cursor-pointer"
+                      className="text-xs font-bold text-panel-text-muted hover:text-panel-text bg-transparent border-0 cursor-pointer"
                     >
                       &larr; Volver
                     </button>
@@ -632,47 +633,47 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                 <form onSubmit={handleSubmit} className="space-y-4">
 
                   {/* Summary Preview */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Resumen del Contrato</p>
+                  <div className="bg-panel-hover-bg border border-panel-border rounded-xl p-4 space-y-2">
+                    <p className="text-[10px] font-bold text-panel-text-muted uppercase tracking-wider mb-2">Resumen del Contrato</p>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-                      <span className="text-text-muted">Propiedad:</span>
-                      <span className="font-semibold text-text text-right">
+                      <span className="text-panel-text-muted">Propiedad:</span>
+                      <span className="font-semibold text-panel-text text-right">
                         {properties.find(p => p.id === selectedPropertyId)?.title ?? "—"}
                       </span>
-                      <span className="text-text-muted">Inquilino:</span>
-                      <span className="font-semibold text-text text-right">
+                      <span className="text-panel-text-muted">Inquilino:</span>
+                      <span className="font-semibold text-panel-text text-right">
                         {(() => {
                           const t = tenants.find(t => t.id === selectedTenantId)
                           return t ? `${t.firstName} ${t.lastName}` : '—'
                         })()}
                       </span>
-                      <span className="text-text-muted">Renta Mensual:</span>
-                      <span className="font-semibold text-text text-right">{currency === "PEN" ? "S/" : "$"} {Number(monthlyRent).toLocaleString()}</span>
-                      <span className="text-text-muted">Depósito:</span>
-                      <span className="font-semibold text-text text-right">{currency === "PEN" ? "S/" : "$"} {Number(deposit).toLocaleString()}</span>
-                      <span className="text-text-muted">Vigencia:</span>
-                      <span className="font-semibold text-text text-right">
+                      <span className="text-panel-text-muted">Renta Mensual:</span>
+                      <span className="font-semibold text-panel-text text-right">{currency === "PEN" ? "S/" : "$"} {Number(monthlyRent).toLocaleString()}</span>
+                      <span className="text-panel-text-muted">Depósito:</span>
+                      <span className="font-semibold text-panel-text text-right">{currency === "PEN" ? "S/" : "$"} {Number(deposit).toLocaleString()}</span>
+                      <span className="text-panel-text-muted">Vigencia:</span>
+                      <span className="font-semibold text-panel-text text-right">
                         {startDate ? new Date(startDate).toLocaleDateString("es-PE", { day: "numeric", month: "short" }) : "—"} 
                         {" → "}
                         {endDate ? new Date(endDate).toLocaleDateString("es-PE", { day: "numeric", month: "short", year: "numeric" }) : "—"}
                       </span>
-                      <span className="text-text-muted">Día de Pago:</span>
-                      <span className="font-semibold text-text text-right">{paymentDay} de cada mes</span>
+                      <span className="text-panel-text-muted">Día de Pago:</span>
+                      <span className="font-semibold text-panel-text text-right">{paymentDay} de cada mes</span>
                     </div>
                   </div>
 
-                  <h4 className="text-sm font-bold text-text mb-2">Configura tu Cuenta de Abono</h4>
-                  <p className="text-xs text-text-muted leading-relaxed">
+                  <h4 className="text-sm font-bold text-panel-text mb-2">Configura tu Cuenta de Abono</h4>
+                  <p className="text-xs text-panel-text-muted leading-relaxed">
                     Los pagos mensuales serán depositados a esta cuenta bancaria. Esta información será interpolada en las cláusulas de pago del contrato (Clickwrap).
                   </p>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Banco / Proveedor</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Banco / Proveedor</label>
                       <select 
                         value={bankProvider}
                         onChange={(e) => setBankProvider(e.target.value as any)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                       >
                         <option value="BCP">Banco de Crédito del Perú (BCP)</option>
                         <option value="BBVA">BBVA Perú</option>
@@ -684,35 +685,35 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Número de Cuenta</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Número de Cuenta</label>
                       <input 
                         type="text"
                         required
                         value={bankAccountNumber}
                         onChange={(e) => setBankAccountNumber(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                         placeholder="191-XXXXXXXX-X-XX"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-text-muted mb-1.5 uppercase">Titular de la Cuenta</label>
+                      <label className="block text-xs font-bold text-panel-text-muted mb-1.5 uppercase">Titular de la Cuenta</label>
                       <input 
                         type="text"
                         required
                         value={bankAccountHolder}
                         onChange={(e) => setBankAccountHolder(e.target.value)}
-                        className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent"
+                        className="w-full h-11 px-3 border border-panel-border rounded-xl text-sm font-semibold focus:border-accent"
                         placeholder="Juan Díaz"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-6 flex items-center justify-between border-t border-slate-100">
+                  <div className="pt-6 flex items-center justify-between border-t border-panel-border">
                     <button 
                       type="button"
                       onClick={() => setStep(3)}
-                      className="text-xs font-bold text-text-muted hover:text-text bg-transparent border-0 cursor-pointer"
+                      className="text-xs font-bold text-panel-text-muted hover:text-panel-text bg-transparent border-0 cursor-pointer"
                     >
                       &larr; Volver
                     </button>

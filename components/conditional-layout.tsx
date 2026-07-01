@@ -16,8 +16,9 @@ export default function ConditionalLayout({
   const isLandlordRoute = pathname?.startsWith('/landlord')
   const isTenantRoute = pathname?.startsWith('/tenant')
   const isAuthRoute = /\/(login|register)(\/|$)/.test(pathname ?? '')
-  
-  const hideLayout = isAdminRoute || isLandlordRoute || isTenantRoute || isAuthRoute
+  const isOnboardingRoute = /\/publicar\/onboarding(\/|$)/.test(pathname ?? '')
+
+  const hideLayout = isAdminRoute || isLandlordRoute || isTenantRoute || isAuthRoute || isOnboardingRoute
 
   if (hideLayout) {
     return <>{children}</>

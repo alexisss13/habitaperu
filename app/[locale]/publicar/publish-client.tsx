@@ -80,7 +80,7 @@ export function PublishClient() {
 
               <div className="flex gap-4 mb-10 flex-wrap">
                 <Link
-                  href={`/${locale}/register`}
+                  href={`/${locale}/publicar/onboarding`}
                   className="inline-flex items-center gap-2.5 px-8 py-4 text-white rounded-xl text-base font-semibold no-underline transition-all shadow-[0_4px_16px_rgba(15,52,87,0.2)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(15,52,87,0.3)]"
                   style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}
                 >
@@ -251,7 +251,7 @@ export function PublishClient() {
 
           <div className="text-center mt-12">
             <Link
-              href={`/${locale}/register`}
+              href={`/${locale}/publicar/onboarding`}
               className="inline-flex items-center gap-2.5 px-8 py-4 text-white rounded-xl text-base font-semibold no-underline transition-all shadow-[0_4px_16px_rgba(15,52,87,0.2)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(15,52,87,0.3)]"
               style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}
             >
@@ -322,7 +322,7 @@ export function PublishClient() {
             {t('cta.subtitle')}
           </p>
           <Link
-            href={`/${locale}/register`}
+            href={`/${locale}/publicar/onboarding`}
             className="inline-flex items-center gap-2.5 px-10 py-[18px] bg-white text-accent rounded-xl text-[1.0625rem] font-bold no-underline transition-all shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,0,0,0.3)]"
           >
             <RocketIcon size={22} />

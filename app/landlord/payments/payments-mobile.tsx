@@ -158,8 +158,8 @@ export function LandlordPaymentsMobile({ payments }: Props) {
     <div className="min-h-screen bg-bg-2 pb-24">
       {/* Header */}
       <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-text">Control de Pagos</h1>
-        <p className="text-xs font-medium text-text-muted mt-1">Valida los alquileres de tus propiedades</p>
+        <h1 className="text-2xl font-bold text-admin-text mb-2">Control de Pagos</h1>
+        <p className="text-sm text-admin-text-muted">Valida los alquileres de tus propiedades</p>
       </div>
 
       {/* Metrics horizontal scroll */}

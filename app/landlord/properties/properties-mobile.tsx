@@ -68,8 +68,8 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
       {/* Header */}
       <div className="flex flex-col gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-text">Mis Propiedades</h1>
-          <p className="text-xs font-medium text-text-muted mt-1">
+          <h1 className="text-2xl font-bold text-admin-text mb-2">Mis Propiedades</h1>
+          <p className="text-sm text-admin-text-muted">
             Administra tus anuncios de alquiler
           </p>
         </div>

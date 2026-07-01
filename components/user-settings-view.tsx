@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useResponsive } from "@/hooks/useResponsive"
 import { LoadingScreen } from "@/components/ui/loading-screen"
+import { PanelPageHeader } from "@/components/panel-page-header"
 import { SecurityIcon, UserIcon, CheckmarkCircle01Icon, Settings02Icon, Notification02Icon } from "hugeicons-react"
 import { toggleTwoFactorAction } from "@/app/actions/user-actions"
 
@@ -57,28 +58,35 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
 
   return (
     <div className={containerCls}>
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <Settings02Icon size={isMobile ? 24 : 32} className="text-accent" />
-          <h1 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-bold text-gray-900`}>
-            Configuración de Cuenta
-          </h1>
+      {/* Header desktop */}
+      {!isMobile && (
+        <PanelPageHeader
+          icon={<Settings02Icon size={32} className="text-admin-accent" />}
+          title="Configuración de Cuenta"
+          subtitle="Administra tus datos personales, seguridad y preferencias de la plataforma."
+        />
+      )}
+      {isMobile && (
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <Settings02Icon size={24} className="text-admin-accent" />
+            <h1 className="text-2xl font-bold text-admin-text">Configuración de Cuenta</h1>
+          </div>
+          <p className="text-sm text-admin-text-muted">
+            Administra tus datos personales, seguridad y preferencias de la plataforma.
+          </p>
         </div>
-        <p className="text-sm text-gray-500">
-          Administra tus datos personales, seguridad y preferencias de la plataforma.
-        </p>
-      </div>
+      )}
 
       {/* Messages */}
       {successMsg && (
-        <div className="flex items-center gap-2.5 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-semibold transition-all">
+        <div className="flex items-center gap-2.5 p-4 bg-panel-hover-bg border border-panel-border rounded-xl text-green text-sm font-semibold transition-all">
           <CheckmarkCircle01Icon size={18} className="shrink-0 text-green" />
           <span>{successMsg}</span>
         </div>
       )}
       {errorMsg && (
-        <div className="flex items-center gap-2.5 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-semibold transition-all">
+        <div className="flex items-center gap-2.5 p-4 bg-red/10 border border-red/20 rounded-xl text-red text-sm font-semibold transition-all">
           <span className="shrink-0">⚠️</span>
           <span>{errorMsg}</span>
         </div>
@@ -87,41 +95,41 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
       {/* Sections */}
       <div className="flex flex-col gap-6">
         {/* Profile Info Section */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div className="bg-panel-card-bg rounded-2xl border border-panel-border overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-panel-border bg-panel-hover-bg">
             <UserIcon size={20} className="text-accent" />
-            <h2 className="text-base font-bold text-gray-800">Datos del Perfil</h2>
+            <h2 className="text-base font-bold text-panel-text">Datos del Perfil</h2>
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-panel-text-muted uppercase tracking-wider mb-1.5">
                 Nombre Completo
               </label>
-              <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 font-semibold">
+              <div className="px-4 py-2.5 bg-panel-card-bg border border-panel-border rounded-lg text-sm text-panel-text font-semibold">
                 {user.name}
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-panel-text-muted uppercase tracking-wider mb-1.5">
                 Correo Electrónico
               </label>
-              <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 font-mono">
+              <div className="px-4 py-2.5 bg-panel-card-bg border border-panel-border rounded-lg text-sm text-panel-text font-mono">
                 {user.email}
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-panel-text-muted uppercase tracking-wider mb-1.5">
                 Rol de Usuario
               </label>
-              <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 font-bold uppercase tracking-wide">
+              <div className="px-4 py-2.5 bg-panel-card-bg border border-panel-border rounded-lg text-sm text-panel-text-dim font-bold uppercase tracking-wide">
                 {user.role === "LANDLORD" ? "Arrendador" : user.role === "TENANT" ? "Inquilino" : user.role}
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-panel-text-muted uppercase tracking-wider mb-1.5">
                 Teléfono de Contacto
               </label>
-              <div className="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800 font-semibold">
+              <div className="px-4 py-2.5 bg-panel-card-bg border border-panel-border rounded-lg text-sm text-panel-text font-semibold">
                 {user.phone || "No registrado"}
               </div>
             </div>
@@ -129,18 +137,18 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
         </div>
 
         {/* Security Section (2FA Toggle) */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div className="bg-panel-card-bg rounded-2xl border border-panel-border overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-panel-border bg-panel-hover-bg">
             <SecurityIcon size={20} className="text-accent" />
-            <h2 className="text-base font-bold text-gray-800">Seguridad de la Cuenta</h2>
+            <h2 className="text-base font-bold text-panel-text">Seguridad de la Cuenta</h2>
           </div>
           <div className="p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-1">
+                <h3 className="text-sm font-bold text-panel-text mb-1">
                   Autenticación de dos factores (2FA)
                 </h3>
-                <p className="text-xs text-gray-500 max-w-lg leading-relaxed">
+                <p className="text-xs text-panel-text-muted max-w-lg leading-relaxed">
                   Añade una capa extra de seguridad para tu cuenta. Al iniciar sesión, se te solicitará ingresar un código de 6 dígitos enviado por seguridad.
                 </p>
               </div>
@@ -162,7 +170,7 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
                     }`}
                   />
                 </button>
-                <span className="text-xs font-bold text-gray-700 min-w-16">
+                <span className="text-xs font-bold text-panel-text-dim min-w-16">
                   {twoFactorEnabled ? "Activado" : "Desactivado"}
                 </span>
               </div>
@@ -171,27 +179,27 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
         </div>
 
         {/* Notifications Preference Mock Section */}
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div className="bg-panel-card-bg rounded-2xl border border-panel-border overflow-hidden">
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-panel-border bg-panel-hover-bg">
             <Notification02Icon size={20} className="text-accent" />
-            <h2 className="text-base font-bold text-gray-800">Notificaciones y Alertas</h2>
+            <h2 className="text-base font-bold text-panel-text">Notificaciones y Alertas</h2>
           </div>
           <div className="p-6 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-gray-800 mb-0.5">Notificaciones por Correo</h3>
-                <p className="text-xs text-gray-500">Recibe resúmenes de contratos, cobros y recibos.</p>
+                <h3 className="text-sm font-bold text-panel-text mb-0.5">Notificaciones por Correo</h3>
+                <p className="text-xs text-panel-text-muted">Recibe resúmenes de contratos, cobros y recibos.</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
                 <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green"></div>
               </label>
             </div>
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-panel-border" />
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-gray-800 mb-0.5">Alertas de WhatsApp</h3>
-                <p className="text-xs text-gray-500">Recibe recordatorios de firma y pagos al instante.</p>
+                <h3 className="text-sm font-bold text-panel-text mb-0.5">Alertas de WhatsApp</h3>
+                <p className="text-xs text-panel-text-muted">Recibe recordatorios de firma y pagos al instante.</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />

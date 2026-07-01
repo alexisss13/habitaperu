@@ -148,7 +148,7 @@ export function PropiedadesDesktop({
 
           {/* ── SIDEBAR FILTERS ── */}
           <aside className="w-60 shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sticky top-[88px]">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sticky top-[112px]">
 
               {/* Filter header */}
               <div className="flex items-center justify-between mb-5">

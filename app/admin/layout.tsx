@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import AdminLayoutClient from "@/components/admin-layout-client"
+import DashboardLayout from "@/components/dashboard-layout"
 
 export default async function AdminLayout({
   children,
@@ -13,5 +13,9 @@ export default async function AdminLayout({
     redirect("/login")
   }
 
-  return <AdminLayoutClient session={session}>{children}</AdminLayoutClient>
+  return (
+    <DashboardLayout session={session} role="admin" showSearch showThemeSwitch>
+      {children}
+    </DashboardLayout>
+  )
 }

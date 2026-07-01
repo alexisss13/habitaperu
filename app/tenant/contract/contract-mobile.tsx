@@ -42,20 +42,20 @@ export function TenantContractMobile({ contracts }: Props) {
       case "PENDING_LANDLORD":
         return <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded">Propietario</span>
       case "FINISHED":
-        return <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 rounded">Finalizado</span>
+        return <span className="px-2 py-0.5 text-[10px] font-bold bg-panel-hover-bg text-panel-text-dim border border-panel-border rounded">Finalizado</span>
       case "BREACHED_CANCELLED":
         return <span className="px-2 py-0.5 text-[10px] font-bold bg-red/10 text-red border border-red/20 rounded">Rescindido</span>
       default:
-        return <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 rounded">{status}</span>
+        return <span className="px-2 py-0.5 text-[10px] font-bold bg-panel-hover-bg text-panel-text-dim border border-panel-border rounded">{status}</span>
     }
   }
 
   return (
-    <div className="min-h-screen bg-bg-2 pb-24">
+    <div className="min-h-screen bg-panel-bg pb-24">
       {/* Top Header */}
       <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-text">Mi Contrato</h1>
-        <p className="text-xs font-medium text-text-muted mt-1">Consulta tu arriendo activo e historial</p>
+        <h1 className="text-2xl font-bold text-admin-text mb-2">Mi Contrato</h1>
+        <p className="text-sm text-admin-text-muted">Consulta tu arriendo activo e historial</p>
       </div>
 
       {/* Main Flow Containers */}
@@ -63,15 +63,15 @@ export function TenantContractMobile({ contracts }: Props) {
         
         {/* 1. Borrador Pendiente de Firma */}
         {pendingContract && (
-          <div className="bg-white border border-amber-200 rounded-xl p-4 shadow-sm">
+          <div className="bg-panel-card-bg border border-amber-200 rounded-xl p-4 shadow-sm">
             <span className="text-[9px] bg-amber-50 text-amber-700 border border-amber-200 rounded font-bold px-2 py-0.5 inline-block mb-2">
               Firma Requerida
             </span>
-            <h3 className="font-bold text-sm text-text mb-1 truncate">{pendingContract.property.title}</h3>
-            <p className="text-[11px] text-text-muted leading-normal mb-3">
+            <h3 className="font-bold text-sm text-panel-text mb-1 truncate">{pendingContract.property.title}</h3>
+            <p className="text-[11px] text-panel-text-muted leading-normal mb-3">
               Tienes un contrato de arrendamiento en <strong>{pendingContract.property.district}</strong> listo para tu firma digital.
             </p>
-            <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg mb-3 text-[11px] font-semibold text-text">
+            <div className="flex justify-between items-center bg-panel-hover-bg p-2.5 rounded-lg mb-3 text-[11px] font-semibold text-panel-text">
               <span>Alquiler: S/ {pendingContract.monthlyRent}</span>
               <span>Garantía: S/ {pendingContract.deposit}</span>
             </div>
@@ -87,12 +87,12 @@ export function TenantContractMobile({ contracts }: Props) {
 
         {/* 2. Esperando Firma Propietario */}
         {waitingContract && (
-          <div className="bg-white border border-indigo-200 rounded-xl p-4 shadow-sm">
+          <div className="bg-panel-card-bg border border-indigo-200 rounded-xl p-4 shadow-sm">
             <span className="text-[9px] bg-indigo-50 text-indigo-700 border border-indigo-200 rounded font-bold px-2 py-0.5 inline-block mb-2">
               Firma Registrada
             </span>
-            <h3 className="font-bold text-sm text-text mb-1 truncate">{waitingContract.property.title}</h3>
-            <p className="text-[11px] text-text-muted leading-normal mb-3">
+            <h3 className="font-bold text-sm text-panel-text mb-1 truncate">{waitingContract.property.title}</h3>
+            <p className="text-[11px] text-panel-text-muted leading-normal mb-3">
               Firmaste este contrato. Se activará en cuanto el propietario ({waitingContract.landlord.firstName}) firme la contrafirma.
             </p>
             <Link
@@ -108,40 +108,40 @@ export function TenantContractMobile({ contracts }: Props) {
         {activeContract && (
           <div className="space-y-4">
             {/* Core Card */}
-            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+            <div className="bg-panel-card-bg border border-panel-border rounded-xl p-4 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 text-text">
+                <div className="flex items-center gap-2 text-panel-text">
                   <FileValidationIcon size={18} className="text-emerald-600" />
                   <span className="text-[11px] font-bold uppercase tracking-wider">Arriendo Vigente</span>
                 </div>
                 {getStatusBadge(activeContract.status)}
               </div>
 
-              <h3 className="font-bold text-sm text-text truncate mb-1">{activeContract.property.title}</h3>
-              <p className="text-[10px] text-text-muted flex items-center gap-1 mb-4">
-                <Location01Icon size={12} className="text-slate-400" />
+              <h3 className="font-bold text-sm text-panel-text truncate mb-1">{activeContract.property.title}</h3>
+              <p className="text-[10px] text-panel-text-muted flex items-center gap-1 mb-4">
+                <Location01Icon size={12} className="text-panel-text-dim" />
                 <span>{activeContract.property.district} • {activeContract.property.address}</span>
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-4">
-                <div className="bg-slate-50 p-3 rounded-lg">
-                  <span className="text-[9px] text-text-muted uppercase font-bold block mb-0.5">Alquiler</span>
-                  <span className="text-sm font-extrabold text-text">S/ {activeContract.monthlyRent.toLocaleString()}</span>
+                <div className="bg-panel-hover-bg p-3 rounded-lg">
+                  <span className="text-[9px] text-panel-text-muted uppercase font-bold block mb-0.5">Alquiler</span>
+                  <span className="text-sm font-extrabold text-panel-text">S/ {activeContract.monthlyRent.toLocaleString()}</span>
                 </div>
-                <div className="bg-slate-50 p-3 rounded-lg">
-                  <span className="text-[9px] text-text-muted uppercase font-bold block mb-0.5">Día de Pago</span>
-                  <span className="text-sm font-extrabold text-text">Día {activeContract.paymentDay}</span>
+                <div className="bg-panel-hover-bg p-3 rounded-lg">
+                  <span className="text-[9px] text-panel-text-muted uppercase font-bold block mb-0.5">Día de Pago</span>
+                  <span className="text-sm font-extrabold text-panel-text">Día {activeContract.paymentDay}</span>
                 </div>
               </div>
 
-              <div className="space-y-1.5 pt-2 border-t border-slate-100 text-[11px] text-text-muted font-semibold">
+              <div className="space-y-1.5 pt-2 border-t border-panel-border text-[11px] text-panel-text-muted font-semibold">
                 <div className="flex justify-between">
                   <span>Inicio:</span>
-                  <span className="text-text">{formatLocalDate(activeContract.startDate)}</span>
+                  <span className="text-panel-text">{formatLocalDate(activeContract.startDate)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Fin:</span>
-                  <span className="text-text">{formatLocalDate(activeContract.endDate)}</span>
+                  <span className="text-panel-text">{formatLocalDate(activeContract.endDate)}</span>
                 </div>
               </div>
             </div>
@@ -161,19 +161,19 @@ export function TenantContractMobile({ contracts }: Props) {
               } catch {}
 
               return (
-                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-                  <h4 className="text-xs font-bold text-text mb-3 uppercase tracking-wider">Cuentas de Alquiler</h4>
-                  <div className="bg-slate-50 border border-slate-100 rounded-lg p-3 text-[11px] font-semibold text-text space-y-2">
+                <div className="bg-panel-card-bg border border-panel-border rounded-xl p-4 shadow-sm">
+                  <h4 className="text-xs font-bold text-panel-text mb-3 uppercase tracking-wider">Cuentas de Alquiler</h4>
+                  <div className="bg-panel-hover-bg border border-panel-border rounded-lg p-3 text-[11px] font-semibold text-panel-text space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-text-muted">Banco:</span>
+                      <span className="text-panel-text-muted">Banco:</span>
                       <span className="font-extrabold text-accent">{paymentAccount.provider}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-text-muted">Cuenta:</span>
+                      <span className="text-panel-text-muted">Cuenta:</span>
                       <span className="font-mono font-bold select-all">{paymentAccount.accountNumber}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-text-muted">Titular:</span>
+                      <span className="text-panel-text-muted">Titular:</span>
                       <span>{paymentAccount.accountHolder}</span>
                     </div>
                   </div>
@@ -182,16 +182,16 @@ export function TenantContractMobile({ contracts }: Props) {
             })()}
 
             {/* Landlord & PDF */}
-            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-4">
+            <div className="bg-panel-card-bg border border-panel-border rounded-xl p-4 shadow-sm space-y-4">
               <div>
-                <h4 className="text-xs font-bold text-text mb-2 uppercase tracking-wider">Propietario</h4>
+                <h4 className="text-xs font-bold text-panel-text mb-2 uppercase tracking-wider">Propietario</h4>
                 <div className="flex items-center gap-3">
-                  <div className="size-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs">
+                  <div className="size-9 rounded-full bg-panel-hover-bg flex items-center justify-center font-bold text-panel-text-dim text-xs">
                     {activeContract.landlord.firstName?.[0] ?? '?'}{activeContract.landlord.lastName?.[0] ?? ''}
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-text">{activeContract.landlord.firstName} {activeContract.landlord.lastName}</p>
-                    <p className="text-[10px] text-text-muted">{activeContract.landlord.email}</p>
+                    <p className="text-xs font-bold text-panel-text">{activeContract.landlord.firstName} {activeContract.landlord.lastName}</p>
+                    <p className="text-[10px] text-panel-text-muted">{activeContract.landlord.email}</p>
                   </div>
                 </div>
               </div>
@@ -229,12 +229,12 @@ export function TenantContractMobile({ contracts }: Props) {
 
         {/* Empty State */}
         {!activeContract && !pendingContract && !waitingContract && (
-          <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm">
-            <div className="size-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mx-auto mb-4">
+          <div className="bg-panel-card-bg border border-panel-border rounded-xl p-8 text-center shadow-sm">
+            <div className="size-12 rounded-full bg-panel-hover-bg flex items-center justify-center text-panel-text-dim mx-auto mb-4">
               <FileValidationIcon size={24} />
             </div>
-            <h3 className="text-sm font-bold text-text mb-1">Sin contratos</h3>
-            <p className="text-[11px] font-medium text-text-muted mb-6 max-w-xs mx-auto leading-relaxed">
+            <h3 className="text-sm font-bold text-panel-text mb-1">Sin contratos</h3>
+            <p className="text-[11px] font-medium text-panel-text-muted mb-6 max-w-xs mx-auto leading-relaxed">
               No registras contratos activos o pendientes en Habita Perú.
             </p>
             <Link
@@ -249,13 +249,13 @@ export function TenantContractMobile({ contracts }: Props) {
         {/* Past Contracts History (Compact Cards) */}
         {pastContracts.length > 0 && (
           <div className="mt-8">
-            <h4 className="text-xs font-bold text-text-muted mb-3 uppercase tracking-wider">Historial</h4>
+            <h4 className="text-xs font-bold text-panel-text-muted mb-3 uppercase tracking-wider">Historial</h4>
             <div className="space-y-3">
               {pastContracts.map(c => (
-                <div key={c.id} className="bg-white border border-slate-200 rounded-xl p-3.5 flex justify-between items-center shadow-sm">
+                <div key={c.id} className="bg-panel-card-bg border border-panel-border rounded-xl p-3.5 flex justify-between items-center shadow-sm">
                   <div>
-                    <h5 className="text-xs font-bold text-text truncate max-w-[180px]">{c.property.title}</h5>
-                    <p className="text-[10px] text-text-muted mt-0.5">S/ {c.monthlyRent} • {getStatusBadge(c.status)}</p>
+                    <h5 className="text-xs font-bold text-panel-text truncate max-w-[180px]">{c.property.title}</h5>
+                    <p className="text-[10px] text-panel-text-muted mt-0.5">S/ {c.monthlyRent} • {getStatusBadge(c.status)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -267,7 +267,7 @@ export function TenantContractMobile({ contracts }: Props) {
                     <a 
                       href={`/api/contracts/${c.id}/download`}
                       target="_blank"
-                      className="size-9 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg flex items-center justify-center text-text-muted no-underline"
+                      className="size-9 bg-panel-hover-bg border border-panel-border hover:bg-panel-hover-bg rounded-lg flex items-center justify-center text-panel-text-muted no-underline"
                     >
                       <Download01Icon size={16} />
                     </a>
@@ -291,3 +291,4 @@ export function TenantContractMobile({ contracts }: Props) {
     </div>
   )
 }
+

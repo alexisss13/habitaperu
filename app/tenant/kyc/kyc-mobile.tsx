@@ -121,7 +121,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
   const activeStatus = isReSubmitting ? "PENDIENTE" : (verification?.status || "PENDIENTE")
 
   return (
-    <div className="min-h-screen bg-bg-2 pb-24">
+    <div className="min-h-screen bg-panel-bg pb-24">
       {/* CSS Keyframes for Scan Effect */}
       <style jsx global>{`
         @keyframes scanEffect {
@@ -136,20 +136,20 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
 
       {/* Header */}
       <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-text">Verificación KYC</h1>
-        <p className="text-xs font-medium text-text-muted mt-1">Verifica tu cuenta para firmar contratos</p>
+        <h1 className="text-2xl font-bold text-admin-text mb-2">Verificación KYC</h1>
+        <p className="text-sm text-admin-text-muted">Verifica tu cuenta para firmar contratos</p>
       </div>
 
       <div className="px-4">
         
         {/* 1. STATE: PENDIENTE / WIZARD FLOW */}
         {activeStatus === "PENDIENTE" && (
-          <div className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
+          <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-xl overflow-hidden">
             
             {/* Steps indicator */}
-            <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+            <div className="bg-panel-hover-bg border-b border-panel-border px-4 py-3 flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold text-text-muted">Paso {step} de 3</p>
+                <p className="text-[11px] font-bold text-panel-text-muted">Paso {step} de 3</p>
               </div>
               <div className="flex gap-1">
                 {[1, 2, 3].map(s => (
@@ -183,14 +183,14 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
               {step === 1 && (
                 <div className="space-y-3">
                   <div>
-                    <h4 className="text-xs font-bold text-text">Foto de DNI</h4>
-                    <p className="text-[10px] text-text-muted leading-relaxed mt-1">
+                    <h4 className="text-xs font-bold text-panel-text">Foto de DNI</h4>
+                    <p className="text-[10px] text-panel-text-muted leading-relaxed mt-1">
                       Sube una fotografía del anverso de tu documento para realizar la validación OCR.
                     </p>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-[9px] text-text-muted font-bold uppercase">Foto del Documento</span>
+                    <span className="text-[9px] text-panel-text-muted font-bold uppercase">Foto del Documento</span>
                     <div className="flex gap-2">
                       {uploading && <span className="text-[9px] text-accent animate-pulse font-bold">Subiendo...</span>}
                       <button
@@ -203,24 +203,24 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
                     </div>
                   </div>
 
-                  <div className="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-2">
+                  <div className="border border-panel-border rounded-xl p-3 bg-panel-hover-bg space-y-2">
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleFileUpload}
-                      className="text-[10px] text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
+                      className="text-[10px] text-panel-text-dim file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
                     />
                     <input 
                       type="text" 
                       value={dniDocument} 
                       onChange={(e) => setDniDocument(e.target.value)}
                       placeholder="O pega la URL de la foto de tu DNI aquí" 
-                      className="w-full h-9 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent bg-white"
+                      className="w-full h-9 px-3 border border-panel-border rounded-xl text-xs font-semibold focus:border-accent bg-panel-card-bg"
                     />
                   </div>
 
                   {dniDocument && (
-                    <div className="border border-slate-200 rounded-lg p-2 bg-slate-50 flex items-center gap-3">
+                    <div className="border border-panel-border rounded-lg p-2 bg-panel-hover-bg flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={dniDocument} 
@@ -228,8 +228,8 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
                         className="w-16 h-11 rounded object-cover border border-slate-300" 
                       />
                       <div>
-                        <p className="text-[10px] font-bold text-text">dni_anverso.jpg</p>
-                        <p className="text-[9px] text-text-muted">Cargado con éxito</p>
+                        <p className="text-[10px] font-bold text-panel-text">dni_anverso.jpg</p>
+                        <p className="text-[9px] text-panel-text-muted">Cargado con éxito</p>
                       </div>
                     </div>
                   )}
@@ -240,13 +240,13 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
               {step === 2 && (
                 <div className="space-y-3">
                   <div>
-                    <h4 className="text-xs font-bold text-text">Escaneo Facial</h4>
-                    <p className="text-[10px] text-text-muted leading-relaxed mt-1">
+                    <h4 className="text-xs font-bold text-panel-text">Escaneo Facial</h4>
+                    <p className="text-[10px] text-panel-text-muted leading-relaxed mt-1">
                       Completa el análisis biométrico usando tu rostro en la cámara.
                     </p>
                   </div>
 
-                  <div className="border border-slate-200 rounded-xl h-48 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-4 text-white text-center">
+                  <div className="border border-panel-border rounded-xl h-48 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-4 text-white text-center">
                     {isScanning ? (
                       <>
                         <div className="absolute left-0 right-0 h-0.5 bg-cyan-400 opacity-80 scanner-line" />
@@ -263,7 +263,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
                     ) : (
                       <div className="space-y-3">
                         <span className="text-xl block">👤</span>
-                        <p className="text-[10px] text-slate-400">Cámara Inactiva</p>
+                        <p className="text-[10px] text-panel-text-dim">Cámara Inactiva</p>
                         <button
                           type="button"
                           onClick={handleStartScan}
@@ -281,17 +281,17 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
               {step === 3 && (
                 <div className="space-y-3">
                   <div>
-                    <h4 className="text-xs font-bold text-text">Confirmar Datos</h4>
-                    <p className="text-[10px] text-text-muted mt-1">Confirma tu información antes del envío legal.</p>
+                    <h4 className="text-xs font-bold text-panel-text">Confirmar Datos</h4>
+                    <p className="text-[10px] text-panel-text-muted mt-1">Confirma tu información antes del envío legal.</p>
                   </div>
 
-                  <div className="border border-slate-100 rounded-xl divide-y divide-slate-100 text-[11px] font-semibold text-text">
-                    <div className="p-3 bg-slate-50/50 flex justify-between">
-                      <span className="text-text-muted">DNI:</span>
+                  <div className="border border-panel-border rounded-xl divide-y divide-slate-100 text-[11px] font-semibold text-panel-text">
+                    <div className="p-3 bg-panel-hover-bg/50 flex justify-between">
+                      <span className="text-panel-text-muted">DNI:</span>
                       <span className="text-green">✓ Cargado</span>
                     </div>
                     <div className="p-3 flex justify-between">
-                      <span className="text-text-muted">Rostro:</span>
+                      <span className="text-panel-text-muted">Rostro:</span>
                       <span className="text-green">✓ Escaneado</span>
                     </div>
                   </div>
@@ -299,12 +299,12 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
               )}
 
               {/* Navigation buttons */}
-              <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between gap-3">
+              <div className="mt-6 pt-4 border-t border-panel-border flex justify-between gap-3">
                 {step > 1 ? (
                   <button
                     type="button"
                     onClick={() => setStep(prev => prev - 1)}
-                    className="h-10 px-4 border border-slate-200 rounded-lg text-xs font-bold text-text-muted bg-white cursor-pointer"
+                    className="h-10 px-4 border border-panel-border rounded-lg text-xs font-bold text-panel-text-muted bg-panel-card-bg cursor-pointer"
                   >
                     Atrás
                   </button>
@@ -349,7 +349,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
 
         {/* 2. STATE: EN REVISION */}
         {activeStatus === "EN_REVISION" && (
-          <div className="bg-white border border-slate-200 rounded-xl p-6 text-center shadow-sm space-y-4">
+          <div className="bg-panel-card-bg border border-panel-border rounded-xl p-6 text-center shadow-sm space-y-4">
             <div className="size-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-100 animate-pulse">
               <SecurityCheckIcon size={24} />
             </div>
@@ -357,8 +357,8 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
               <span className="text-[9px] bg-amber-50 text-amber-700 border border-amber-200 rounded font-bold px-2 py-0.5 inline-block mb-2">
                 En Revisión
               </span>
-              <h3 className="text-sm font-bold text-text">Expediente en Evaluación</h3>
-              <p className="text-[11px] font-medium text-text-muted leading-relaxed max-w-xs mx-auto">
+              <h3 className="text-sm font-bold text-panel-text">Expediente en Evaluación</h3>
+              <p className="text-[11px] font-medium text-panel-text-muted leading-relaxed max-w-xs mx-auto">
                 Tus documentos y prueba biométrica están siendo cotejados. El tiempo de respuesta es menor a 24 horas hábiles.
               </p>
             </div>
@@ -367,7 +367,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
 
         {/* 3. STATE: APROBADO */}
         {activeStatus === "APROBADO" && (
-          <div className="bg-white border border-slate-200 rounded-xl p-8 text-center shadow-sm space-y-5">
+          <div className="bg-panel-card-bg border border-panel-border rounded-xl p-8 text-center shadow-sm space-y-5">
             <div className="size-14 rounded-full flex items-center justify-center mx-auto shadow-lg bg-emerald-500 text-white shadow-emerald-500/20">
               <CheckmarkCircle01Icon size={28} />
             </div>
@@ -375,14 +375,14 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
               <span className="text-[9px] rounded font-bold px-2 py-0.5 inline-block mb-2 border bg-emerald-50 text-emerald-700 border-emerald-200">
                 Perfil Activo ✓
               </span>
-              <h3 className="text-sm font-bold text-text">¡Tu perfil está activo!</h3>
-              <p className="text-[11px] font-medium text-text-muted leading-relaxed max-w-xs mx-auto">
+              <h3 className="text-sm font-bold text-panel-text">¡Tu perfil está activo!</h3>
+              <p className="text-[11px] font-medium text-panel-text-muted leading-relaxed max-w-xs mx-auto">
                 Ya puedes contactar arrendadores y firmar contratos con validez legal.
               </p>
             </div>
             <Link
               href="/tenant/dashboard"
-              className="block text-xs font-semibold text-slate-400 no-underline"
+              className="block text-xs font-semibold text-panel-text-dim no-underline"
             >
               Ir al Panel →
             </Link>
@@ -391,7 +391,7 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
 
         {/* 4. STATE: RECHAZADO */}
         {activeStatus === "RECHAZADO" && (
-          <div className="bg-white border border-slate-200 rounded-xl p-6 text-center shadow-sm space-y-4">
+          <div className="bg-panel-card-bg border border-panel-border rounded-xl p-6 text-center shadow-sm space-y-4">
             <div className="size-12 rounded-full bg-red/10 text-red flex items-center justify-center mx-auto">
               <AlertCircleIcon size={24} />
             </div>
@@ -399,8 +399,8 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
               <span className="text-[9px] bg-red/10 text-red border border-red/20 rounded font-bold px-2 py-0.5 inline-block mb-2">
                 Rechazado
               </span>
-              <h3 className="text-sm font-bold text-text">Revisión Fallida</h3>
-              <p className="text-[11px] font-medium text-text-muted leading-relaxed mb-3">
+              <h3 className="text-sm font-bold text-panel-text">Revisión Fallida</h3>
+              <p className="text-[11px] font-medium text-panel-text-muted leading-relaxed mb-3">
                 Lamentablemente tu expediente fue rechazado.
               </p>
               

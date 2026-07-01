@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -66,6 +66,25 @@ export function NewPropertyForm() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [conditions, setConditions] = useState("")
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem("habitaperu_onboarding_draft")
+    if (!raw) return
+    sessionStorage.removeItem("habitaperu_onboarding_draft")
+    try {
+      const draft = JSON.parse(raw)
+      if (draft.type) setType(draft.type)
+      if (draft.condition) setCondition(draft.condition)
+      if (draft.city) setCity(draft.city)
+      if (draft.district) setDistrict(draft.district)
+      if (draft.address) setAddress(draft.address)
+      if (draft.lat) setLat(draft.lat)
+      if (draft.lng) setLng(draft.lng)
+      setStep(3)
+    } catch {
+      // draft was malformed, ignore and start from step 1
+    }
+  }, [])
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,

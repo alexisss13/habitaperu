@@ -3,8 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { PanelPageHeader } from "@/components/panel-page-header"
 import { 
   SecurityCheckIcon, 
+  SecurityValidationIcon,
   CheckmarkCircle01Icon, 
   AlertCircleIcon, 
   Cancel01Icon, 
@@ -126,7 +128,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
   const activeStatus = isReSubmitting ? "PENDIENTE" : (verification?.status || "PENDIENTE")
 
   return (
-    <div className="min-h-screen bg-bg-2 ">
+    <div className="min-h-screen bg-panel-bg ">
       {/* CSS Keyframes for Scan Effect */}
       <style jsx global>{`
         @keyframes scanEffect {
@@ -139,27 +141,21 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
         }
       `}</style>
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-text mb-2">Verificación de Identidad (KYC)</h1>
-          <p className="text-base font-medium text-text-muted">
-            Valida tus datos y activa tu perfil para poder celebrar contratos con firmas digitales válidas.
-          </p>
-        </div>
+        <PanelPageHeader icon={<SecurityValidationIcon size={32} className="text-admin-accent" />} title="Verificación de Identidad (KYC)" subtitle="Valida tus datos y activa tu perfil para poder celebrar contratos con firmas digitales válidas." />
 
         {/* 1. STATE: PENDIENTE / WIZARD FLOW */}
         {activeStatus === "PENDIENTE" && (
           <div className="grid grid-cols-3 gap-8">
             {/* Left Col (2 cols): Wizard */}
-            <div className="col-span-2 bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
+            <div className="col-span-2 bg-panel-card-bg border border-panel-border shadow-sm rounded-2xl overflow-hidden">
               
               {/* Wizard Steps indicator */}
-              <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+              <div className="bg-panel-hover-bg border-b border-panel-border px-6 py-4 flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-text">Proceso de Verificación</h3>
-                  <p className="text-xs text-text-muted mt-0.5">Paso {step} de 3</p>
+                  <h3 className="text-sm font-bold text-panel-text">Proceso de Verificación</h3>
+                  <p className="text-xs text-panel-text-muted mt-0.5">Paso {step} de 3</p>
                 </div>
                 <div className="flex gap-1.5">
                   {[1, 2, 3].map(s => (
@@ -193,14 +189,14 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                 {step === 1 && (
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-bold text-text mb-1.5">Documento de Identidad</h4>
-                      <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                      <h4 className="text-sm font-bold text-panel-text mb-1.5">Documento de Identidad</h4>
+                      <p className="text-xs text-panel-text-muted mb-4 leading-relaxed">
                         Sube una foto clara y legible del anverso de tu Documento Nacional de Identidad (DNI) o Carnet de Extranjería.
                       </p>
                     </div>
 
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] text-text-muted font-bold uppercase">Foto del Documento</span>
+                      <span className="text-[10px] text-panel-text-muted font-bold uppercase">Foto del Documento</span>
                       <div className="flex gap-2">
                         {uploading && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
                         <button
@@ -213,24 +209,24 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                       </div>
                     </div>
 
-                    <div className="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
+                    <div className="border border-panel-border rounded-xl p-4 bg-panel-hover-bg space-y-3">
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handleFileUpload}
-                        className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
+                        className="text-xs text-panel-text-dim file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
                       />
                       <input 
                         type="text" 
                         value={dniDocument} 
                         onChange={(e) => setDniDocument(e.target.value)}
                         placeholder="O pega la URL de la foto de tu DNI aquí" 
-                        className="w-full h-10 px-3 border border-slate-200 rounded-xl text-xs font-semibold focus:border-accent bg-white"
+                        className="w-full h-10 px-3 border border-panel-border rounded-xl text-xs font-semibold focus:border-accent bg-panel-card-bg"
                       />
                     </div>
 
                     {dniDocument && (
-                      <div className="mt-4 border border-slate-200 rounded-xl p-3 bg-slate-50 flex items-center gap-4">
+                      <div className="mt-4 border border-panel-border rounded-xl p-3 bg-panel-hover-bg flex items-center gap-4">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={dniDocument} 
@@ -238,8 +234,8 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                           className="w-24 h-16 rounded object-cover border border-slate-300" 
                         />
                         <div>
-                          <p className="text-xs font-bold text-text">DNI_Anverso_Digital.jpg</p>
-                          <p className="text-[10px] text-text-muted">Documento en alta resolución cargado para análisis OCR</p>
+                          <p className="text-xs font-bold text-panel-text">DNI_Anverso_Digital.jpg</p>
+                          <p className="text-[10px] text-panel-text-muted">Documento en alta resolución cargado para análisis OCR</p>
                         </div>
                       </div>
                     )}
@@ -250,14 +246,14 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                 {step === 2 && (
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-bold text-text mb-1.5">Verificación Facial Biométrica</h4>
-                      <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                      <h4 className="text-sm font-bold text-panel-text mb-1.5">Verificación Facial Biométrica</h4>
+                      <p className="text-xs text-panel-text-muted mb-4 leading-relaxed">
                         El sistema realizará una toma de puntos faciales para corroborar que tu rostro coincida con la fotografía de tu DNI.
                       </p>
                     </div>
 
                     {/* Camera Scanner Simulation viewport */}
-                    <div className="border border-slate-200 rounded-2xl h-64 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-6 text-white text-center">
+                    <div className="border border-panel-border rounded-2xl h-64 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-6 text-white text-center">
                       {isScanning ? (
                         <>
                           {/* Animated scanner bar line */}
@@ -272,17 +268,17 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-emerald-400">Análisis Biométrico Completado</p>
-                            <p className="text-[10px] text-slate-300 mt-1">Coincidencia con DNI: 98.6% (Aprobado)</p>
+                            <p className="text-[10px] text-panel-text-dim mt-1">Coincidencia con DNI: 98.6% (Aprobado)</p>
                           </div>
                         </div>
                       ) : (
                         <div className="space-y-4 z-10">
-                          <div className="size-16 rounded-full border border-dashed border-slate-500 flex items-center justify-center mx-auto text-slate-400">
+                          <div className="size-16 rounded-full border border-dashed border-slate-500 flex items-center justify-center mx-auto text-panel-text-dim">
                             <span className="text-2xl">👤</span>
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-slate-200">Cámara Inactiva</p>
-                            <p className="text-[10px] text-slate-400 mt-0.5">Haz clic en iniciar para simular el escaneo facial</p>
+                            <p className="text-xs font-bold text-panel-text-dim">Cámara Inactiva</p>
+                            <p className="text-[10px] text-panel-text-dim mt-0.5">Haz clic en iniciar para simular el escaneo facial</p>
                           </div>
                           <button
                             type="button"
@@ -301,23 +297,23 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                 {step === 3 && (
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-bold text-text mb-1.5">Confirmar Expediente KYC</h4>
-                      <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                      <h4 className="text-sm font-bold text-panel-text mb-1.5">Confirmar Expediente KYC</h4>
+                      <p className="text-xs text-panel-text-muted mb-4 leading-relaxed">
                         Revisa que la información cargada esté en orden antes de enviarla a los asesores legales de Habita Perú.
                       </p>
                     </div>
 
-                    <div className="border border-slate-100 rounded-xl overflow-hidden text-xs font-semibold text-text divide-y divide-slate-100">
-                      <div className="p-3.5 bg-slate-50/50 flex justify-between">
-                        <span className="text-text-muted">Documento DNI:</span>
+                    <div className="border border-panel-border rounded-xl overflow-hidden text-xs font-semibold text-panel-text divide-y divide-slate-100">
+                      <div className="p-3.5 bg-panel-hover-bg/50 flex justify-between">
+                        <span className="text-panel-text-muted">Documento DNI:</span>
                         <span className="text-emerald-600">✓ Cargado</span>
                       </div>
                       <div className="p-3.5 flex justify-between">
-                        <span className="text-text-muted">Escaneo Biométrico:</span>
+                        <span className="text-panel-text-muted">Escaneo Biométrico:</span>
                         <span className="text-emerald-600">✓ Verificado con éxito</span>
                       </div>
-                      <div className="p-3.5 bg-slate-50/50 flex justify-between">
-                        <span className="text-text-muted">Verificación Antecedentes:</span>
+                      <div className="p-3.5 bg-panel-hover-bg/50 flex justify-between">
+                        <span className="text-panel-text-muted">Verificación Antecedentes:</span>
                         <span className="text-amber-600">⚙ Encolada (Automática)</span>
                       </div>
                     </div>
@@ -325,12 +321,12 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                 )}
 
                 {/* Wizard Footer Nav */}
-                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between">
+                <div className="mt-8 pt-6 border-t border-panel-border flex justify-between">
                   {step > 1 ? (
                     <button
                       type="button"
                       onClick={() => setStep(prev => prev - 1)}
-                      className="h-11 px-5 border border-slate-200 rounded-xl text-xs font-bold text-text-muted hover:bg-slate-50 transition-colors cursor-pointer bg-white"
+                      className="h-11 px-5 border border-panel-border rounded-xl text-xs font-bold text-panel-text-muted hover:bg-panel-hover-bg transition-colors cursor-pointer bg-panel-card-bg"
                     >
                       Atrás
                     </button>
@@ -375,21 +371,21 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
 
             {/* Right Col: Info Cards */}
             <div className="space-y-6">
-              <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5">
+              <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-2xl p-5">
                 <div className="flex items-start gap-3">
                   <SecurityCheckIcon size={22} className="text-accent shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-text">Privacidad Protegida</h4>
-                    <p className="text-[10px] text-text-muted leading-relaxed mt-1">
+                    <h4 className="text-xs font-bold text-panel-text">Privacidad Protegida</h4>
+                    <p className="text-[10px] text-panel-text-muted leading-relaxed mt-1">
                       Cumplimos estrictamente con la Ley N° 29733 de Protección de Datos Personales en el Perú. Tus documentos son encriptados en reposo y solo se usan para validaciones contractuales.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5">
-                <h4 className="text-xs font-bold text-text mb-3 uppercase tracking-wider">¿Por qué es necesario?</h4>
-                <p className="text-[10px] text-text-muted leading-relaxed">
+              <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-2xl p-5">
+                <h4 className="text-xs font-bold text-panel-text mb-3 uppercase tracking-wider">¿Por qué es necesario?</h4>
+                <p className="text-[10px] text-panel-text-muted leading-relaxed">
                   Para otorgar validez jurídica a las firmas electrónicas sobre contratos de desalojo exprés (Ley N° 30933) y allanamiento futuro (Ley N° 30201), requerimos validar la identidad del firmante con RENIEC para prevenir suplantaciones.
                 </p>
               </div>
@@ -399,7 +395,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
 
         {/* 2. STATE: EN REVISION */}
         {activeStatus === "EN_REVISION" && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
+          <div className="bg-panel-card-bg border border-panel-border rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
             <div className="size-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-100 animate-pulse">
               <SecurityCheckIcon size={32} />
             </div>
@@ -407,13 +403,13 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
               <span className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 rounded font-bold px-2 py-0.5 inline-block mb-3">
                 Expediente en Revisión
               </span>
-              <h3 className="text-lg font-bold text-text mb-2">Expediente en Proceso de Evaluación</h3>
-              <p className="text-xs font-medium text-text-muted leading-relaxed max-w-sm mx-auto">
+              <h3 className="text-lg font-bold text-panel-text mb-2">Expediente en Proceso de Evaluación</h3>
+              <p className="text-xs font-medium text-panel-text-muted leading-relaxed max-w-sm mx-auto">
                 Tus documentos DNI y prueba facial biométrica están siendo cotejados con el padrón electoral por nuestros oficiales legales. El tiempo máximo de respuesta es de <strong>24 horas hábiles</strong>.
               </p>
             </div>
             
-            <div className="pt-4 border-t border-slate-100 text-[10px] text-text-muted">
+            <div className="pt-4 border-t border-panel-border text-[10px] text-panel-text-muted">
               Te enviaremos una notificación al correo electrónico registrado en cuanto se valide tu perfil.
             </div>
           </div>
@@ -421,7 +417,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
 
         {/* 3. STATE: APROBADO */}
         {activeStatus === "APROBADO" && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
+          <div className="bg-panel-card-bg border border-panel-border rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
             <div className="size-20 rounded-full flex items-center justify-center mx-auto shadow-xl bg-emerald-500 text-white shadow-emerald-500/20">
               <CheckmarkCircle01Icon size={44} />
             </div>
@@ -429,20 +425,20 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
               <span className="text-[10px] rounded font-bold px-2.5 py-0.5 inline-block mb-3 border bg-emerald-50 text-emerald-700 border-emerald-200">
                 Perfil Verificado Activo ✓
               </span>
-              <h3 className="text-lg font-bold text-text mb-2">
+              <h3 className="text-lg font-bold text-panel-text mb-2">
                 ¡Tu perfil está completamente activo!
               </h3>
-              <p className="text-xs font-medium text-text-muted leading-relaxed max-w-sm mx-auto">
+              <p className="text-xs font-medium text-panel-text-muted leading-relaxed max-w-sm mx-auto">
                 Ya puedes contactar arrendadores y firmar contratos con validez jurídica en la plataforma.
               </p>
               {verification?.verifiedAt && (
-                <p className="text-[10px] text-text-muted mt-3">Verificado el {formatLocalDate(verification.verifiedAt)}</p>
+                <p className="text-[10px] text-panel-text-muted mt-3">Verificado el {formatLocalDate(verification.verifiedAt)}</p>
               )}
             </div>
-            <div className="pt-6 border-t border-slate-100 flex flex-col items-center gap-3">
+            <div className="pt-6 border-t border-panel-border flex flex-col items-center gap-3">
               <Link
                 href="/tenant/dashboard"
-                className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold transition-all no-underline text-slate-500 hover:text-text"
+                className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold transition-all no-underline text-panel-text-dim hover:text-panel-text"
               >
                 Ir al Panel Principal →
               </Link>
@@ -452,7 +448,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
 
         {/* 4. STATE: RECHAZADO */}
         {activeStatus === "RECHAZADO" && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
+          <div className="bg-panel-card-bg border border-panel-border rounded-2xl p-12 text-center shadow-sm max-w-xl mx-auto my-10 space-y-6">
             <div className="size-16 rounded-full bg-red-50 text-red border border-red-200 flex items-center justify-center mx-auto">
               <AlertCircleIcon size={32} />
             </div>
@@ -460,8 +456,8 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
               <span className="text-[10px] bg-red/10 text-red border border-red/20 rounded font-bold px-2 py-0.5 inline-block mb-3">
                 Verificación Rechazada
               </span>
-              <h3 className="text-lg font-bold text-text mb-2">Revisión de Identidad Fallida</h3>
-              <p className="text-xs font-medium text-text-muted leading-relaxed max-w-sm mx-auto mb-4">
+              <h3 className="text-lg font-bold text-panel-text mb-2">Revisión de Identidad Fallida</h3>
+              <p className="text-xs font-medium text-panel-text-muted leading-relaxed max-w-sm mx-auto mb-4">
                 Lamentablemente tu expediente de identidad fue rechazado por nuestros asesores legales.
               </p>
               
@@ -473,7 +469,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-4 border-t border-panel-border">
               <button
                 type="button"
                 onClick={() => {

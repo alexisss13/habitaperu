@@ -39,7 +39,7 @@ export default async function TenantSettingsPage() {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-panel-bg min-h-screen">
       <UserSettingsView user={mappedUser} />
     </div>
   )

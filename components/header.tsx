@@ -70,7 +70,7 @@ export function Header() {
     <>
       {/* Main header */}
       <header className="fixed inset-x-0 top-0 z-[100] bg-white border-b border-gray-200 shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
-        <div className="flex items-center justify-between h-14 md:h-[72px] px-5 md:px-10 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between h-14 md:h-[72px] px-6 max-w-7xl mx-auto">
 
           {/* Logo */}
           <Link href={`/${locale}`} className="flex items-center no-underline">
@@ -91,7 +91,7 @@ export function Header() {
             {!isLoggedIn && status !== 'loading' && (
               <>
                 <Link
-                  href={`/${locale}/publicar`}
+                  href={`/${locale}/publicar/onboarding`}
                   className="text-[0.9rem] font-medium text-[#151c26] no-underline hover:text-accent transition-colors"
                 >
                   {t('publishProperty')}
@@ -221,7 +221,7 @@ export function Header() {
                         </Link>
                       </div>
                       <div className="border-t border-gray-100 py-1">
-                        <Link href={`/${locale}/publicar`} className={menuLink} onClick={() => setUserMenuOpen(false)}>
+                        <Link href={`/${locale}/publicar/onboarding`} className={menuLink} onClick={() => setUserMenuOpen(false)}>
                           {t('publishProperty')}
                         </Link>
                         <Link href="#" className={menuLink} onClick={() => setUserMenuOpen(false)}>

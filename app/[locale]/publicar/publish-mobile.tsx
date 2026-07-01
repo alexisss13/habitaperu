@@ -51,7 +51,7 @@ export function PublishMobile() {
         <p className="text-base text-gray-500 leading-relaxed mb-6">{t('hero.subtitle')}</p>
 
         <div className="flex flex-col gap-3 mb-8">
-          <Link href={`/${locale}/register`}
+          <Link href={`/${locale}/publicar/onboarding`}
             className="flex items-center justify-center gap-2 py-4 px-6 text-white font-semibold rounded-xl transition-all no-underline"
             style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}>
             <RocketIcon size={18} />
@@ -123,7 +123,7 @@ export function PublishMobile() {
           ))}
         </div>
         <div className="mt-8">
-          <Link href={`/${locale}/register`}
+          <Link href={`/${locale}/publicar/onboarding`}
             className="flex items-center justify-center gap-2 py-4 px-6 text-white font-semibold rounded-xl no-underline"
             style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}>
             <RocketIcon size={18} />
@@ -166,7 +166,7 @@ export function PublishMobile() {
         style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}>
         <h2 className="text-2xl font-extrabold text-white mb-3 leading-tight">{t('cta.title')}</h2>
         <p className="text-sm text-white/75 mb-6 leading-relaxed">{t('cta.subtitle')}</p>
-        <Link href={`/${locale}/register`}
+        <Link href={`/${locale}/publicar/onboarding`}
           className="inline-flex items-center gap-2 py-4 px-8 bg-white text-accent font-bold rounded-xl no-underline"
           style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
           <RocketIcon size={20} />

@@ -371,7 +371,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
           </div>
 
           {/* ── SIDEBAR ── */}
-          <div className="sticky top-24 h-fit">
+          <div className="sticky top-[112px] h-fit">
             <div className="rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(15,52,87,0.12)] border border-gray-100">
               <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg, #0f3457 0%, #8f8272 100%)' }} />
               <div className="p-6">

@@ -35,8 +35,8 @@ export function DashboardMobile({ data }: { data: DashboardData }) {
   return (
     <div className="py-6 px-4">
       <div className="mb-5">
-        <h1 className="text-2xl font-bold tracking-tight mb-1 text-text">Dashboard</h1>
-        <p className="text-sm font-medium text-text-muted">Gestiona tus propiedades</p>
+        <h1 className="text-2xl font-bold text-admin-text mb-2">Dashboard</h1>
+        <p className="text-sm text-admin-text-muted">Gestiona tus propiedades</p>
       </div>
 
       {/* ── Actionable Alerts ── */}

@@ -28,7 +28,7 @@ export function Footer() {
           <div className="footer-links">
             <div className="footer-col">
               <h5>{t("platform")}</h5>
-              <Link href={`/${locale}/publicar`}>{t("publishProperty")}</Link>
+              <Link href={`/${locale}/publicar/onboarding`}>{t("publishProperty")}</Link>
               <Link href={`/${locale}/propiedades`}>{t("searchProperty")}</Link>
               <Link href={`/${locale}/contracts`}>{t("digitalContracts")}</Link>
               <Link href={`/${locale}/dashboard`}>{t("dashboard")}</Link>

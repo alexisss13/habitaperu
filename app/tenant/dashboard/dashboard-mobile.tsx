@@ -38,8 +38,8 @@ export function TenantDashboardMobile({ session, data }: Props) {
     <div className="px-4 py-5 pb-4">
       {/* Greeting */}
       <div className="mb-5">
-        <h1 className="text-xl font-extrabold text-[#151c26]">Hola, {firstName} <span role="img" aria-hidden="true">👋</span></h1>
-        <p className="text-xs text-gray-400 mt-0.5">Tu resumen como inquilino</p>
+        <h1 className="text-2xl font-bold text-admin-text mb-2">Hola, {firstName}</h1>
+        <p className="text-sm text-admin-text-muted">Tu resumen como inquilino</p>
       </div>
 
       {/* Propiedad activa banner */}
@@ -67,17 +67,17 @@ export function TenantDashboardMobile({ session, data }: Props) {
 
       {/* KPI row: pago + favoritos */}
       <div className="grid grid-cols-2 gap-3 mb-5">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <div className="bg-panel-card-bg rounded-2xl border border-panel-border shadow-sm p-4">
           <div className="flex items-center gap-2 mb-2">
             <Wallet01Icon size={15} className="text-green" />
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Próximo pago</p>
+            <p className="text-[11px] font-bold text-panel-text-muted uppercase tracking-wide">Próximo pago</p>
           </div>
           {data.nextPayment ? (
             <>
-              <p className="font-extrabold text-[#151c26] text-base">
+              <p className="font-extrabold text-panel-text text-base">
                 S/ {data.nextPayment.amount.toLocaleString("es-PE")}
               </p>
-              <p className="text-[11px] text-gray-400">
+              <p className="text-[11px] text-panel-text-dim">
                 {formatDate(data.nextPayment.dueDate)}
               </p>
             </>
@@ -85,19 +85,19 @@ export function TenantDashboardMobile({ session, data }: Props) {
             <p className="font-bold text-green text-sm">Al día ✓</p>
           )}
         </div>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <div className="bg-panel-card-bg rounded-2xl border border-panel-border shadow-sm p-4">
           <div className="flex items-center gap-2 mb-2">
             <FavouriteIcon size={15} className="text-red-400" />
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Favoritos</p>
+            <p className="text-[11px] font-bold text-panel-text-muted uppercase tracking-wide">Favoritos</p>
           </div>
-          <p className="font-extrabold text-[#151c26] text-base">{data.favoritesCount}</p>
+          <p className="font-extrabold text-panel-text text-base">{data.favoritesCount}</p>
           <Link href="/tenant/favorites" className="text-[11px] text-accent font-semibold no-underline">Ver →</Link>
         </div>
       </div>
 
       {/* Quick actions */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5">
-        <h2 className="text-sm font-bold text-[#151c26] mb-3">Acciones rápidas</h2>
+      <div className="bg-panel-card-bg rounded-2xl border border-panel-border shadow-sm p-4 mb-5">
+        <h2 className="text-sm font-bold text-panel-text mb-3">Acciones rápidas</h2>
         <div className="flex flex-col gap-2">
           {[
             { href: "/propiedades",       Icon: Search01Icon,      label: "Buscar propiedades" },
@@ -108,20 +108,20 @@ export function TenantDashboardMobile({ session, data }: Props) {
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 px-3 py-2.5 bg-gray-50 hover:bg-gray-100 rounded-xl text-sm font-semibold text-[#151c26] no-underline transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 bg-panel-hover-bg hover:bg-panel-hover-bg rounded-xl text-sm font-semibold text-panel-text no-underline transition-colors"
             >
               <Icon size={15} className="text-accent shrink-0" />
               {label}
-              <ArrowRight01Icon size={13} className="ml-auto text-gray-300" />
+              <ArrowRight01Icon size={13} className="ml-auto text-panel-text-dim" />
             </Link>
           ))}
         </div>
       </div>
 
       {/* Recent payments */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <div className="bg-panel-card-bg rounded-2xl border border-panel-border shadow-sm p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-[#151c26]">Pagos recientes</h2>
+          <h2 className="text-sm font-bold text-panel-text">Pagos recientes</h2>
           <Link href="/tenant/payments" className="text-xs font-semibold text-accent no-underline">
             Ver todos →
           </Link>
@@ -129,11 +129,11 @@ export function TenantDashboardMobile({ session, data }: Props) {
 
         {data.paymentHistory.length === 0 ? (
           <div className="py-8 text-center">
-            <CheckmarkCircle02Icon size={32} className="text-gray-200 mx-auto mb-2" />
-            <p className="text-xs font-semibold text-gray-400">Sin historial de pagos</p>
+            <CheckmarkCircle02Icon size={32} className="text-panel-text-dim mx-auto mb-2" />
+            <p className="text-xs font-semibold text-panel-text-dim">Sin historial de pagos</p>
           </div>
         ) : (
-          <div className="flex flex-col divide-y divide-gray-50">
+          <div className="flex flex-col divide-y divide-panel-border">
             {data.paymentHistory.slice(0, 5).map((p) => {
               const cfg = paymentStatusConfig[p.status as keyof typeof paymentStatusConfig]
                 ?? paymentStatusConfig.PENDING
@@ -141,13 +141,13 @@ export function TenantDashboardMobile({ session, data }: Props) {
               return (
                 <div key={p.id} className="flex items-center justify-between py-2.5">
                   <div>
-                    <p className="text-xs font-semibold text-[#151c26]">{p.month}</p>
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-xs font-semibold text-panel-text">{p.month}</p>
+                    <p className="text-[11px] text-panel-text-dim">
                       {p.status === "PAID" ? `Pagado ${p.date}` : `Vence ${p.date}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <p className="text-xs font-bold text-[#151c26]">
+                    <p className="text-xs font-bold text-panel-text">
                       S/ {p.amount.toLocaleString("es-PE")}
                     </p>
                     <span className={`flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.cls}`}>

@@ -41,11 +41,11 @@ export function TenantsMobile({ tenants }: { tenants: TenantItem[] }) {
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Header */}
       <div className="bg-white border-b border-gray-100 px-5 py-5">
-        <h1 className="text-xl font-bold text-[#151c26] flex items-center gap-2 mb-1">
-          <UserMultiple02Icon size={22} className="text-accent" />
-          Mis Inquilinos
-        </h1>
-        <p className="text-sm text-gray-400">{tenants.length} en total</p>
+        <div className="flex items-center gap-3 mb-2">
+          <UserMultiple02Icon size={24} className="text-admin-accent" />
+          <h1 className="text-2xl font-bold text-admin-text">Mis Inquilinos</h1>
+        </div>
+        <p className="text-sm text-admin-text-muted">{tenants.length} en total</p>
 
         <div className="relative mt-4">
           <Search01Icon size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />

@@ -11,7 +11,8 @@ export default function ThemeSwitcher() {
       return saved === 'dark' ? 'dark' : 'light'
     } catch { return 'light' }
   })
-  const [mounted] = useState(() => typeof window !== 'undefined')
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   const applyTheme = (newTheme: 'light' | 'dark') => {
     document.documentElement.setAttribute('data-theme', newTheme)

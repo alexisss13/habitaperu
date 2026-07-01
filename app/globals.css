@@ -38,6 +38,17 @@
   --color-admin-warning:         var(--admin-warning);
   --color-admin-error:           var(--admin-error);
   --color-admin-info:            var(--admin-info);
+  /* Panel (Landlord / Tenant) Colors */
+  --color-panel-bg:              var(--panel-bg);
+  --color-panel-sidebar-bg:      var(--panel-sidebar-bg);
+  --color-panel-header-bg:       var(--panel-header-bg);
+  --color-panel-card-bg:         var(--panel-card-bg);
+  --color-panel-hover-bg:        var(--panel-hover-bg);
+  --color-panel-text:            var(--panel-text);
+  --color-panel-text-muted:      var(--panel-text-muted);
+  --color-panel-text-dim:        var(--panel-text-dim);
+  --color-panel-border:          var(--panel-border);
+  --color-panel-border-dark:     var(--panel-border-dark);
   /* Shadows */
   --shadow-xs:   var(--shadow-xs);
   --shadow-sm:   var(--shadow-sm);
@@ -131,8 +142,8 @@
   --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
   
   /* ── Typography ── */
-  --font-heading: var(--font-baloo);  /* Baloo 2 para títulos */
-  --font-body: var(--font-mplus);     /* M PLUS Rounded 1c para cuerpo */
+  --font-heading: var(--font-outfit);  /* Outfit para títulos */
+  --font-body: var(--font-outfit);     /* Outfit para cuerpo */
 }
 
 html { scroll-behavior: smooth; }
@@ -149,7 +160,7 @@ a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: var(--font-body); border: none; outline: none; }
 input, select, textarea { font-family: var(--font-body); }
 
-/* Aplicar Baloo 2 a todos los títulos */
+/* Aplicar Outfit a todos los títulos */
 h1, h2, h3, h4, h5, h6,
 .section-title,
 .section-tag,
@@ -1333,6 +1344,15 @@ h1, h2, h3, h4, h5, h6,
   transform: translateY(0);
 }
 
+@keyframes fadeInStep {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeInStep 0.35s ease-out;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .hero-search {
@@ -1940,6 +1960,18 @@ h1, h2, h3, h4, h5, h6,
   --admin-shadow-sm:     none;
   --admin-shadow:        none;
   --admin-shadow-lg:     none;
+
+  /* ===== PANEL (LANDLORD / TENANT) VARIABLES (alias de admin) ===== */
+  --panel-bg:            var(--admin-bg);
+  --panel-sidebar-bg:    var(--admin-sidebar-bg);
+  --panel-header-bg:     var(--admin-card-bg);
+  --panel-card-bg:       var(--admin-card-bg);
+  --panel-hover-bg:      var(--admin-hover-bg);
+  --panel-text:          var(--admin-text);
+  --panel-text-muted:    var(--admin-text-muted);
+  --panel-text-dim:      var(--admin-text-dim);
+  --panel-border:        var(--admin-border);
+  --panel-border-dark:   var(--admin-border-dark);
 }
 
 /* MODO OSCURO - Se activa con data-theme="dark" */
@@ -2035,6 +2067,18 @@ html[data-theme="dark"] {
   --accent-hover:        #2563eb;
   --accent-dark:         #1d4ed8;
   --accent-light:        rgba(59, 130, 246, 0.15);
+
+  /* Panel (Landlord / Tenant) - MODO OSCURO (alias de admin) */
+  --panel-bg:            var(--admin-bg);
+  --panel-sidebar-bg:    var(--admin-sidebar-bg);
+  --panel-header-bg:     var(--admin-card-bg);
+  --panel-card-bg:       var(--admin-card-bg);
+  --panel-hover-bg:      var(--admin-hover-bg);
+  --panel-text:          var(--admin-text);
+  --panel-text-muted:    var(--admin-text-muted);
+  --panel-text-dim:      var(--admin-text-dim);
+  --panel-border:        var(--admin-border);
+  --panel-border-dark:   var(--admin-border-dark);
 }
 
 /* Admin Stat Card */
