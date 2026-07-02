@@ -41,11 +41,8 @@ export function LocationsMobile({ cities, districts }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-24">
-      <div className="px-5 py-5 border-b border-slate-100">
-        <h1 className="text-lg font-bold text-text">Ciudades y Distritos</h1>
-        <p className="text-xs text-text-muted mt-1">Controla dónde se puede publicar y buscar propiedades.</p>
-      </div>
+    <div className="min-h-screen bg-white pb-24 pt-2">
+      <h1 className="text-lg font-bold text-admin-text px-5">Ciudades y Distritos</h1>
 
       {error && (
         <div className="mx-5 mt-4 bg-admin-error-bg text-admin-error rounded-xl p-3 flex items-center gap-2 text-xs font-semibold">

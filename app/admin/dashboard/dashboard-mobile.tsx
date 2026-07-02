@@ -13,14 +13,10 @@ export function AdminDashboardMobile({ data }: { data: AdminDashboardData }) {
 
   return (
     <div className="min-h-screen pb-8">
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-admin-text mb-1">Dashboard</h1>
-        <p className="text-xs text-admin-text-muted">Resumen de tu plataforma</p>
-      </div>
+      <h1 className="text-lg font-bold text-admin-text px-4 pt-6">Dashboard</h1>
 
       {/* Stats Grid 2×2 */}
-      <div className="px-4 grid grid-cols-2 gap-3 mb-5">
+      <div className="px-4 pt-4 grid grid-cols-2 gap-3 mb-5">
         <div className={statCard}>
           <div className="size-10 rounded-[8px] bg-accent/10 flex items-center justify-center mb-3">
             <UserMultiple02Icon size={20} className="text-accent" />

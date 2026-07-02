@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { FileValidationIcon, Search01Icon, FilterIcon } from "hugeicons-react"
 import { usePagination } from '@/hooks/use-pagination'
 import { AdminPagination } from '@/components/ui/pagination'
@@ -18,6 +19,16 @@ const statusBadge = (status: string) => {
   }
 }
 
+const STATUS_FILTERS = [
+  { value: '', label: 'Todos' },
+  { value: 'ACTIVE', label: 'Activos' },
+  { value: 'FINISHED', label: 'Vencidos' },
+  { value: 'BREACHED_CANCELLED', label: 'Cancelados' },
+  { value: 'DRAFT', label: 'Borradores' },
+  { value: 'PENDING_TENANT', label: 'Pend. Inquilino' },
+  { value: 'PENDING_LANDLORD', label: 'Pend. Arrendador' },
+] as const
+
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
 
@@ -29,35 +40,35 @@ const duration = (start: string, end: string) => {
 export function ContractsDesktop({ data }: { data: ContractsData }) {
   const { contracts, stats } = data
   const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const [filterOpen, setFilterOpen] = useState(false)
+  const filterRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const filtered = contracts.filter(c => {
     const q = search.toLowerCase().trim()
-    if (!q) return true
-    return (
+    const matchSearch = !q ||
       `${c.tenant.firstName} ${c.tenant.lastName}`.toLowerCase().includes(q) ||
       c.tenant.email.toLowerCase().includes(q) ||
       c.property.title.toLowerCase().includes(q) ||
       c.property.district.toLowerCase().includes(q)
-    )
+    const matchStatus = !statusFilter || c.status === statusFilter
+    return matchSearch && matchStatus
   })
 
-  const pagination = usePagination(filtered, 10)
+  const pagination = usePagination(filtered, 10, [statusFilter])
+  const activeStatusLabel = STATUS_FILTERS.find(s => s.value === statusFilter)?.label ?? 'Todos'
 
   return (
     <div className="p-10 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <FileValidationIcon size={32} className="text-admin-accent" />
-            <h1 className="text-3xl font-bold text-admin-text">Contratos</h1>
-          </div>
-          <button className="px-6 py-3 bg-accent text-white rounded-lg text-sm font-semibold hover:-translate-y-px transition-all">
-            + Nuevo Contrato
-          </button>
-        </div>
-        <p className="text-sm text-admin-text-muted">Gestiona todos los contratos de arrendamiento</p>
-      </div>
+      <h1 className="text-2xl font-bold text-admin-text mb-6">Contratos</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-8">
@@ -86,10 +97,30 @@ export function ContractsDesktop({ data }: { data: ContractsData }) {
             className="w-full pl-10 pr-4 py-2.5 border border-admin-border rounded-lg text-sm text-admin-text bg-admin-bg outline-none focus:border-admin-accent"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 border border-admin-border rounded-lg text-sm font-medium text-admin-text hover:bg-admin-bg transition-colors">
-          <FilterIcon size={16} />
-          Filtros
-        </button>
+        <div className="relative" ref={filterRef}>
+          <button
+            onClick={() => setFilterOpen(!filterOpen)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-admin-border rounded-lg text-sm font-medium text-admin-text hover:bg-admin-bg transition-colors"
+          >
+            <FilterIcon size={16} />
+            {statusFilter ? `Estado: ${activeStatusLabel}` : 'Filtros'}
+          </button>
+          {filterOpen && (
+            <div className="absolute top-[calc(100%+8px)] right-0 bg-admin-card-bg border border-admin-border rounded-xl shadow-lg min-w-[190px] py-1.5 z-20">
+              {STATUS_FILTERS.map(s => (
+                <button
+                  key={s.value}
+                  onClick={() => { setStatusFilter(s.value); setFilterOpen(false) }}
+                  className={`w-full text-left px-4 py-2 text-sm cursor-pointer border-none bg-transparent hover:bg-admin-bg transition-colors ${
+                    statusFilter === s.value ? 'font-bold text-admin-accent' : 'text-admin-text'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Table */}
@@ -161,9 +192,12 @@ export function ContractsDesktop({ data }: { data: ContractsData }) {
                         </td>
 
                         <td className="px-6 py-5 text-right">
-                          <button className="px-3 py-1.5 border border-admin-border rounded-md text-xs font-medium hover:bg-admin-bg transition-colors">
+                          <Link
+                            href={`/contracts/${c.id}`}
+                            className="inline-block px-3 py-1.5 border border-admin-border rounded-md text-xs font-medium hover:bg-admin-bg transition-colors no-underline text-admin-text"
+                          >
                             Ver
-                          </button>
+                          </Link>
                         </td>
                       </tr>
                     )

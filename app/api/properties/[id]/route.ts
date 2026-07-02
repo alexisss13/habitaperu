@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
+import { deletePropertyAction } from "@/app/actions/property-actions"
 
 // GET /api/properties/:id - Obtener detalle de propiedad
 export async function GET(
@@ -39,7 +40,7 @@ export async function GET(
       },
     })
 
-    if (!property) {
+    if (!property || property.deletedAt) {
       return NextResponse.json(
         { error: "Propiedad no encontrada" },
         { status: 404 }
@@ -133,27 +134,11 @@ export async function DELETE(
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    const property = await prisma.property.findUnique({
-      where: { id: params.id },
-    })
+    const result = await deletePropertyAction(params.id)
 
-    if (!property) {
-      return NextResponse.json(
-        { error: "Propiedad no encontrada" },
-        { status: 404 }
-      )
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 })
     }
-
-    if (property.ownerId !== (session.user as any).id) {
-      return NextResponse.json(
-        { error: "No tienes permiso para eliminar esta propiedad" },
-        { status: 403 }
-      )
-    }
-
-    await prisma.property.delete({
-      where: { id: params.id },
-    })
 
     return NextResponse.json({ message: "Propiedad eliminada" })
   } catch (error) {

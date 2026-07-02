@@ -26,17 +26,10 @@ export function UsersMobile({ data }: { data: UsersData }) {
 
   return (
     <div className="min-h-screen pb-8">
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <div className="flex items-center gap-3 mb-1">
-          <UserMultiple02Icon size={24} className="text-admin-accent" />
-          <h1 className="text-2xl font-bold text-admin-text">Usuarios</h1>
-        </div>
-        <p className="text-xs text-admin-text-muted">Gestiona todos los usuarios</p>
-      </div>
+      <h1 className="text-lg font-bold text-admin-text px-4 pt-6">Usuarios</h1>
 
       {/* Stats — 2 per row */}
-      <div className="px-4 grid grid-cols-2 gap-3 mb-5">
+      <div className="px-4 pt-4 grid grid-cols-2 gap-3 mb-5">
         {[
           { label: 'Total', value: stats.total, color: 'text-admin-text' },
           { label: 'Verificados', value: stats.verified, color: 'text-green' },

@@ -7,9 +7,12 @@ import { PaymentsMobile } from './payments-mobile'
 
 export interface AdminPayment {
   id: string
+  contractId: string
   status: string
   amount: number
   paymentMethod: string | null
+  receipt: string | null
+  notes: string | null
   paidDate: Date | null
   dueDate: Date
   createdAt: Date

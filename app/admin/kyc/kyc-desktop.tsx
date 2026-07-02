@@ -148,15 +148,7 @@ export function AdminKYCDesktop({ verifications, currentFilter }: Props) {
 
   return (
     <div className="p-10 min-h-screen">
-      
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <SecurityCheckIcon size={32} className="text-admin-accent" />
-          <h1 className="text-3xl font-bold text-admin-text">Verificaciones KYC</h1>
-        </div>
-        <p className="text-sm text-admin-text-muted">Revisa y evalúa la autenticidad de los documentos e identidades de los usuarios.</p>
-      </div>
+      <h1 className="text-2xl font-bold text-admin-text mb-6">Verificaciones KYC</h1>
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-3 gap-6 mb-8">

@@ -49,12 +49,13 @@ interface Props {
   html: string
   isLandlord: boolean
   isTenant: boolean
+  backHref: string
   locale: string
   isMockPayment: boolean
   landlordSubscriptionPlan: string
 }
 
-export function ContractClient({ contract: initialContract, html, isLandlord, isTenant, isMockPayment, landlordSubscriptionPlan }: Props) {
+export function ContractClient({ contract: initialContract, html, isLandlord, isTenant, backHref, isMockPayment, landlordSubscriptionPlan }: Props) {
   const router = useRouter()
   const [contract, setContract] = useState<ContractData>(initialContract)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
@@ -138,8 +139,8 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
       {/* Top Navbar */}
       <header className="bg-white border-b border-slate-200 h-16 shrink-0 flex items-center justify-between px-6 md:px-10 sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <Link 
-            href={isLandlord ? "/landlord/contracts" : "/tenant/dashboard"}
+          <Link
+            href={backHref}
             className="text-xs font-semibold text-text-muted hover:text-accent flex items-center gap-1.5 no-underline transition-colors"
           >
             <span>&larr; Volver</span>

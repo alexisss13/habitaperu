@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const minRooms = searchParams.get("minRooms")
     const status = searchParams.get("status") || "DISPONIBLE"
 
-    const where: any = {}
+    const where: any = { deletedAt: null }
 
     if (type) where.type = type
     if (district) where.district = district

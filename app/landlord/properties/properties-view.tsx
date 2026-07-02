@@ -25,6 +25,7 @@ export interface PropertyInfo {
   views: number
   featuredUntil?: string | null
   createdAt: string
+  deletedAt?: string | null
 }
 
 interface PropertiesViewProps {

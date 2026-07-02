@@ -77,17 +77,10 @@ export function AuditMobile({ logs }: Props) {
 
   return (
     <div className="p-4 pb-24 min-h-screen bg-admin-bg">
-      
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <DatabaseIcon size={24} className="text-admin-accent" />
-          <h1 className="text-xl font-bold text-admin-text">Auditoría Legal</h1>
-        </div>
-        <p className="text-xs text-admin-text-muted">
-          Clickwrap Audit Trail (Ley N° 30201 / Ley N° 27269).
-        </p>
-      </div>
+      <h1 className="text-lg font-bold text-admin-text mb-1">Auditoría</h1>
+      <p className="text-xs text-admin-text-muted mb-4">
+        Clickwrap Audit Trail (Ley N° 30201 / Ley N° 27269).
+      </p>
 
       {/* Search Bar */}
       <div className="relative mb-4">

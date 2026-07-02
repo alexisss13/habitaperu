@@ -2,14 +2,16 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon,
   SquareIcon, Location01Icon, FlashIcon, CheckmarkCircle01Icon,
-  EyeIcon, ArrowUp01Icon, Edit01Icon, StarIcon
+  EyeIcon, ArrowUp01Icon, Edit01Icon, StarIcon, Delete02Icon, PauseIcon, PlayIcon
 } from "hugeicons-react"
 import { PaymentModal } from "@/components/ui/payment-modal"
 import { PlanUpgradeModal } from "@/components/ui/plan-upgrade-modal"
 import { processFeaturedListing } from "@/app/actions/culqi-actions"
+import { deletePropertyAction, setPropertyModerationStatus } from "@/app/actions/property-actions"
 import type { PropertyInfo } from "./properties-view"
 
 const PLAN_LIMITS: Record<string, number> = { FREE: 3, PRO: 10, BUSINESS: Infinity }
@@ -30,6 +32,32 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
     days: 7 | 15 | 30
   } | null>(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(!!openUpgrade)
+  const [pendingId, setPendingId] = useState<string | null>(null)
+  const router = useRouter()
+
+  const handleDelete = async (propertyId: string) => {
+    if (!window.confirm('¿Eliminar esta propiedad? Esta acción no se puede deshacer.')) return
+    setPendingId(propertyId)
+    try {
+      const result = await deletePropertyAction(propertyId)
+      if (!result.success) alert(result.error)
+      router.refresh()
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  const handleToggleVisibility = async (propertyId: string, currentStatus: string) => {
+    setPendingId(propertyId)
+    try {
+      const nextStatus = currentStatus === "MANTENIMIENTO" ? "DISPONIBLE" : "MANTENIMIENTO"
+      const result = await setPropertyModerationStatus(propertyId, nextStatus)
+      if (!result.success) alert(result.error)
+      router.refresh()
+    } finally {
+      setPendingId(null)
+    }
+  }
 
   const filteredProperties = properties.filter(p => {
     if (filter === "TODAS") return true
@@ -39,7 +67,8 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
     return true
   })
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, deletedAt?: string | null) => {
+    if (deletedAt) return <span className="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 rounded">Archivada</span>
     switch (status) {
       case "DISPONIBLE":
         return <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded">Disponible</span>
@@ -159,7 +188,7 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-3 left-3">
-                    {getStatusBadge(p.status)}
+                    {getStatusBadge(p.status, p.deletedAt)}
                   </div>
                   <div className="absolute top-3 right-3 bg-slate-900/60 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[9px] font-bold">
                     {getTypeLabel(p.type)}
@@ -188,17 +217,43 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
                       <p className="property-price-simple"><strong>S/ {Number(p.price).toLocaleString()}</strong></p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Link href={`/landlord/properties/${p.id}/edit`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-bold text-slate-700 hover:text-accent hover:border-accent/40 no-underline transition-all shadow-sm" aria-label="Editar">
-                        <Edit01Icon size={12} />
-                        <span>Editar</span>
-                      </Link>
-                      <Link href={`/propiedades/${p.id}`} className="flex items-center justify-center size-8 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-blue-500 hover:border-blue-400/40 no-underline transition-all shadow-sm" aria-label="Ver publicación">
-                        <EyeIcon size={12} />
-                      </Link>
+                      {!p.deletedAt && (
+                        <Link href={`/landlord/properties/${p.id}/edit`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-bold text-slate-700 hover:text-accent hover:border-accent/40 no-underline transition-all shadow-sm" aria-label="Editar">
+                          <Edit01Icon size={12} />
+                          <span>Editar</span>
+                        </Link>
+                      )}
+                      {!p.deletedAt && (
+                        <Link href={`/propiedades/${p.id}`} className="flex items-center justify-center size-8 rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-blue-500 hover:border-blue-400/40 no-underline transition-all shadow-sm" aria-label="Ver publicación">
+                          <EyeIcon size={12} />
+                        </Link>
+                      )}
+                      {!p.deletedAt && p.status !== "OCUPADA" && (
+                        <button
+                          onClick={() => handleToggleVisibility(p.id, p.status)}
+                          disabled={pendingId === p.id}
+                          className={`flex items-center justify-center size-8 rounded-lg border bg-white transition-all shadow-sm cursor-pointer disabled:opacity-50 ${
+                            p.status === "MANTENIMIENTO"
+                              ? "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                              : "border-slate-200 text-slate-500 hover:text-amber-600 hover:border-amber-300"
+                          }`}
+                          aria-label={p.status === "MANTENIMIENTO" ? "Publicar propiedad" : "Ocultar propiedad"}
+                        >
+                          {p.status === "MANTENIMIENTO" ? <PlayIcon size={12} /> : <PauseIcon size={12} />}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        disabled={pendingId === p.id}
+                        className="flex items-center justify-center size-8 rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                        aria-label="Eliminar propiedad"
+                      >
+                        <Delete02Icon size={12} />
+                      </button>
                     </div>
                   </div>
 
-                  {p.status === "DISPONIBLE" && (
+                  {!p.deletedAt && p.status === "DISPONIBLE" && (
                     <div className="border-t border-slate-200/60 pt-2.5">
                       {p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
                         <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 text-[9px] font-bold text-amber-800">

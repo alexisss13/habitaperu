@@ -16,6 +16,7 @@ export interface AdminPropertyItem {
   area: number
   images: string[]
   owner: { firstName: string; lastName: string; email: string }
+  deletedAt: Date | null
 }
 
 export interface PropertiesData {

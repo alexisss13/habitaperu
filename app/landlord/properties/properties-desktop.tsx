@@ -2,16 +2,19 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon, SquareIcon,
   Location01Icon, StarIcon, EyeIcon, FlashIcon,
-  CheckmarkCircle01Icon, ArrowUp01Icon, Edit01Icon
+  CheckmarkCircle01Icon, ArrowUp01Icon, Edit01Icon, GridViewIcon, ListViewIcon, Delete02Icon,
+  PauseIcon, PlayIcon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
 import { PaymentModal } from "@/components/ui/payment-modal"
 import { PlanUpgradeModal } from "@/components/ui/plan-upgrade-modal"
 import { processFeaturedListing } from "@/app/actions/culqi-actions"
+import { deletePropertyAction, setPropertyModerationStatus } from "@/app/actions/property-actions"
 import type { PropertyInfo } from "./properties-view"
 
 const PLAN_LIMITS: Record<string, number> = { FREE: 3, PRO: 10, BUSINESS: Infinity }
@@ -26,12 +29,39 @@ interface Props {
 
 export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan, propertyCount, openUpgrade }: Props) {
   const [filter, setFilter] = useState<string>("TODAS")
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [featuredModal, setFeaturedModal] = useState<{
     propertyId: string
     propertyTitle: string
     days: 7 | 15 | 30
   } | null>(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(!!openUpgrade)
+  const [pendingId, setPendingId] = useState<string | null>(null)
+  const router = useRouter()
+
+  const handleDelete = async (propertyId: string) => {
+    if (!window.confirm('¿Eliminar esta propiedad? Esta acción no se puede deshacer.')) return
+    setPendingId(propertyId)
+    try {
+      const result = await deletePropertyAction(propertyId)
+      if (!result.success) alert(result.error)
+      router.refresh()
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  const handleToggleVisibility = async (propertyId: string, currentStatus: string) => {
+    setPendingId(propertyId)
+    try {
+      const nextStatus = currentStatus === "MANTENIMIENTO" ? "DISPONIBLE" : "MANTENIMIENTO"
+      const result = await setPropertyModerationStatus(propertyId, nextStatus)
+      if (!result.success) alert(result.error)
+      router.refresh()
+    } finally {
+      setPendingId(null)
+    }
+  }
 
   // Calculate quick metrics
   const total = properties.length
@@ -49,7 +79,8 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
 
   const pagination = usePagination(filteredProperties, 9, [filter])
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, deletedAt?: string | null) => {
+    if (deletedAt) return <span className="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 rounded-lg">Archivada</span>
     switch (status) {
       case "DISPONIBLE":
         return <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg">Disponible</span>
@@ -179,18 +210,56 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
           ))}
         </div>
 
-        <Link
-          href="/landlord/properties/new"
-          className="h-11 px-5 rounded-xl text-sm font-bold !text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer no-underline"
-          style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
-        >
-          <Add01Icon size={18} />
-          <span>Publicar Propiedad</span>
-        </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-1 bg-panel-card-bg border border-panel-border rounded-full p-1">
+            <button
+              onClick={() => setViewMode("grid")}
+              aria-label="Ver como tarjetas"
+              className={`size-9 rounded-full flex items-center justify-center cursor-pointer border-none transition-colors ${
+                viewMode === "grid" ? "bg-[#151c26] text-white" : "bg-transparent text-panel-text-dim hover:bg-panel-hover-bg"
+              }`}
+            >
+              <GridViewIcon size={16} />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              aria-label="Ver como lista"
+              className={`size-9 rounded-full flex items-center justify-center cursor-pointer border-none transition-colors ${
+                viewMode === "list" ? "bg-[#151c26] text-white" : "bg-transparent text-panel-text-dim hover:bg-panel-hover-bg"
+              }`}
+            >
+              <ListViewIcon size={16} />
+            </button>
+          </div>
+
+          <Link
+            href="/landlord/properties/new"
+            className="h-11 px-5 rounded-xl text-sm font-bold !text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer no-underline"
+            style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
+          >
+            <Add01Icon size={18} />
+            <span>Publicar Propiedad</span>
+          </Link>
+        </div>
       </div>
 
-      {/* Properties Cards Grid */}
-      {filteredProperties.length > 0 ? (
+      {/* Properties Cards Grid / List */}
+      {filteredProperties.length === 0 ? (
+        <div className="text-center py-20 bg-panel-card-bg border border-panel-border rounded-2xl">
+          <Home01Icon size={56} className="text-panel-text-dim mx-auto mb-4" />
+          <h3 className="text-base font-bold text-panel-text mb-1">Sin propiedades</h3>
+          <p className="text-xs font-medium text-panel-text-muted mb-6">
+            Aún no has publicado ninguna propiedad en el filtro seleccionado.
+          </p>
+          <Link
+            href="/landlord/properties/new"
+            className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold !text-white transition-colors no-underline"
+            style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
+          >
+            Publicar mi primer anuncio
+          </Link>
+        </div>
+      ) : viewMode === "grid" ? (
         <div className="grid grid-cols-3 gap-6">
           {pagination.paginatedItems.map(p => {
             const imgArray = Array.isArray(p.images) ? p.images as string[] : []
@@ -210,7 +279,7 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5">
-                    {getStatusBadge(p.status)}
+                    {getStatusBadge(p.status, p.deletedAt)}
                     {p.featuredUntil && new Date(p.featuredUntil) > new Date() && (
                       <span className="flex items-center gap-1 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-full">
                         <StarIcon size={9} />
@@ -277,26 +346,53 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/landlord/properties/${p.id}/edit`}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-panel-border bg-panel-card-bg text-xs font-bold text-panel-text-dim hover:text-accent hover:border-accent/40 no-underline transition-all shadow-sm"
-                        aria-label="Editar propiedad"
+                      {!p.deletedAt && (
+                        <Link
+                          href={`/landlord/properties/${p.id}/edit`}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-panel-border bg-panel-card-bg text-xs font-bold text-panel-text-dim hover:text-accent hover:border-accent/40 no-underline transition-all shadow-sm"
+                          aria-label="Editar propiedad"
+                        >
+                          <Edit01Icon size={14} />
+                          <span>Editar</span>
+                        </Link>
+                      )}
+                      {!p.deletedAt && (
+                        <Link
+                          href={`/propiedades/${p.id}`}
+                          className="flex items-center justify-center size-8 rounded-lg border border-panel-border bg-panel-card-bg text-panel-text-dim hover:text-blue-500 hover:border-blue-400/40 no-underline transition-all shadow-sm"
+                          aria-label="Ver publicación"
+                        >
+                          <EyeIcon size={14} />
+                        </Link>
+                      )}
+                      {!p.deletedAt && p.status !== "OCUPADA" && (
+                        <button
+                          onClick={() => handleToggleVisibility(p.id, p.status)}
+                          disabled={pendingId === p.id}
+                          className={`flex items-center justify-center size-8 rounded-lg border bg-panel-card-bg transition-all shadow-sm cursor-pointer disabled:opacity-50 ${
+                            p.status === "MANTENIMIENTO"
+                              ? "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                              : "border-panel-border text-panel-text-dim hover:text-amber-600 hover:border-amber-300"
+                          }`}
+                          aria-label={p.status === "MANTENIMIENTO" ? "Publicar propiedad" : "Ocultar propiedad"}
+                          title={p.status === "MANTENIMIENTO" ? "Publicar" : "Ocultar"}
+                        >
+                          {p.status === "MANTENIMIENTO" ? <PlayIcon size={14} /> : <PauseIcon size={14} />}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        disabled={pendingId === p.id}
+                        className="flex items-center justify-center size-8 rounded-lg border border-red-200 bg-panel-card-bg text-red-500 hover:bg-red-50 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                        aria-label="Eliminar propiedad"
                       >
-                        <Edit01Icon size={14} />
-                        <span>Editar</span>
-                      </Link>
-                      <Link
-                        href={`/propiedades/${p.id}`}
-                        className="flex items-center justify-center size-8 rounded-lg border border-panel-border bg-panel-card-bg text-panel-text-dim hover:text-blue-500 hover:border-blue-400/40 no-underline transition-all shadow-sm"
-                        aria-label="Ver publicación"
-                      >
-                        <EyeIcon size={14} />
-                      </Link>
+                        <Delete02Icon size={14} />
+                      </button>
                     </div>
                   </div>
 
                   {/* Botón destacar */}
-                  {p.status === "DISPONIBLE" && (
+                  {!p.deletedAt && p.status === "DISPONIBLE" && (
                     <div className="border-t border-panel-border/60 pt-3">
                       {p.featuredUntil && new Date(p.featuredUntil) > new Date() ? (
                         <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-[11px] font-bold text-amber-800">
@@ -338,19 +434,85 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
           })}
         </div>
       ) : (
-        <div className="text-center py-20 bg-panel-card-bg border border-panel-border rounded-2xl">
-          <Home01Icon size={56} className="text-panel-text-dim mx-auto mb-4" />
-          <h3 className="text-base font-bold text-panel-text mb-1">Sin propiedades</h3>
-          <p className="text-xs font-medium text-panel-text-muted mb-6">
-            Aún no has publicado ninguna propiedad en el filtro seleccionado.
-          </p>
-          <Link
-            href="/landlord/properties/new"
-            className="inline-flex h-11 items-center justify-center px-6 rounded-xl text-xs font-bold !text-white transition-colors no-underline"
-            style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
-          >
-            Publicar mi primer anuncio
-          </Link>
+        <div className="bg-panel-card-bg border border-panel-border rounded-2xl overflow-hidden">
+          <table className="w-full border-collapse text-left">
+            <thead className="bg-panel-hover-bg border-b border-panel-border text-xs font-bold text-panel-text-muted uppercase tracking-wider">
+              <tr>
+                <th className="px-6 py-4 font-bold">Anuncio</th>
+                <th className="px-6 py-4 font-bold">Tipo</th>
+                <th className="px-6 py-4 font-bold">Ubicación</th>
+                <th className="px-6 py-4 font-bold">Precio</th>
+                <th className="px-6 py-4 font-bold">Estado</th>
+                <th className="px-6 py-4"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-panel-border text-sm text-panel-text">
+              {pagination.paginatedItems.map(p => {
+                const imgArray = Array.isArray(p.images) ? p.images as string[] : []
+                const firstImage = imgArray.length > 0 ? imgArray[0] : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=100&q=85"
+                return (
+                  <tr key={p.id} className="hover:bg-panel-hover-bg/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={firstImage} alt={p.title} className="size-12 rounded-lg object-cover shrink-0" />
+                        <span className="font-semibold line-clamp-1 max-w-xs">{p.title}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-panel-text-dim">{getTypeLabel(p.type)}</td>
+                    <td className="px-6 py-4 text-panel-text-dim">{p.district}</td>
+                    <td className="px-6 py-4 font-bold">S/ {Number(p.price).toLocaleString()}</td>
+                    <td className="px-6 py-4">{getStatusBadge(p.status, p.deletedAt)}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {!p.deletedAt && (
+                          <Link
+                            href={`/landlord/properties/${p.id}/edit`}
+                            className="flex items-center justify-center size-8 rounded-lg border border-panel-border bg-panel-card-bg text-panel-text-dim hover:text-accent hover:border-accent/40 no-underline transition-all"
+                            aria-label="Editar propiedad"
+                          >
+                            <Edit01Icon size={14} />
+                          </Link>
+                        )}
+                        {!p.deletedAt && (
+                          <Link
+                            href={`/propiedades/${p.id}`}
+                            className="flex items-center justify-center size-8 rounded-lg border border-panel-border bg-panel-card-bg text-panel-text-dim hover:text-blue-500 hover:border-blue-400/40 no-underline transition-all"
+                            aria-label="Ver publicación"
+                          >
+                            <EyeIcon size={14} />
+                          </Link>
+                        )}
+                        {!p.deletedAt && p.status !== "OCUPADA" && (
+                          <button
+                            onClick={() => handleToggleVisibility(p.id, p.status)}
+                            disabled={pendingId === p.id}
+                            className={`flex items-center justify-center size-8 rounded-lg border bg-panel-card-bg transition-all cursor-pointer disabled:opacity-50 ${
+                              p.status === "MANTENIMIENTO"
+                                ? "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                                : "border-panel-border text-panel-text-dim hover:text-amber-600 hover:border-amber-300"
+                            }`}
+                            aria-label={p.status === "MANTENIMIENTO" ? "Publicar propiedad" : "Ocultar propiedad"}
+                            title={p.status === "MANTENIMIENTO" ? "Publicar" : "Ocultar"}
+                          >
+                            {p.status === "MANTENIMIENTO" ? <PlayIcon size={14} /> : <PauseIcon size={14} />}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          disabled={pendingId === p.id}
+                          className="flex items-center justify-center size-8 rounded-lg border border-red-200 bg-panel-card-bg text-red-500 hover:bg-red-50 transition-all cursor-pointer disabled:opacity-50"
+                          aria-label="Eliminar propiedad"
+                        >
+                          <Delete02Icon size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 

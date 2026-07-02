@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const ids = idsParam.split(",").filter(Boolean).slice(0, 50)
 
     const properties = await prisma.property.findMany({
-      where: { id: { in: ids }, status: "DISPONIBLE" },
+      where: { id: { in: ids }, status: "DISPONIBLE", deletedAt: null },
       include: {
         owner: { select: { firstName: true, lastName: true, verified: true } },
         _count: { select: { reviews: true } },

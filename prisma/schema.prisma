@@ -226,6 +226,10 @@ model Property {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
+  /// Marca de archivado (soft delete) cuando la propiedad tiene historial
+  /// de contratos y no puede eliminarse en cascada sin perder datos.
+  deletedAt   DateTime?
+
   @@index([ownerId])
   @@index([status])
   @@index([type])

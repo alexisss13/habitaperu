@@ -109,17 +109,10 @@ export function AuditDesktop({ logs }: Props) {
 
   return (
     <div className="p-10 min-h-screen bg-admin-bg">
-      
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <DatabaseIcon size={32} className="text-admin-accent" />
-          <h1 className="text-3xl font-bold text-admin-text">Auditoría Legal (Audit Trail)</h1>
-        </div>
-        <p className="text-sm text-admin-text-muted">
-          Registro criptográfico de firmas digitales, consentimientos Clickwrap e historial de accesos (Ley N° 30201 / Ley N° 27269).
-        </p>
-      </div>
+      <h1 className="text-2xl font-bold text-admin-text mb-2">Auditoría</h1>
+      <p className="text-sm text-admin-text-muted mb-6">
+        Registro criptográfico de firmas digitales, consentimientos Clickwrap e historial de accesos (Ley N° 30201 / Ley N° 27269).
+      </p>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">

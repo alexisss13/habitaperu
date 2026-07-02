@@ -137,18 +137,10 @@ export function AdminKYCMobile({ verifications, currentFilter }: Props) {
 
   return (
     <div className="min-h-screen bg-admin-bg pb-24">
-      
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <div className="flex items-center gap-2 mb-1">
-          <SecurityCheckIcon size={24} className="text-admin-accent" />
-          <h1 className="text-2xl font-bold text-admin-text">KYC Verificaciones</h1>
-        </div>
-        <p className="text-xs text-admin-text-muted">Cotejo y aprobación de expedientes de identidad</p>
-      </div>
+      <h1 className="text-lg font-bold text-admin-text px-4 pt-6">Verificaciones KYC</h1>
 
       {/* Metrics scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mb-4">
+      <div className="flex gap-3 overflow-x-auto pt-4 pb-4 scrollbar-hide -mx-4 px-4 mb-4">
         <div className="bg-admin-card-bg border border-admin-border p-3 rounded-xl shrink-0 w-36">
           <p className="text-[9px] font-bold text-admin-text-muted uppercase mb-0.5">En revisión</p>
           <p className="text-lg font-bold text-admin-warning">{inReviewCount}</p>

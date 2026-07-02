@@ -58,14 +58,19 @@ interface LanguageSwitcherProps {
 
 export function LanguageSwitcher({ onLanguageChange, variant = 'compact', menuItemLabel }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState(() => {
-    if (typeof window === 'undefined') return 'es-PE'
-    try { return localStorage.getItem('habitaperu_language') || 'es-PE' } catch { return 'es-PE' }
-  })
+  const [selectedLanguage, setSelectedLanguage] = useState('es-PE')
   const [activeTab, setActiveTab] = useState<'language' | 'currency'>('language')
   const modalRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('habitaperu_language')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (stored) setSelectedLanguage(stored)
+    } catch {}
+  }, [])
 
   useEffect(() => {
     if (!isOpen) return

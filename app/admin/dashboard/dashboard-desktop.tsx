@@ -16,11 +16,7 @@ export function AdminDashboardDesktop({ data }: { data: AdminDashboardData }) {
 
   return (
     <div className="p-10 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-admin-text mb-2">Dashboard</h1>
-        <p className="text-sm text-admin-text-muted">Bienvenido de vuelta, aquí está el resumen de tu plataforma</p>
-      </div>
+      <h1 className="text-2xl font-bold text-admin-text mb-6">Dashboard</h1>
 
       {/* Stats Grid 4 columns */}
       <div className="grid grid-cols-4 gap-5 mb-8">

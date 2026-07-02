@@ -25,10 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       bathrooms: true,
       type: true,
       images: true,
+      deletedAt: true,
     },
   })
 
-  if (!property) {
+  if (!property || property.deletedAt) {
     return { title: "Propiedad no encontrada — Habita Perú" }
   }
 
@@ -95,7 +96,7 @@ export default async function PropertyDetailPage({ params }: Props) {
     }),
   ])
 
-  if (!property) notFound()
+  if (!property || property.deletedAt) notFound()
 
   // Incrementar vistas (no bloquea el render — fire and forget)
   incrementPropertyView(id).catch(() => {})

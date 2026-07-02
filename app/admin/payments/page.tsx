@@ -21,7 +21,7 @@ export default async function PaymentsPage(props: { searchParams?: Promise<{ pag
       orderBy: { createdAt: 'desc' },
       include: {
         contract: {
-          include: {
+          select: {
             tenant: { select: { firstName: true, lastName: true, email: true } },
             property: { select: { title: true, district: true } }
           }

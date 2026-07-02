@@ -1,10 +1,15 @@
 'use client'
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Building03Icon, Location01Icon, BedIcon } from "hugeicons-react"
+import Link from "next/link"
+import { Building03Icon, Location01Icon, BedIcon, PauseIcon, PlayIcon, Delete02Icon } from "hugeicons-react"
+import { setPropertyModerationStatus, deletePropertyAction } from "@/app/actions/property-actions"
 import type { PropertiesData } from './properties-view'
 
-const statusBadge = (status: string) => {
+const statusBadge = (status: string, deletedAt: Date | null) => {
+  if (deletedAt) return { cls: 'bg-[rgba(116,133,151,0.15)] text-admin-text-muted', label: 'Archivada' }
   switch (status) {
     case 'DISPONIBLE': return { cls: 'bg-green/10 text-green', label: 'Disponible' }
     case 'OCUPADA': return { cls: 'bg-red/10 text-red', label: 'Ocupada' }
@@ -15,20 +20,38 @@ const statusBadge = (status: string) => {
 
 export function PropertiesMobile({ data }: { data: PropertiesData }) {
   const { properties, stats } = data
+  const [pendingId, setPendingId] = useState<string | null>(null)
+  const router = useRouter()
+
+  const toggleModeration = async (propertyId: string, currentStatus: string) => {
+    setPendingId(propertyId)
+    try {
+      const nextStatus = currentStatus === 'MANTENIMIENTO' ? 'DISPONIBLE' : 'MANTENIMIENTO'
+      await setPropertyModerationStatus(propertyId, nextStatus)
+      router.refresh()
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  const handleDelete = async (propertyId: string) => {
+    if (!window.confirm('¿Eliminar esta propiedad? Esta acción no se puede deshacer.')) return
+    setPendingId(propertyId)
+    try {
+      const result = await deletePropertyAction(propertyId)
+      if (!result.success) alert(result.error)
+      router.refresh()
+    } finally {
+      setPendingId(null)
+    }
+  }
 
   return (
     <div className="min-h-screen pb-8">
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <div className="flex items-center gap-3 mb-1">
-          <Building03Icon size={24} className="text-admin-accent" />
-          <h1 className="text-2xl font-bold text-admin-text">Propiedades</h1>
-        </div>
-        <p className="text-xs text-admin-text-muted">Propiedades publicadas</p>
-      </div>
+      <h1 className="text-lg font-bold text-admin-text px-4 pt-6">Propiedades</h1>
 
       {/* Stats */}
-      <div className="px-4 grid grid-cols-2 gap-3 mb-5">
+      <div className="px-4 pt-4 grid grid-cols-2 gap-3 mb-5">
         {[
           { label: 'Total', value: stats.total, color: 'text-admin-text' },
           { label: 'Disponibles', value: stats.disponible, color: 'text-green' },
@@ -54,7 +77,7 @@ export function PropertiesMobile({ data }: { data: PropertiesData }) {
           </div>
         ) : (
           properties.map(p => {
-            const badge = statusBadge(p.status)
+            const badge = statusBadge(p.status, p.deletedAt)
             return (
               <div key={p.id} className="bg-admin-card-bg rounded-xl border border-admin-border overflow-hidden">
                 <div className="relative w-full h-[160px] bg-gray-100">
@@ -86,8 +109,41 @@ export function PropertiesMobile({ data }: { data: PropertiesData }) {
                     </div>
                     <div className="text-base font-bold text-admin-text">S/ {p.price.toLocaleString()}</div>
                   </div>
-                  <div className="mt-2 pt-2 border-t border-admin-border text-[0.625rem] text-admin-text-muted">
-                    {p.owner.firstName} {p.owner.lastName}
+                  <div className="mt-2 pt-2 border-t border-admin-border flex items-center justify-between gap-2">
+                    <span className="text-[0.625rem] text-admin-text-muted">{p.owner.firstName} {p.owner.lastName}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Link
+                        href={`/propiedades/${p.id}`}
+                        target="_blank"
+                        className="text-[0.7rem] font-semibold text-admin-text no-underline"
+                      >
+                        Ver
+                      </Link>
+                      {!p.deletedAt && p.status !== 'OCUPADA' && (
+                        <button
+                          onClick={() => toggleModeration(p.id, p.status)}
+                          disabled={pendingId === p.id}
+                          className={`flex items-center gap-1 px-2 py-1 rounded-md text-[0.7rem] font-semibold cursor-pointer border transition-colors disabled:opacity-50 ${
+                            p.status === 'MANTENIMIENTO'
+                              ? 'border-green/30 text-green'
+                              : 'border-amber-300 text-amber-700'
+                          }`}
+                        >
+                          {p.status === 'MANTENIMIENTO' ? <PlayIcon size={11} /> : <PauseIcon size={11} />}
+                          {p.status === 'MANTENIMIENTO' ? 'Reactivar' : 'Pausar'}
+                        </button>
+                      )}
+                      {!p.deletedAt && (
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          disabled={pendingId === p.id}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md text-[0.7rem] font-semibold cursor-pointer border border-red/30 text-red transition-colors disabled:opacity-50"
+                        >
+                          <Delete02Icon size={11} />
+                          Eliminar
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

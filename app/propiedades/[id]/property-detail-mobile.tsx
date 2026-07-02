@@ -100,12 +100,12 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
             {!p.isAuthenticated ? (
               <div className="py-4 text-center">
                 <LockPasswordIcon size={36} className="text-slate-400 mx-auto mb-3" />
-                <p className="font-bold text-[#151c26] text-sm mb-1">Inicia sesión para contactar</p>
+                <p className="font-bold !text-[#151c26] text-sm mb-1">Inicia sesión para contactar</p>
                 <p className="text-xs text-gray-400 mb-4">Necesitas una cuenta para ver el contacto del arrendador.</p>
                 <Link
                   href="/login"
                   onClick={() => setContactOpen(false)}
-                  className="block w-full py-3 text-white rounded-xl font-bold text-sm text-center no-underline"
+                  className="block w-full py-3 !text-white rounded-xl font-bold text-sm text-center no-underline"
                   style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                 >
                   Iniciar sesión

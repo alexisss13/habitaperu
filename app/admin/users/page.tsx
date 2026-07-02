@@ -20,7 +20,9 @@ export default async function UsersPage(props: { searchParams?: Promise<{ page?:
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true, firstName: true, lastName: true, email: true, phone: true,
+        role: true, verified: true, createdAt: true,
         _count: { select: { propertiesOwned: true, contractsAsTenant: true } }
       }
     }),

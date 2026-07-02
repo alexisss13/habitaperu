@@ -67,13 +67,16 @@ export default async function ContractPage({ params }: Props) {
     notFound()
   }
 
-  // Authorize: only landlord or tenant of the contract can view it
+  // Authorize: landlord/tenant of the contract, or an admin (read-only oversight)
   const isLandlord = contract.landlordId === userId
   const isTenant = contract.tenantId === userId
+  const isAdmin = session.user.role === "ADMIN"
 
-  if (!isLandlord && !isTenant) {
+  if (!isLandlord && !isTenant && !isAdmin) {
     redirect(`/${locale}/login?error=Unauthorized`)
   }
+
+  const backHref = isLandlord ? "/landlord/contracts" : isAdmin ? "/admin/contracts" : "/tenant/contract"
 
   const landlordUser = await prisma.user.findUnique({
     where: { id: contract.landlordId },
@@ -151,6 +154,7 @@ export default async function ContractPage({ params }: Props) {
       html={html}
       isLandlord={isLandlord}
       isTenant={isTenant}
+      backHref={backHref}
       locale={locale}
       isMockPayment={CULQI_IS_MOCK}
       landlordSubscriptionPlan={landlordSubscriptionPlan}

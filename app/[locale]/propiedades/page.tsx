@@ -15,7 +15,7 @@ export default async function PropiedadesPage({
 
   const now = new Date()
   const properties = await prisma.property.findMany({
-    where: { status: 'DISPONIBLE' },
+    where: { status: 'DISPONIBLE', deletedAt: null },
     include: {
       owner: { select: { firstName: true, lastName: true, verified: true } },
       reviews: { select: { rating: true } },

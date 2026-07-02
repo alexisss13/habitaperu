@@ -1,12 +1,46 @@
-'use client'
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/db"
+import { redirect } from "next/navigation"
+import { UserSettingsView } from "@/components/user-settings-view"
 
-import { useResponsive } from '@/hooks/useResponsive'
-import { LoadingScreen } from '@/components/ui/loading-screen'
-import { SettingsDesktop } from './settings-desktop'
-import { SettingsMobile } from './settings-mobile'
+export const dynamic = "force-dynamic"
 
-export default function SettingsPage() {
-  const { isMobile, isLoading } = useResponsive()
-  if (isLoading) return <LoadingScreen message="Cargando configuración..." />
-  return isMobile ? <SettingsMobile /> : <SettingsDesktop />
+export default async function AdminSettingsPage() {
+  const session = await auth()
+
+  if (!session || session.user.role !== "ADMIN") {
+    redirect("/login")
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      role: true,
+      twoFactorEnabled: true
+    }
+  })
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  const mappedUser = {
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    twoFactorEnabled: user.twoFactorEnabled
+  }
+
+  return (
+    <div className="bg-panel-bg min-h-screen">
+      <UserSettingsView user={mappedUser} />
+    </div>
+  )
 }

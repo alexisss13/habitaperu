@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  Add01Icon, PencilEdit01Icon, Delete02Icon,
-  Cancel01Icon, Location01Icon,
+  Add01Icon, PencilEdit01Icon, Delete02Icon, Cancel01Icon,
 } from "hugeicons-react"
 import {
   createCityAction, updateCityAction, deleteCityAction,
@@ -43,15 +42,8 @@ export function LocationsDesktop({ cities, districts }: Props) {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-text flex items-center gap-2">
-          <Location01Icon size={22} className="text-accent" /> Ciudades y Distritos
-        </h1>
-        <p className="text-sm text-text-muted mt-1">
-          Controla en qué ciudades y distritos se puede publicar y buscar propiedades.
-        </p>
-      </div>
+    <div className="p-10 min-h-screen">
+      <h1 className="text-2xl font-bold text-admin-text mb-6">Ciudades y Distritos</h1>
 
       {error && (
         <div className="mb-4 bg-admin-error-bg text-admin-error rounded-xl p-3 flex items-center gap-2 text-xs font-semibold">

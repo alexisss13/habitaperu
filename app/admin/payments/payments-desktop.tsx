@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from "react"
-import { MoneyBag02Icon, Search01Icon, FilterIcon, CheckmarkCircle02Icon, Clock01Icon } from "hugeicons-react"
+import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
+import { MoneyBag02Icon, Search01Icon, FilterIcon, CheckmarkCircle02Icon, Clock01Icon, Cancel01Icon, Image02Icon } from "hugeicons-react"
 import { usePagination } from '@/hooks/use-pagination'
 import { AdminPagination } from '@/components/ui/pagination'
-import type { PaymentsData } from './payments-view'
+import type { AdminPayment, PaymentsData } from './payments-view'
 
 const statusBadge = (status: string) => {
   switch (status) {
@@ -13,6 +14,14 @@ const statusBadge = (status: string) => {
     default: return { cls: 'bg-[rgba(116,133,151,0.1)] text-admin-text-muted', label: status, Icon: Clock01Icon }
   }
 }
+
+const STATUS_FILTERS = [
+  { value: '', label: 'Todos' },
+  { value: 'PAGADO', label: 'Pagados' },
+  { value: 'PENDIENTE', label: 'Pendientes' },
+  { value: 'EN_PROCESO', label: 'En proceso' },
+  { value: 'VENCIDO', label: 'Vencidos' },
+] as const
 
 const methodColor = (m: string | null) => {
   switch (m) {
@@ -42,35 +51,36 @@ const fmtDate = (d: Date | null) =>
 export function PaymentsDesktop({ data }: { data: PaymentsData }) {
   const { payments, stats } = data
   const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [viewingPayment, setViewingPayment] = useState<AdminPayment | null>(null)
+  const filterRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const filtered = payments.filter(p => {
     const q = search.toLowerCase().trim()
-    if (!q) return true
-    return (
+    const matchSearch = !q ||
       `${p.contract.tenant.firstName} ${p.contract.tenant.lastName}`.toLowerCase().includes(q) ||
       p.contract.tenant.email.toLowerCase().includes(q) ||
       p.contract.property.title.toLowerCase().includes(q) ||
       p.contract.property.district.toLowerCase().includes(q)
-    )
+    const matchStatus = !statusFilter || p.status === statusFilter
+    return matchSearch && matchStatus
   })
 
-  const pagination = usePagination(filtered, 10)
+  const pagination = usePagination(filtered, 10, [statusFilter])
+  const activeStatusLabel = STATUS_FILTERS.find(s => s.value === statusFilter)?.label ?? 'Todos'
 
   return (
     <div className="p-10 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <MoneyBag02Icon size={32} className="text-admin-accent" />
-            <h1 className="text-3xl font-bold text-admin-text">Pagos</h1>
-          </div>
-          <button className="px-6 py-3 bg-accent text-white rounded-lg text-sm font-semibold hover:-translate-y-px transition-all">
-            + Registrar Pago
-          </button>
-        </div>
-        <p className="text-sm text-admin-text-muted">Gestiona todos los pagos de rentas mensuales</p>
-      </div>
+      <h1 className="text-2xl font-bold text-admin-text mb-6">Pagos</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-8">
@@ -99,10 +109,30 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
             className="w-full pl-10 pr-4 py-2.5 border border-admin-border rounded-lg text-sm text-admin-text bg-admin-bg outline-none focus:border-admin-accent"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 border border-admin-border rounded-lg text-sm font-medium text-admin-text hover:bg-admin-bg transition-colors">
-          <FilterIcon size={16} />
-          Filtros
-        </button>
+        <div className="relative" ref={filterRef}>
+          <button
+            onClick={() => setFilterOpen(!filterOpen)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-admin-border rounded-lg text-sm font-medium text-admin-text hover:bg-admin-bg transition-colors"
+          >
+            <FilterIcon size={16} />
+            {statusFilter ? `Estado: ${activeStatusLabel}` : 'Filtros'}
+          </button>
+          {filterOpen && (
+            <div className="absolute top-[calc(100%+8px)] right-0 bg-admin-card-bg border border-admin-border rounded-xl shadow-lg min-w-[180px] py-1.5 z-20">
+              {STATUS_FILTERS.map(s => (
+                <button
+                  key={s.value}
+                  onClick={() => { setStatusFilter(s.value); setFilterOpen(false) }}
+                  className={`w-full text-left px-4 py-2 text-sm cursor-pointer border-none bg-transparent hover:bg-admin-bg transition-colors ${
+                    statusFilter === s.value ? 'font-bold text-admin-accent' : 'text-admin-text'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Table */}
@@ -138,6 +168,7 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
                     return (
                       <tr
                         key={p.id}
+                        onClick={() => setViewingPayment(p)}
                         className="hover:bg-[rgba(116,133,151,0.05)] transition-colors cursor-pointer"
                       >
                         <td className="px-6 py-5 font-mono text-xs text-admin-text-muted">
@@ -183,7 +214,10 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
                         </td>
 
                         <td className="px-6 py-5 text-right">
-                          <button className="px-3 py-1.5 border border-admin-border rounded-md text-xs font-medium hover:bg-admin-bg transition-colors">
+                          <button
+                            onClick={() => setViewingPayment(p)}
+                            className="px-3 py-1.5 border border-admin-border rounded-md text-xs font-medium hover:bg-admin-bg transition-colors cursor-pointer text-admin-text"
+                          >
                             Ver
                           </button>
                         </td>
@@ -209,6 +243,99 @@ export function PaymentsDesktop({ data }: { data: PaymentsData }) {
           </>
         )}
       </div>
+
+      {/* Detail modal */}
+      {viewingPayment && (() => {
+        const badge = statusBadge(viewingPayment.status)
+        return (
+          <div
+            className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4"
+            onClick={() => setViewingPayment(null)}
+          >
+            <div
+              className="bg-admin-card-bg rounded-2xl border border-admin-border shadow-xl w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <div className="text-xs font-mono text-admin-text-muted mb-1">#{viewingPayment.id.slice(0, 8)}</div>
+                  <div className="text-2xl font-bold text-admin-text">S/ {viewingPayment.amount.toLocaleString()}</div>
+                </div>
+                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full ${badge.cls}`}>
+                  <badge.Icon size={14} />
+                  <span className="text-xs font-semibold">{badge.label}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-admin-text-muted">Inquilino</span>
+                  <span className="font-semibold text-admin-text">
+                    {viewingPayment.contract.tenant.firstName} {viewingPayment.contract.tenant.lastName}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-admin-text-muted">Propiedad</span>
+                  <span className="font-semibold text-admin-text text-right">{viewingPayment.contract.property.title}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-admin-text-muted">Método de pago</span>
+                  <span className={`font-semibold ${methodColor(viewingPayment.paymentMethod)}`}>
+                    {methodLabel(viewingPayment.paymentMethod)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-admin-text-muted">Fecha de vencimiento</span>
+                  <span className="font-semibold text-admin-text">{fmtDate(viewingPayment.dueDate)}</span>
+                </div>
+                {viewingPayment.paidDate && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-admin-text-muted">Fecha de pago</span>
+                    <span className="font-semibold text-admin-text">{fmtDate(viewingPayment.paidDate)}</span>
+                  </div>
+                )}
+                {viewingPayment.notes && (
+                  <div>
+                    <span className="text-admin-text-muted block mb-1">Notas</span>
+                    <p className="text-admin-text bg-admin-bg rounded-lg p-3 text-xs leading-relaxed">{viewingPayment.notes}</p>
+                  </div>
+                )}
+
+                <div className="h-px bg-admin-border my-1" />
+
+                {viewingPayment.receipt ? (
+                  <a
+                    href={viewingPayment.receipt}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 py-2.5 border border-admin-border rounded-lg text-sm font-semibold text-admin-text hover:bg-admin-bg transition-colors no-underline"
+                  >
+                    <Image02Icon size={16} />
+                    Ver comprobante
+                  </a>
+                ) : (
+                  <p className="text-xs text-admin-text-muted text-center py-1">Sin comprobante subido</p>
+                )}
+
+                <Link
+                  href={`/contracts/${viewingPayment.contractId}`}
+                  className="flex items-center justify-center gap-2 py-2.5 border border-admin-border rounded-lg text-sm font-semibold text-admin-text hover:bg-admin-bg transition-colors no-underline"
+                >
+                  Ver contrato completo
+                </Link>
+              </div>
+
+              <button
+                onClick={() => setViewingPayment(null)}
+                className="mt-5 w-full flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-admin-text-muted hover:text-admin-text transition-colors cursor-pointer bg-transparent border-none"
+              >
+                <Cancel01Icon size={14} />
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

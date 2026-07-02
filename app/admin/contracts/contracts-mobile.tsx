@@ -1,5 +1,6 @@
 'use client'
 
+import Link from "next/link"
 import { FileValidationIcon } from "hugeicons-react"
 import type { ContractsData } from './contracts-view'
 
@@ -23,17 +24,10 @@ export function ContractsMobile({ data }: { data: ContractsData }) {
 
   return (
     <div className="min-h-screen pb-8">
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <div className="flex items-center gap-3 mb-1">
-          <FileValidationIcon size={24} className="text-admin-accent" />
-          <h1 className="text-2xl font-bold text-admin-text">Contratos</h1>
-        </div>
-        <p className="text-xs text-admin-text-muted">Contratos de arrendamiento</p>
-      </div>
+      <h1 className="text-lg font-bold text-admin-text px-4 pt-6">Contratos</h1>
 
       {/* Stats */}
-      <div className="px-4 grid grid-cols-2 gap-3 mb-5">
+      <div className="px-4 pt-4 grid grid-cols-2 gap-3 mb-5">
         {[
           { label: 'Total', value: stats.total, color: 'text-admin-text' },
           { label: 'Activos', value: stats.activo, color: 'text-green' },
@@ -84,6 +78,13 @@ export function ContractsMobile({ data }: { data: ContractsData }) {
                   <div className="text-[0.7rem] text-admin-text-muted">{fmtDate(c.startDate)} – {fmtDate(c.endDate)}</div>
                   <div className="text-sm font-bold text-admin-text">S/ {c.monthlyRent.toLocaleString()}/mes</div>
                 </div>
+
+                <Link
+                  href={`/contracts/${c.id}`}
+                  className="mt-3 block text-center px-3 py-1.5 border border-admin-border rounded-md text-xs font-medium text-admin-text no-underline"
+                >
+                  Ver
+                </Link>
               </div>
             )
           })

@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { useResponsive } from "@/hooks/useResponsive"
 import { LoadingScreen } from "@/components/ui/loading-screen"
-import { PanelPageHeader } from "@/components/panel-page-header"
-import { SecurityIcon, UserIcon, CheckmarkCircle01Icon, Settings02Icon, Notification02Icon } from "hugeicons-react"
+import { SecurityIcon, UserIcon, CheckmarkCircle01Icon, Notification02Icon } from "hugeicons-react"
 import { toggleTwoFactorAction } from "@/app/actions/user-actions"
 
 interface UserSettingsViewProps {
@@ -52,30 +51,20 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
     return <LoadingScreen message="Cargando configuración..." />
   }
 
-  const containerCls = isMobile 
-    ? "px-4 py-6 flex flex-col gap-6" 
+  const containerCls = isMobile
+    ? "px-4 py-6 flex flex-col gap-6"
     : "max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8"
+
+  // Admin usa sidebar (sin pestaña activa que indique la sección), así que
+  // sí necesita el título acá. Landlord/tenant ya lo ven en su topbar.
+  const showTitle = user.role === "ADMIN"
 
   return (
     <div className={containerCls}>
-      {/* Header desktop */}
-      {!isMobile && (
-        <PanelPageHeader
-          icon={<Settings02Icon size={32} className="text-admin-accent" />}
-          title="Configuración de Cuenta"
-          subtitle="Administra tus datos personales, seguridad y preferencias de la plataforma."
-        />
-      )}
-      {isMobile && (
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <Settings02Icon size={24} className="text-admin-accent" />
-            <h1 className="text-2xl font-bold text-admin-text">Configuración de Cuenta</h1>
-          </div>
-          <p className="text-sm text-admin-text-muted">
-            Administra tus datos personales, seguridad y preferencias de la plataforma.
-          </p>
-        </div>
+      {showTitle && (
+        <h1 className={isMobile ? "text-lg font-bold text-admin-text" : "text-2xl font-bold text-admin-text"}>
+          Configuración
+        </h1>
       )}
 
       {/* Messages */}
@@ -178,21 +167,26 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
           </div>
         </div>
 
-        {/* Notifications Preference Mock Section */}
+        {/* Notifications Preference — aún no hay backend para persistir esto
+            (no existe el campo en el modelo de usuario), así que se muestra
+            deshabilitado en vez de fingir que ya funciona. */}
         <div className="bg-panel-card-bg rounded-2xl border border-panel-border overflow-hidden">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-panel-border bg-panel-hover-bg">
             <Notification02Icon size={20} className="text-accent" />
             <h2 className="text-base font-bold text-panel-text">Notificaciones y Alertas</h2>
+            <span className="ml-auto text-[0.65rem] font-bold text-panel-text-muted uppercase tracking-wider bg-panel-border/60 px-2 py-0.5 rounded-full">
+              Próximamente
+            </span>
           </div>
-          <div className="p-6 flex flex-col gap-4">
+          <div className="p-6 flex flex-col gap-4 opacity-60">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-panel-text mb-0.5">Notificaciones por Correo</h3>
                 <p className="text-xs text-panel-text-muted">Recibe resúmenes de contratos, cobros y recibos.</p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green"></div>
+              <label className="relative inline-flex items-center cursor-not-allowed">
+                <input type="checkbox" checked readOnly disabled className="sr-only peer" />
+                <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green"></div>
               </label>
             </div>
             <div className="h-px bg-panel-border" />
@@ -201,9 +195,9 @@ export function UserSettingsView({ user }: UserSettingsViewProps) {
                 <h3 className="text-sm font-bold text-panel-text mb-0.5">Alertas de WhatsApp</h3>
                 <p className="text-xs text-panel-text-muted">Recibe recordatorios de firma y pagos al instante.</p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green"></div>
+              <label className="relative inline-flex items-center cursor-not-allowed">
+                <input type="checkbox" checked readOnly disabled className="sr-only peer" />
+                <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green"></div>
               </label>
             </div>
           </div>

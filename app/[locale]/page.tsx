@@ -7,7 +7,7 @@ async function getProperties() {
   try {
     const properties = await prisma.property.findMany({
       take: 12,
-      where: { status: 'DISPONIBLE' },
+      where: { status: 'DISPONIBLE', deletedAt: null },
       orderBy: { views: 'desc' },
       include: {
         owner: {
@@ -159,12 +159,12 @@ async function getPropertyStats() {
   try {
     const [minPriceResult, totalCount] = await Promise.all([
       prisma.property.findFirst({
-        where: { status: 'DISPONIBLE' },
+        where: { status: 'DISPONIBLE', deletedAt: null },
         orderBy: { price: 'asc' },
         select: { price: true }
       }),
       prisma.property.count({
-        where: { status: 'DISPONIBLE' }
+        where: { status: 'DISPONIBLE', deletedAt: null }
       })
     ])
 
