@@ -168,10 +168,66 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
               </div>
             )}
             {/* Inject generatePeruvianLeaseAgreement HTML style nicely */}
-            <div 
+            <div
               className="prose max-w-none text-slate-800"
-              dangerouslySetInnerHTML={{ __html: html }} 
+              dangerouslySetInnerHTML={{ __html: html }}
             />
+
+            {/* Bloque de firmas — no forma parte del contenido hasheado (las
+                cláusulas deben permanecer inmutables), pero deja constancia
+                visible de quién firmó y cuándo, con el mismo dato que ya
+                queda registrado en el Audit Trail. */}
+            <div className="mt-10 pt-6 border-t-2 border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="text-center">
+                <div className="h-16 flex items-end justify-center pb-1">
+                  {contract.tenantSignedAt && (
+                    <span className="font-['cursive'] text-2xl text-slate-700 italic">
+                      {contract.tenant.firstName} {contract.tenant.lastName}
+                    </span>
+                  )}
+                </div>
+                <div className="border-t border-slate-400 pt-2">
+                  <p className="text-xs font-bold text-slate-700">{contract.tenant.firstName} {contract.tenant.lastName}</p>
+                  <p className="text-[10px] text-slate-500">DNI {contract.tenant.dni ?? "No registrado"} — Inquilino</p>
+                  {contract.tenantSignedAt ? (
+                    <p className="text-[10px] text-green font-semibold mt-1">
+                      Firmado electrónicamente el {formatDateTimeLimaNumeric(contract.tenantSignedAt)}
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 font-semibold mt-1">Firma pendiente</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <div className="h-16 flex items-end justify-center pb-1">
+                  {contract.landlordSignedAt && (
+                    <span className="font-['cursive'] text-2xl text-slate-700 italic">
+                      {contract.landlord.firstName} {contract.landlord.lastName}
+                    </span>
+                  )}
+                </div>
+                <div className="border-t border-slate-400 pt-2">
+                  <p className="text-xs font-bold text-slate-700">{contract.landlord.firstName} {contract.landlord.lastName}</p>
+                  <p className="text-[10px] text-slate-500">DNI {contract.landlord.dni ?? "No registrado"} — Arrendador</p>
+                  {contract.landlordSignedAt ? (
+                    <p className="text-[10px] text-green font-semibold mt-1">
+                      Firmado electrónicamente el {formatDateTimeLimaNumeric(contract.landlordSignedAt)}
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 font-semibold mt-1">Firma pendiente</p>
+                  )}
+                </div>
+              </div>
+
+              {contract.documentHash && (
+                <div className="sm:col-span-2 text-center pt-2">
+                  <p className="text-[9px] text-slate-400 font-mono break-all">
+                    Sello digital SHA-256: {contract.documentHash}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -264,7 +320,7 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
             )}
 
             {/* Signing Flow for Tenant */}
-            {isTenant && (contract.status === "PENDING_TENANT" || contract.status === "DRAFT") && !contract.tenantSignedAt && (
+            {isTenant && contract.status === "PENDING_TENANT" && !contract.tenantSignedAt && (
               <div className="space-y-4">
                 <label className="flex items-start gap-3 cursor-pointer select-none">
                   <input 
@@ -396,6 +452,20 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
                 <p className="text-xs font-semibold text-text">Esperando firma del inquilino</p>
                 <p className="text-[10px] text-text-muted mt-1">El inquilino debe firmar primero para que puedas contrafirmar.</p>
+              </div>
+            )}
+
+            {contract.status === "DRAFT" && isTenant && (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                <p className="text-xs font-semibold text-text">Contrato aún no enviado</p>
+                <p className="text-[10px] text-text-muted mt-1">El arrendador todavía no envió este contrato para tu firma.</p>
+              </div>
+            )}
+
+            {contract.status === "DRAFT" && isLandlord && (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                <p className="text-xs font-semibold text-text">Borrador sin enviar</p>
+                <p className="text-[10px] text-text-muted mt-1">Envíalo al inquilino desde tu panel de contratos para que pueda firmarlo.</p>
               </div>
             )}
           </div>

@@ -44,7 +44,6 @@ export function PaymentModal({
   amount,
   title,
   description,
-  ctaLabel = "Pagar ahora",
   isMockMode,
   onProcessPayment,
 }: PaymentModalProps) {
@@ -87,40 +86,55 @@ export function PaymentModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
 
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between"
-          style={{ background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" }}>
-          <div>
-            <h3 className="font-bold text-white text-base">{title}</h3>
-            <p className="text-white/70 text-xs mt-0.5">{description}</p>
+        <div
+          className="relative px-6 py-5 overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #0f3457 0%, #163a5c 60%, #8f8272 100%)" }}
+        >
+          <div className="absolute -top-10 -right-10 size-32 rounded-full bg-white/5" />
+          <div className="relative flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="size-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+                <CreditCardIcon size={20} className="text-white" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-bold text-white text-sm leading-tight">{title}</h3>
+                <p className="text-white/70 text-xs mt-0.5 leading-snug">{description}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleClose}
+              disabled={state === "processing"}
+              className="size-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white border-none cursor-pointer transition-colors disabled:opacity-50 shrink-0"
+            >
+              <Cancel01Icon size={16} />
+            </button>
           </div>
-          <button
-            onClick={handleClose}
-            disabled={state === "processing"}
-            className="size-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white border-none cursor-pointer transition-colors disabled:opacity-50"
-          >
-            <Cancel01Icon size={16} />
-          </button>
+        </div>
+
+        {/* Monto */}
+        <div className="text-center pt-6 pb-5 px-6 border-b border-slate-100">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-1.5">Monto a pagar</p>
+          <p className="text-[2.75rem] leading-none font-extrabold text-[#0f3457] tracking-tight">
+            S/ {amount.toFixed(2)}
+          </p>
+          <span className="inline-block mt-3 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-semibold">
+            Pago único · No recurrente
+          </span>
         </div>
 
         {/* Body */}
-        <div className="p-6">
-
-          {/* Monto */}
-          <div className="text-center mb-6">
-            <p className="text-4xl font-extrabold text-[#0f3457]">
-              S/ {amount.toFixed(2)}
-            </p>
-            <p className="text-sm text-slate-400 mt-1">Pago único · No recurrente</p>
-          </div>
+        <div className="p-6 pt-5">
 
           {/* Estado success */}
           {state === "success" && (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3 mb-4">
-              <CheckmarkCircle01Icon size={24} className="text-emerald-500 shrink-0" />
+              <div className="size-9 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                <CheckmarkCircle01Icon size={18} className="text-white" />
+              </div>
               <div>
                 <p className="font-bold text-emerald-800 text-sm">¡Pago procesado!</p>
                 <p className="text-emerald-600 text-xs">Redirigiendo...</p>
@@ -131,35 +145,49 @@ export function PaymentModal({
           {/* Estado error */}
           {state === "error" && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 mb-4">
-              <AlertCircleIcon size={20} className="text-red-500 shrink-0 mt-0.5" />
-              <p className="text-red-700 text-sm font-medium">{errorMsg}</p>
+              <div className="size-9 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                <AlertCircleIcon size={18} className="text-red-500" />
+              </div>
+              <p className="text-red-700 text-sm font-medium pt-1.5">{errorMsg}</p>
             </div>
           )}
 
           {/* MODO SIMULACIÓN */}
           {isMockMode ? (
             <div>
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2 mb-4">
-                <FlashIcon size={16} className="text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-amber-700 text-xs font-medium">
+              <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-3 mb-5">
+                <FlashIcon size={15} className="text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-amber-700 text-xs font-medium leading-relaxed">
                   <span className="font-bold">Modo simulación activo.</span> No se realizará ningún cobro real.
-                  Configura <code className="bg-amber-100 px-1 rounded">CULQI_SECRET_KEY</code> para activar pagos reales.
+                  Configura <code className="bg-amber-100 px-1 py-0.5 rounded text-[11px]">CULQI_SECRET_KEY</code> para activar pagos reales.
                 </p>
               </div>
 
-              {/* Tarjeta simulada (decorativa) */}
-              <div
-                className="rounded-xl p-4 mb-5 text-white"
-                style={{ background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" }}
+              {/* Tarjeta simulada (decorativa) — estilo tarjeta física, distinto del gradiente de marca */}
+              <div className="relative rounded-2xl p-5 mb-5 text-white overflow-hidden shadow-lg"
+                style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  <CreditCardIcon size={22} className="text-white/80" />
-                  <span className="text-xs font-bold text-white/60 tracking-widest">SIMULACIÓN</span>
-                </div>
-                <p className="text-lg font-bold tracking-widest mb-1">4111 1111 1111 1111</p>
-                <div className="flex justify-between text-xs text-white/70">
-                  <span>Usuario Demo</span>
-                  <span>12/28 · CVV 123</span>
+                <div className="absolute -bottom-8 -left-8 size-28 rounded-full bg-white/5" />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-7">
+                    <div className="w-9 h-6.5 rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shadow-sm" />
+                    <span className="text-[10px] font-bold text-white/50 tracking-[0.15em]">SIMULACIÓN</span>
+                  </div>
+                  <p className="text-lg font-semibold tracking-[0.2em] mb-5 font-mono">4111 1111 1111 1111</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[8px] uppercase text-white/40 tracking-wider mb-0.5">Titular</p>
+                      <p className="text-[11px] font-semibold text-white/90">Usuario Demo</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] uppercase text-white/40 tracking-wider mb-0.5">Vence</p>
+                      <p className="text-[11px] font-semibold text-white/90">12/28</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] uppercase text-white/40 tracking-wider mb-0.5">CVV</p>
+                      <p className="text-[11px] font-semibold text-white/90">123</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -167,8 +195,7 @@ export function PaymentModal({
                 <button
                   onClick={() => handleMockPay(false)}
                   disabled={state === "processing" || state === "success"}
-                  className="w-full py-3 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 border-none cursor-pointer transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
-                  style={{ background: "linear-gradient(135deg, #0f3457 0%, #8f8272 100%)" }}
+                  className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-2 border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm shadow-emerald-600/20"
                 >
                   {state === "processing" ? (
                     <>
@@ -185,7 +212,7 @@ export function PaymentModal({
                 <button
                   onClick={() => handleMockPay(true)}
                   disabled={state === "processing" || state === "success"}
-                  className="w-full py-2.5 rounded-xl font-semibold text-xs text-slate-500 border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 rounded-xl font-semibold text-xs text-slate-400 hover:text-slate-600 hover:bg-slate-50 border-none bg-transparent cursor-pointer transition-colors disabled:opacity-50"
                 >
                   Simular pago fallido (para pruebas)
                 </button>
@@ -209,7 +236,7 @@ export function PaymentModal({
           )}
 
           {/* Seguridad */}
-          <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-slate-400">
+          <div className="flex items-center justify-center gap-1.5 mt-5 text-xs text-slate-400">
             <SecurityCheckIcon size={13} />
             <span>Pago seguro · Habita Perú no almacena datos de tarjetas</span>
           </div>

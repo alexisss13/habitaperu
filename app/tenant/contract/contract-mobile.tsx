@@ -19,7 +19,7 @@ interface Props {
 export function TenantContractMobile({ contracts }: Props) {
   const [reviewingProperty, setReviewingProperty] = useState<{ id: string; title: string; contractId: string } | null>(null)
   const activeContract = contracts.find(c => c.status === "ACTIVE")
-  const pendingContract = contracts.find(c => c.status === "PENDING_TENANT" || c.status === "DRAFT")
+  const pendingContract = contracts.find(c => c.status === "PENDING_TENANT")
   const waitingContract = contracts.find(c => c.status === "PENDING_LANDLORD")
   const pastContracts = contracts.filter(c => ["FINISHED", "BREACHED_CANCELLED"].includes(c.status))
 

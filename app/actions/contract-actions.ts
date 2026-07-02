@@ -1027,23 +1027,6 @@ export async function createDraftContract(input: {
       }
     }
 
-    // Paso 1: Crear contrato para obtener el ID real (cuid) antes de generar el HTML
-    const contract = await prisma.contract.create({
-      data: {
-        propertyId: input.propertyId,
-        landlordId: userId,
-        tenantId: input.tenantId,
-        status: ContractStatus.DRAFT,
-        monthlyRent: input.monthlyRent,
-        currency: input.currency,
-        deposit: input.deposit,
-        startDate: input.startDate,
-        endDate: input.endDate,
-        paymentDay: input.paymentDay,
-      },
-      select: { id: true },
-    })
-
     const toAddress = (district: string | null) => {
       const d = district ?? "Lima"
       return d.length >= 5 ? d : `${d}, Perú`

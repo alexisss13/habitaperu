@@ -14,7 +14,7 @@ import {
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
-import { createDraftContract } from "@/app/actions/contract-actions"
+import { createDraftContract, sendContractToTenant } from "@/app/actions/contract-actions"
 import { createTenantReview } from "@/app/actions/review-actions"
 import { StarIcon } from "hugeicons-react"
 
@@ -84,6 +84,20 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
   const [tenantReviewComment, setTenantReviewComment] = useState("")
   const [tenantReviewLoading, setTenantReviewLoading] = useState(false)
   const [tenantReviewDone, setTenantReviewDone] = useState<string[]>([])
+  const [sendingId, setSendingId] = useState<string | null>(null)
+
+  const handleSendToTenant = async (contractId: string) => {
+    setSendingId(contractId)
+    try {
+      const res = await sendContractToTenant(contractId)
+      if (!res.success) {
+        alert(res.error?.message || "Ocurrió un error al enviar el contrato.")
+      }
+      router.refresh()
+    } finally {
+      setSendingId(null)
+    }
+  }
 
   // Form states
   const [selectedPropertyId, setSelectedPropertyId] = useState("")
@@ -187,7 +201,7 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
       case "DRAFT": 
         return <span className="px-2.5 py-1 text-xs font-semibold bg-panel-hover-bg text-panel-text-dim border border-panel-border rounded-lg">Borrador</span>
       case "PENDING_TENANT": 
-        return <span className="px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg">Espera Inquilino</span>
+        return <span className="px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg">Firma I</span>
       case "PENDING_LANDLORD": 
         return <span className="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">Espera Propietario</span>
       case "ACTIVE": 
@@ -283,6 +297,15 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
                           >
                             <StarIcon size={11} />
                             Calificar
+                          </button>
+                        )}
+                        {c.status === "DRAFT" && (
+                          <button
+                            onClick={() => handleSendToTenant(c.id)}
+                            disabled={sendingId === c.id}
+                            className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-lg border border-accent bg-accent text-white hover:brightness-110 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {sendingId === c.id ? "Enviando..." : "Enviar al inquilino"}
                           </button>
                         )}
                         <Link

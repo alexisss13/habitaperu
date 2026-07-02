@@ -11,7 +11,7 @@ import {
   Cancel01Icon,
   AlertCircleIcon
 } from "hugeicons-react"
-import { createDraftContract } from "@/app/actions/contract-actions"
+import { createDraftContract, sendContractToTenant } from "@/app/actions/contract-actions"
 
 interface LandlordInfo {
   id: string
@@ -86,6 +86,20 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
   const [bankProvider, setBankProvider] = useState<"Niubiz" | "Culqi" | "Izipay" | "BCP" | "Interbank" | "BBVA">("BCP")
   const [bankAccountNumber, setBankAccountNumber] = useState("")
   const [bankAccountHolder, setBankAccountHolder] = useState(`${landlord.firstName} ${landlord.lastName}`)
+  const [sendingId, setSendingId] = useState<string | null>(null)
+
+  const handleSendToTenant = async (contractId: string) => {
+    setSendingId(contractId)
+    try {
+      const res = await sendContractToTenant(contractId)
+      if (!res.success) {
+        alert(res.error?.message || "Ocurrió un error al enviar el contrato.")
+      }
+      router.refresh()
+    } finally {
+      setSendingId(null)
+    }
+  }
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
@@ -248,7 +262,16 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
                 </div>
               </div>
 
-              <div className="mt-2">
+              <div className="mt-2 flex flex-col gap-2">
+                {c.status === "DRAFT" && (
+                  <button
+                    onClick={() => handleSendToTenant(c.id)}
+                    disabled={sendingId === c.id}
+                    className="w-full h-10 inline-flex items-center justify-center text-xs font-bold rounded-lg border border-accent bg-accent text-white hover:brightness-110 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {sendingId === c.id ? "Enviando..." : "Enviar al inquilino"}
+                  </button>
+                )}
                 <Link
                   href={`/contracts/${c.id}`}
                   className={`w-full h-10 inline-flex items-center justify-center text-xs font-bold rounded-lg border transition-all no-underline ${

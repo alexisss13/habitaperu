@@ -26,7 +26,7 @@ export function TenantContractDesktop({ contracts }: Props) {
 
   // Find active, pending, or past contracts
   const activeContract = contracts.find(c => c.status === "ACTIVE")
-  const pendingContract = contracts.find(c => c.status === "PENDING_TENANT" || c.status === "DRAFT")
+  const pendingContract = contracts.find(c => c.status === "PENDING_TENANT")
   const waitingContract = contracts.find(c => c.status === "PENDING_LANDLORD")
   const pastContracts = contracts.filter(c => ["FINISHED", "BREACHED_CANCELLED"].includes(c.status))
 
