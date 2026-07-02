@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 import {
   Location01Icon, FavouriteIcon, Home01Icon, CheckmarkCircle02Icon,
   StarIcon, WhatsappIcon, SecurityCheckIcon, ArrowRight01Icon,
   Share08Icon, Maximize01Icon, Calendar03Icon, MoneyBag02Icon,
-  Clock05Icon, MessageMultiple02Icon, Cancel01Icon, Building03Icon,
-  ArrowLeft01Icon, LockPasswordIcon, UserCheck01Icon
+  Clock05Icon, Cancel01Icon, Building03Icon,
+  ArrowLeft01Icon, LockPasswordIcon
 } from "hugeicons-react"
 import type { PropertyDetail } from './property-detail-view'
 import { useAuthModal } from "@/components/auth/auth-modal-provider"
+import { PropertyChatWidget } from "@/components/chat/property-chat-widget"
 
 const typeLabel = (t: string) =>
   t === 'HABITACION' ? 'Habitación' : t === 'DEPARTAMENTO' ? 'Departamento' : 'Casa'
@@ -40,6 +42,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
   const params = useParams()
   const locale = (params?.locale as string) || 'es'
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   useEffect(() => {
     try {
@@ -86,30 +89,6 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
   const closeLightbox = () => setLightboxOpen(false)
   const prevImg = () => setLightboxIndex(i => (i - 1 + images.length) % images.length)
   const nextImg = () => setLightboxIndex(i => (i + 1) % images.length)
-
-  // Contact form
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [message, setMessage] = useState('')
-  const [formState, setFormState] = useState<'idle' | 'sent'>('idle')
-
-  const handleConsult = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return
-    const text = [
-      `Hola ${p.owner.firstName}, vi tu anuncio "${p.title}" en Habita Perú.`,
-      name ? `Mi nombre es ${name.trim()}.` : '',
-      phone ? `Mi teléfono es ${phone.trim()}.` : '',
-      message.trim() || 'Me gustaría obtener más información.',
-    ].filter(Boolean).join(' ')
-    const ownerPhone = p.owner.phone
-      ? `51${p.owner.phone.replace(/\D/g, '')}`
-      : null
-    if (ownerPhone) {
-      window.open(`https://wa.me/${ownerPhone}?text=${encodeURIComponent(text)}`, '_blank')
-    }
-    setFormState('sent')
-  }
 
   const avgRating = p.avgRating
 
@@ -434,6 +413,13 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                         : "Esta propiedad se encuentra temporalmente en mantenimiento."}
                     </p>
                   </div>
+                ) : p.isOwner ? (
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center mb-4">
+                    <Building03Icon size={32} className="text-slate-400 mx-auto mb-3" />
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Esta es tu propiedad.
+                    </p>
+                  </div>
                 ) : !p.isAuthenticated ? (
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-center mb-4">
                     <LockPasswordIcon size={32} className="text-slate-400 mx-auto mb-3" />
@@ -451,97 +437,22 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                       Iniciar sesión
                     </Link>
                   </div>
-                ) : !p.ownerPhoneVisible ? (
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center mb-4">
-                    <UserCheck01Icon size={32} className="text-amber-500 mx-auto mb-3" />
-                    <p className="font-bold text-[#151c26] text-sm mb-1">
-                      Verifica tu identidad
-                    </p>
-                    <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                      Para contactar al arrendador necesitas completar tu verificación KYC. El proceso toma menos de 2 minutos.
-                    </p>
-                    <Link
-                      href="/tenant/kyc"
-                      className="block w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm text-center no-underline transition-colors"
-                    >
-                      Completar verificación KYC
-                    </Link>
-                  </div>
-                ) : formState === 'sent' ? (
-                  <div className="py-8 text-center">
-                    <CheckmarkCircle02Icon size={40} className="text-green mx-auto mb-3" />
-                    <p className="font-bold text-[#151c26] mb-1">¡Consulta enviada!</p>
-                    <p className="text-sm text-gray-400 mb-4">
-                      El arrendador recibirá tu mensaje por WhatsApp.
-                    </p>
-                    <button
-                      onClick={() => setFormState('idle')}
-                      className="text-sm text-accent font-semibold bg-transparent border-none cursor-pointer hover:underline"
-                    >
-                      Enviar otra consulta
-                    </button>
-                  </div>
-                ) : (
-                  <form className="flex flex-col gap-3 mb-4" onSubmit={handleConsult}>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                        Tu nombre completo *
-                      </label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        placeholder="Ej: Juan Pérez"
-                        required
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-accent bg-gray-50 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                        Teléfono / WhatsApp
-                      </label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
-                        placeholder="+51 999 999 999"
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-accent bg-gray-50 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                        Mensaje (opcional)
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={message}
-                        onChange={e => setMessage(e.target.value)}
-                        placeholder="Hola, me interesa la propiedad..."
-                        className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:border-accent bg-gray-50 resize-none transition-colors"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={!name.trim()}
-                      className="w-full py-3 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer border-none hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
-                    >
-                      <MessageMultiple02Icon size={18} />
-                      Enviar consulta por WhatsApp
-                    </button>
-                    {p.owner.phone && (
+                ) : session?.user?.id ? (
+                  <div className="mb-4">
+                    <PropertyChatWidget propertyId={p.id} currentUserId={session.user.id} />
+                    {p.owner.phone && p.ownerPhoneVisible && (
                       <a
                         href={`https://wa.me/51${p.owner.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${p.owner.firstName}, vi tu anuncio "${p.title}" en Habita Perú. ¿Sigue disponible?`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full py-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 no-underline cursor-pointer transition-colors"
+                        className="mt-3 flex items-center justify-center gap-1.5 text-xs text-gray-400 no-underline hover:text-[#25D366] transition-colors"
                       >
-                        <WhatsappIcon size={18} />
-                        Abrir WhatsApp directo
+                        <WhatsappIcon size={14} />
+                        ¿Prefieres WhatsApp? Escríbele directo
                       </a>
                     )}
-                  </form>
-                )}
+                  </div>
+                ) : null}
 
                 <div className="h-px bg-gray-100 mb-4" />
 

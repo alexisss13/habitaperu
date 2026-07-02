@@ -24,6 +24,7 @@ export interface PropertyDetail {
   reviews: Array<{ id: string; rating: number; comment: string; author: { firstName: string; lastName: string; avatar: string | null } }>
   ownerPhoneVisible: boolean
   isAuthenticated: boolean
+  isOwner: boolean
   status: string
 }
 

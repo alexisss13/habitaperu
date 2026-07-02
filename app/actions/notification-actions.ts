@@ -31,6 +31,7 @@ export async function getNotifications(): Promise<ActionResult<any[]>> {
       title: n.title,
       message: n.message,
       read: n.read,
+      metadata: n.metadata,
       createdAt: n.createdAt.toISOString(),
     }))
 

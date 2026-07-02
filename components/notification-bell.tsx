@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { Notification02Icon, Cancel01Icon } from "hugeicons-react"
-import { 
-  getNotifications, 
-  markNotificationAsRead, 
-  markAllNotificationsAsRead, 
-  deleteNotification 
+import {
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification
 } from "@/app/actions/notification-actions"
 
 interface NotificationBellProps {
@@ -19,6 +20,7 @@ interface NotificationItem {
   title: string
   message: string
   read: boolean
+  metadata?: { conversationId?: string } | null
   createdAt: string
 }
 
@@ -50,6 +52,7 @@ export function NotificationBell({ theme = "tenant" }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   const fetchNotifications = async () => {
     setLoading(true)
@@ -102,6 +105,14 @@ export function NotificationBell({ theme = "tenant" }: NotificationBellProps) {
     } catch (error) {
       console.error("Error marking notification as read:", error)
       fetchNotifications()
+    }
+  }
+
+  const handleItemClick = (notif: NotificationItem) => {
+    handleMarkRead(notif.id)
+    if (notif.type === "NEW_MESSAGE" && notif.metadata?.conversationId && (theme === "tenant" || theme === "landlord")) {
+      setIsOpen(false)
+      router.push(`/${theme}/messages/${notif.metadata.conversationId}`)
     }
   }
 
@@ -216,7 +227,7 @@ export function NotificationBell({ theme = "tenant" }: NotificationBellProps) {
               notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  onClick={() => handleMarkRead(notif.id)}
+                  onClick={() => handleItemClick(notif)}
                   className={itemClass(!notif.read)}
                 >
                   {!notif.read && (

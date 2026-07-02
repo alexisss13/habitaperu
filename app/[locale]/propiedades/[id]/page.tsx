@@ -141,6 +141,7 @@ export default async function PropertyDetailPage({ params }: Props) {
         reviews: property.reviews,
         ownerPhoneVisible,
         isAuthenticated: !!session?.user,
+        isOwner: session?.user?.id === property.owner.id,
         status: property.status,
       }}
     />

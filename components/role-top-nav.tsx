@@ -8,7 +8,7 @@ import { signOut } from "next-auth/react"
 import {
   Home01Icon, Building03Icon, UserMultiple02Icon, FileValidationIcon,
   Wallet01Icon, Settings02Icon, HelpCircleIcon, Logout01Icon, Menu01Icon,
-  FavouriteIcon, SecurityCheckIcon, IdentityCardIcon,
+  FavouriteIcon, SecurityCheckIcon, IdentityCardIcon, MessageMultiple02Icon,
 } from "hugeicons-react"
 import { NotificationBell } from "./notification-bell"
 
@@ -46,6 +46,7 @@ const NAV: Record<Role, RoleConfig> = {
       { name: "Inquilinos",  short: "Inquilinos", href: "/landlord/tenants",    Icon: UserMultiple02Icon },
       { name: "Contratos",   short: "Contratos",  href: "/landlord/contracts",  Icon: FileValidationIcon },
       { name: "Pagos",       short: "Pagos",      href: "/landlord/payments",   Icon: Wallet01Icon },
+      { name: "Mensajes",    short: "Msjs",       href: "/landlord/messages",   Icon: MessageMultiple02Icon },
     ],
     accountItems: [
       { name: "Configuración", href: "/landlord/settings", Icon: Settings02Icon },
@@ -63,6 +64,7 @@ const NAV: Record<Role, RoleConfig> = {
       { name: "Favoritos",   short: "Favoritos",href: "/tenant/favorites", Icon: FavouriteIcon },
       { name: "Verificación",short: "KYC",      href: "/tenant/kyc",       Icon: SecurityCheckIcon },
       { name: "Mi Perfil",   short: "Perfil",   href: "/tenant/profile",   Icon: IdentityCardIcon },
+      { name: "Mensajes",    short: "Msjs",     href: "/tenant/messages",  Icon: MessageMultiple02Icon },
     ],
     accountItems: [
       { name: "Configuración", href: "/tenant/settings", Icon: Settings02Icon },
@@ -216,7 +218,7 @@ export default function RoleTopNav({ children, session, role }: RoleTopNavProps)
 
       {/* ── Mobile bottom nav ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 bg-admin-card-bg border-t border-admin-border z-50">
-        <div className="grid grid-cols-5 h-16">
+        <div className="grid grid-cols-6 h-16">
           {cfg.navItems.map(({ short, href, Icon }) => {
             const active = isActive(href)
             return (
