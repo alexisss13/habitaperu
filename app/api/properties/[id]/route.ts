@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { deletePropertyAction } from "@/app/actions/property-actions"
+import { propertySchema } from "@/lib/validations"
 
 // GET /api/properties/:id - Obtener detalle de propiedad
 export async function GET(
@@ -104,15 +106,29 @@ export async function PUT(
       )
     }
 
+    if (property.deletedAt) {
+      return NextResponse.json(
+        { error: "Esta propiedad está archivada y no se puede editar." },
+        { status: 409 }
+      )
+    }
+
     const body = await req.json()
+    const validated = propertySchema.parse(body)
 
     const updated = await prisma.property.update({
       where: { id: params.id },
-      data: body,
+      data: validated,
     })
 
     return NextResponse.json(updated)
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: error.issues },
+        { status: 400 }
+      )
+    }
     console.error("Error al actualizar propiedad:", error)
     return NextResponse.json(
       { error: "Error al actualizar propiedad" },

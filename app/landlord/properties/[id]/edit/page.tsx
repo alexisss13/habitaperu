@@ -22,6 +22,7 @@ export default async function EditPropertyPage({
 
   if (!property) notFound()
   if (property.ownerId !== (session.user as any).id) redirect("/landlord/properties")
+  if (property.deletedAt) redirect("/landlord/properties")
 
   // Serialize for client component
   const data = {

@@ -29,6 +29,9 @@ export const propertySchema = z.object({
   description: z.string().min(30, "La descripción debe tener al menos 30 caracteres").max(600),
   type: z.enum(["HABITACION", "DEPARTAMENTO", "CASA", "OFICINA", "LOCAL"]),
   condition: z.enum(["SIN_MUEBLES", "SEMI_AMOBLADO", "AMOBLADO"]),
+  /// Solo editable desde /landlord/properties/[id]/edit — al crear una
+  /// propiedad nueva siempre nace en DISPONIBLE (default del modelo).
+  status: z.enum(["DISPONIBLE", "OCUPADA", "MANTENIMIENTO"]).optional(),
   district: z.string().min(1, "Selecciona un distrito"),
   address: z.string().optional(),
   area: z.number().min(10).optional(),
