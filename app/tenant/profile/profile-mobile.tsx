@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  UserCircleIcon, CheckmarkCircle02Icon,
+  CheckmarkCircle02Icon,
   SmartPhone02Icon, Location01Icon, Cancel01Icon
 } from "hugeicons-react"
 import { updateProfileAction } from "@/app/actions/user-actions"
@@ -54,13 +54,9 @@ export function ProfileMobile({ profile }: { profile: UserProfile }) {
 
   return (
     <div className="min-h-screen bg-panel-bg pb-24">
-      {/* Header */}
-      <div className="bg-panel-card-bg border-b border-panel-border px-4 py-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 mb-2">
-            <UserCircleIcon size={24} className="text-admin-accent" />
-            <h1 className="text-2xl font-bold text-admin-text">Mi Perfil</h1>
-          </div>
+      {/* Editar/Cancelar */}
+      <div className="bg-panel-card-bg border-b border-panel-border px-4 py-3">
+        <div className="flex items-center justify-end">
           {!editing ? (
             <button
               onClick={() => { setEditing(true); setSuccess(""); setError("") }}

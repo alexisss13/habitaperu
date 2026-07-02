@@ -1,12 +1,11 @@
 'use client'
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import Link from "next/link"
 import {
   Home01Icon, Add01Icon, BedIcon, Bathtub02Icon, SquareIcon,
   Location01Icon, StarIcon, EyeIcon, FlashIcon,
-  CheckmarkCircle01Icon, ArrowUp01Icon, Edit01Icon, Building03Icon
+  CheckmarkCircle01Icon, ArrowUp01Icon, Edit01Icon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
@@ -76,22 +75,6 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-
-      <PanelPageHeader
-        icon={<Building03Icon size={32} className="text-admin-accent" />}
-        title="Mis Propiedades"
-        subtitle="Administra tus anuncios de inmuebles en Habita Perú"
-        actions={
-          <Link
-            href="/landlord/properties/new"
-            className="h-12 px-5 rounded-xl text-sm font-bold !text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer no-underline"
-            style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
-          >
-            <Add01Icon size={18} />
-            <span>Publicar Propiedad</span>
-          </Link>
-        }
-      />
 
       {/* Plan status + upgrade banner */}
       {(() => {
@@ -174,25 +157,36 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 mb-8 bg-panel-card-bg p-1.5 border border-panel-border rounded-xl max-w-max">
-        {[
-          { key: "TODAS", label: "Todas" },
-          { key: "DISPONIBLES", label: "Disponibles" },
-          { key: "OCUPADAS", label: "Ocupadas" },
-          { key: "MANTENIMIENTO", label: "Mantenimiento" }
-        ].map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer border-0 ${
-              filter === tab.key 
-                ? "bg-[#151c26] text-white shadow-sm" 
-                : "text-panel-text-muted hover:text-panel-text hover:bg-panel-hover-bg"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex items-center justify-between gap-4 mb-8 flex-wrap">
+        <div className="flex gap-2 bg-panel-card-bg p-1.5 border border-panel-border rounded-xl max-w-max">
+          {[
+            { key: "TODAS", label: "Todas" },
+            { key: "DISPONIBLES", label: "Disponibles" },
+            { key: "OCUPADAS", label: "Ocupadas" },
+            { key: "MANTENIMIENTO", label: "Mantenimiento" }
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key)}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer border-0 ${
+                filter === tab.key
+                  ? "bg-[#151c26] text-white shadow-sm"
+                  : "text-panel-text-muted hover:text-panel-text hover:bg-panel-hover-bg"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <Link
+          href="/landlord/properties/new"
+          className="h-11 px-5 rounded-xl text-sm font-bold !text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer no-underline"
+          style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
+        >
+          <Add01Icon size={18} />
+          <span>Publicar Propiedad</span>
+        </Link>
       </div>
 
       {/* Properties Cards Grid */}
@@ -238,8 +232,8 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
 
                 {/* Property Details */}
                 <div className="p-5 flex-1 flex flex-col">
-                  <div className="flex items-center gap-1.5 text-xs text-panel-text-muted font-bold mb-2">
-                    <Location01Icon size={14} className="text-panel-text-dim" />
+                  <div className="property-location-simple flex items-center gap-1.5 mb-2">
+                    <Location01Icon size={14} className="shrink-0" />
                     <span>{p.district}</span>
                     {p.address && (
                       <>
@@ -249,23 +243,23 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
                     )}
                   </div>
 
-                  <h3 className="text-base font-bold text-panel-text mb-2 line-clamp-1">{p.title}</h3>
+                  <p className="property-title-simple mb-2 line-clamp-1">{p.title}</p>
                   <p className="text-xs text-panel-text-muted line-clamp-2 mb-4 leading-relaxed">{p.description}</p>
 
                   <div className="h-px bg-panel-hover-bg my-2" />
 
                   {/* Core Features */}
-                  <div className="flex items-center justify-between text-panel-text-dim text-xs font-semibold py-2">
+                  <div className="property-specs-simple flex items-center justify-between py-2">
                     <div className="flex items-center gap-1">
-                      <BedIcon size={16} className="text-panel-text-dim" />
+                      <BedIcon size={16} />
                       <span>{p.rooms} hab.</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Bathtub02Icon size={16} className="text-panel-text-dim" />
+                      <Bathtub02Icon size={16} />
                       <span>{p.bathrooms} bañ.</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <SquareIcon size={16} className="text-panel-text-dim" />
+                      <SquareIcon size={16} />
                       <span>{p.area || "--"} m²</span>
                     </div>
                   </div>
@@ -277,9 +271,9 @@ export function PropertiesDesktop({ properties, isMockPayment, subscriptionPlan,
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-[10px] text-panel-text-muted font-bold uppercase tracking-wider block">Precio mensual</span>
-                      <span className="text-base font-extrabold text-[#151c26]">
-                        S/ {Number(p.price).toLocaleString()}
-                      </span>
+                      <p className="property-price-simple">
+                        <strong>S/ {Number(p.price).toLocaleString()}</strong>
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2">

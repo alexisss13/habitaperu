@@ -1,16 +1,14 @@
 "use client"
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { 
-  CreditCardIcon, 
-  CheckmarkCircle01Icon, 
-  AlertCircleIcon, 
-  Cancel01Icon, 
-  ImageAdd01Icon, 
+import {
+  CreditCardIcon,
+  CheckmarkCircle01Icon,
+  AlertCircleIcon,
+  Cancel01Icon,
+  ImageAdd01Icon,
   FileValidationIcon,
-  Wallet01Icon
 } from "hugeicons-react"
 import { submitPaymentReceipt } from "@/app/actions/payment-actions"
 import { uploadImageAction } from "@/app/actions/upload-actions"
@@ -153,12 +151,6 @@ export function TenantPaymentsDesktop({ payments }: Props) {
   return (
     <div className="min-h-screen bg-panel-bg">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        
-        <PanelPageHeader
-          icon={<Wallet01Icon size={32} className="text-admin-accent" />}
-          title="Mis Pagos de Alquiler"
-          subtitle="Lleva el control de tus cuotas mensuales, sube tus comprobantes de pago y revisa el historial."
-        />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-5 mb-8">

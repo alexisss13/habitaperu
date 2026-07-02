@@ -156,14 +156,8 @@ export function LandlordPaymentsMobile({ payments }: Props) {
 
   return (
     <div className="min-h-screen bg-bg-2 pb-24">
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-admin-text mb-2">Control de Pagos</h1>
-        <p className="text-sm text-admin-text-muted">Valida los alquileres de tus propiedades</p>
-      </div>
-
       {/* Metrics horizontal scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mb-4">
+      <div className="flex gap-3 overflow-x-auto pt-6 pb-4 scrollbar-hide -mx-4 px-4 mb-4">
         <div className="bg-white border border-slate-200 rounded-xl p-3.5 shrink-0 w-44">
           <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Recaudado</p>
           <p className="text-lg font-bold text-emerald-600">S/ {totalReceived.toLocaleString()}</p>

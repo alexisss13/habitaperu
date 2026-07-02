@@ -1,12 +1,11 @@
 'use client'
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import Link from "next/link"
 import {
   UserMultiple02Icon, Search01Icon, SecurityCheckIcon,
   FileValidationIcon, CheckmarkCircle02Icon, Cancel01Icon,
-  Clock05Icon, AlertCircleIcon, UserGroupIcon
+  Clock05Icon, AlertCircleIcon
 } from "hugeicons-react"
 import type { TenantItem } from "./tenants-view"
 
@@ -50,12 +49,6 @@ export function TenantsDesktop({ tenants }: { tenants: TenantItem[] }) {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-
-      <PanelPageHeader
-        icon={<UserGroupIcon size={32} className="text-admin-accent" />}
-        title="Mis Inquilinos"
-        subtitle={`${tenants.length} ${tenants.length === 1 ? "inquilino" : "inquilinos"} en total`}
-      />
 
         {/* Filters */}
         <div className="flex items-center gap-3 mb-6 flex-wrap">

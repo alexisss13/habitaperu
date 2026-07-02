@@ -3,10 +3,9 @@
 import { useState } from "react"
 import Link from "next/link"
 import { WriteReviewModal } from "@/components/write-review-modal"
-import { 
-  FileValidationIcon, 
-  Home01Icon, 
-  Location01Icon, 
+import {
+  FileValidationIcon,
+  Location01Icon,
   Download01Icon, 
   SignatureIcon, 
   SecurityCheckIcon
@@ -52,15 +51,9 @@ export function TenantContractMobile({ contracts }: Props) {
 
   return (
     <div className="min-h-screen bg-panel-bg pb-24">
-      {/* Top Header */}
-      <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-admin-text mb-2">Mi Contrato</h1>
-        <p className="text-sm text-admin-text-muted">Consulta tu arriendo activo e historial</p>
-      </div>
-
       {/* Main Flow Containers */}
-      <div className="px-4 space-y-4">
-        
+      <div className="px-4 pt-6 space-y-4">
+
         {/* 1. Borrador Pendiente de Firma */}
         {pendingContract && (
           <div className="bg-panel-card-bg border border-amber-200 rounded-xl p-4 shadow-sm">

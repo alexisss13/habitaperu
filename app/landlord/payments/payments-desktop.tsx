@@ -1,14 +1,12 @@
 "use client"
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { 
-  CreditCardIcon, 
-  CheckmarkCircle01Icon, 
-  AlertCircleIcon, 
+import {
+  CreditCardIcon,
+  CheckmarkCircle01Icon,
+  AlertCircleIcon,
   Cancel01Icon,
-  Wallet01Icon
 } from "hugeicons-react"
 import { usePagination } from "@/hooks/use-pagination"
 import { Pagination } from "@/components/ui/pagination"
@@ -179,12 +177,6 @@ export function LandlordPaymentsDesktop({ payments }: Props) {
   return (
     <div>
       <div className="py-8 px-6 max-w-7xl mx-auto">
-        
-        <PanelPageHeader
-          icon={<Wallet01Icon size={32} className="text-admin-accent" />}
-          title="Control y Gestión de Pagos"
-          subtitle="Monitorea el recaudo mensual de tus propiedades alquiladas y valida los comprobantes recibidos."
-        />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-6 mb-8">

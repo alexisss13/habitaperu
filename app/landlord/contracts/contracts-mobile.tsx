@@ -187,14 +187,8 @@ export function ContractsMobile({ landlord, contracts, properties, tenants }: Pr
 
   return (
     <div className="py-6 px-4 pb-24">
-      {/* Header */}
-      <div className="flex flex-col gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-admin-text mb-2">Mis Contratos</h1>
-          <p className="text-sm text-admin-text-muted">
-            Gestión y firma digital de contratos con validez legal.
-          </p>
-        </div>
+      {/* Crear contrato */}
+      <div className="mb-6">
         <button
           onClick={handleOpenModal}
           className="w-full h-11 rounded-xl text-xs font-bold text-white transition-all duration-200 shadow-sm flex items-center justify-center gap-2 cursor-pointer"

@@ -1,8 +1,7 @@
 'use client'
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import Link from 'next/link'
-import { Wallet01Icon, Home01Icon, FileValidationIcon, AlertCircleIcon, Clock01Icon, CheckmarkCircle01Icon, UserMultiple02Icon, Building03Icon, LayoutGridIcon } from 'hugeicons-react'
+import { Wallet01Icon, Home01Icon, FileValidationIcon, AlertCircleIcon, Clock01Icon, CheckmarkCircle01Icon, UserMultiple02Icon, Building03Icon } from 'hugeicons-react'
 import { PaymentTrafficLight } from '@/components/landlord/payment-traffic-light'
 import { KycReviewCard } from '@/components/landlord/kyc-review-card'
 
@@ -35,12 +34,6 @@ export function DashboardDesktop({ data }: { data: DashboardData }) {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-
-      <PanelPageHeader
-        icon={<LayoutGridIcon size={32} className="text-admin-accent" />}
-        title="Dashboard"
-        subtitle="Gestiona tus propiedades, contratos y pagos desde un solo lugar"
-      />
 
       {/* ── Actionable Alerts ── */}
       {hasAlerts && (

@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import type { Metadata } from 'next'
-import DashboardLayout from "@/components/dashboard-layout"
+import RoleTopNav from "@/components/role-top-nav"
 
 export const metadata: Metadata = {
   title: 'Mi Panel Inquilino - Habita Perú',
@@ -20,8 +20,8 @@ export default async function TenantLayout({
   }
 
   return (
-    <DashboardLayout session={session as any} role="tenant" showThemeSwitch>
+    <RoleTopNav session={session as any} role="tenant">
       {children}
-    </DashboardLayout>
+    </RoleTopNav>
   )
 }

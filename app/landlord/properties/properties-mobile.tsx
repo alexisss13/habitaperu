@@ -65,14 +65,8 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
 
   return (
     <div className="py-6 px-4 pb-24">
-      {/* Header */}
-      <div className="flex flex-col gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-admin-text mb-2">Mis Propiedades</h1>
-          <p className="text-sm text-admin-text-muted">
-            Administra tus anuncios de alquiler
-          </p>
-        </div>
+      {/* Publicar */}
+      <div className="mb-6">
         <Link
           href="/landlord/properties/new"
           className="w-full h-11 rounded-xl text-xs font-bold text-white transition-all duration-200 shadow-sm flex items-center justify-center gap-2 cursor-pointer no-underline"
@@ -173,14 +167,14 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
                 </div>
 
                 <div className="p-4 flex flex-col gap-2">
-                  <div className="flex items-center gap-1 text-[10px] text-text-muted font-semibold">
-                    <Location01Icon size={12} className="text-slate-400" />
+                  <div className="property-location-simple flex items-center gap-1">
+                    <Location01Icon size={12} className="shrink-0" />
                     <span className="truncate">{p.district} • {p.address || "Ver dirección"}</span>
                   </div>
 
-                  <h3 className="font-bold text-sm text-text truncate">{p.title}</h3>
+                  <p className="property-title-simple truncate">{p.title}</p>
 
-                  <div className="flex items-center justify-between text-slate-500 text-[10px] font-semibold py-1 bg-slate-50 px-2 rounded-lg my-1">
+                  <div className="property-specs-simple flex items-center justify-between py-1 bg-slate-50 px-2 rounded-lg my-1">
                     <span className="flex items-center gap-0.5"><BedIcon size={14} /> {p.rooms} hab.</span>
                     <span className="flex items-center gap-0.5"><Bathtub02Icon size={14} /> {p.bathrooms} bañ.</span>
                     <span className="flex items-center gap-0.5"><SquareIcon size={14} /> {p.area || "--"} m²</span>
@@ -191,7 +185,7 @@ export function PropertiesMobile({ properties, isMockPayment, subscriptionPlan, 
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="text-[9px] text-text-muted font-semibold block uppercase">Mensual</span>
-                      <span className="text-sm font-extrabold text-[#151c26]">S/ {Number(p.price).toLocaleString()}</span>
+                      <p className="property-price-simple"><strong>S/ {Number(p.price).toLocaleString()}</strong></p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Link href={`/landlord/properties/${p.id}/edit`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] font-bold text-slate-700 hover:text-accent hover:border-accent/40 no-underline transition-all shadow-sm" aria-label="Editar">

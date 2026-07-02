@@ -147,14 +147,8 @@ export function TenantPaymentsMobile({ payments }: Props) {
 
   return (
     <div className="min-h-screen bg-panel-bg pb-24">
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-admin-text mb-2">Mis Pagos</h1>
-        <p className="text-sm text-admin-text-muted">Registra y consulta tus cuotas mensuales</p>
-      </div>
-
       {/* Metrics horizontal scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 mb-4">
+      <div className="flex gap-3 overflow-x-auto pt-6 pb-4 scrollbar-hide -mx-4 px-4 mb-4">
         <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-xl p-3.5 shrink-0 w-44">
           <p className="text-[9px] font-bold text-panel-text-muted uppercase tracking-wider mb-0.5">Próximo Pago</p>
           {nextPayment ? (

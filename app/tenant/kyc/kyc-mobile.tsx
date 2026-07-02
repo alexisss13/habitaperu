@@ -134,14 +134,8 @@ export function TenantKYCMobile({ verification, isMockPayment }: Props) {
         }
       `}</style>
 
-      {/* Header */}
-      <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold text-admin-text mb-2">Verificación KYC</h1>
-        <p className="text-sm text-admin-text-muted">Verifica tu cuenta para firmar contratos</p>
-      </div>
+      <div className="px-4 pt-6">
 
-      <div className="px-4">
-        
         {/* 1. STATE: PENDIENTE / WIZARD FLOW */}
         {activeStatus === "PENDIENTE" && (
           <div className="bg-panel-card-bg border border-panel-border shadow-sm rounded-xl overflow-hidden">

@@ -20,12 +20,10 @@ interface Property {
   amenities: string[]; tenantProfile: string[]
 }
 interface PropertyStats { minPrice: number; availableCount: number }
-interface CityCount { city: string; count: number }
 interface LandlordStats { landlordCount: number; avgRating: number; contractCount: number }
 interface Props {
   properties: Property[]
   stats: PropertyStats
-  cityCounts: CityCount[]
   landlordStats: LandlordStats
 }
 
@@ -113,7 +111,7 @@ function HScroll({ children }: { children: React.ReactNode }) {
 }
 
 /* ─── Main component ──────────────────────────────────────────── */
-export function HomeClientMobile({ properties, stats, cityCounts, landlordStats }: Props) {
+export function HomeClientMobile({ properties, stats, landlordStats }: Props) {
   const t = useTranslations('home')
   const router = useRouter()
   const params = useParams()
@@ -378,32 +376,6 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
             </div>
           ))}
         </div>
-      </section>
-
-      {/* ══ EXPLORE BY LOCATION ════════════════════════════════ */}
-      <section className="bg-gray-50 mt-2 pt-5 pb-4">
-        <SecHeader
-          title={t('exploreLocation.title')}
-          subtitle={t('exploreLocation.subtitle')}
-          href="/propiedades?filter=location"
-        />
-        <HScroll>
-          {cityCounts.filter(c => c.count > 0).slice(0, 6).map((loc) => (
-            <Link
-              key={loc.city}
-              href={`/propiedades?district=${encodeURIComponent(loc.city)}`}
-              className="no-underline flex-shrink-0 w-[130px] h-[90px] rounded-2xl overflow-hidden relative"
-              style={{ scrollSnapAlign: 'start' }}
-            >
-              <div className="absolute inset-0 rounded-2xl"
-                style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-                <p className="text-white text-xs font-bold leading-none">{loc.city}</p>
-                <p className="text-white/75 text-[10px]">{loc.count} props.</p>
-              </div>
-            </Link>
-          ))}
-        </HScroll>
       </section>
 
       {/* ══ STUDENT PROPERTIES ═════════════════════════════════ */}

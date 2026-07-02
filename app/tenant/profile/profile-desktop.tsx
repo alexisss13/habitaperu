@@ -1,10 +1,9 @@
 'use client'
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  UserCircleIcon, Mail01Icon, SmartPhone02Icon, Location01Icon,
+  Mail01Icon, SmartPhone02Icon, Location01Icon,
   CheckmarkCircle02Icon, SecurityCheckIcon, CalendarAdd01Icon
 } from "hugeicons-react"
 import { updateProfileAction } from "@/app/actions/user-actions"
@@ -56,12 +55,6 @@ export function ProfileDesktop({ profile }: { profile: UserProfile }) {
   return (
     <div className="min-h-screen bg-panel-bg">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        
-        <PanelPageHeader
-          icon={<UserCircleIcon size={32} className="text-admin-accent" />}
-          title="Mi Perfil"
-          subtitle="Gestiona tu información personal"
-        />
 
         <div className="grid grid-cols-3 gap-5">
 
@@ -110,10 +103,7 @@ export function ProfileDesktop({ profile }: { profile: UserProfile }) {
           <div className="col-span-2">
             <div className="bg-panel-card-bg rounded-2xl border border-panel-border shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-bold text-panel-text text-lg flex items-center gap-2">
-<UserCircleIcon size={32} className="text-admin-accent" />
-                  Información personal
-                </h2>
+                <h2 className="font-bold text-panel-text text-lg">Información personal</h2>
                 {!editing ? (
                   <button
                     onClick={() => { setEditing(true); setSuccess(""); setError("") }}

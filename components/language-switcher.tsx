@@ -49,9 +49,14 @@ const LANGUAGE_GROUPS: LanguageGroup[] = [
 
 interface LanguageSwitcherProps {
   onLanguageChange?: (languageCode: string) => void
+  // 'compact': ícono + bandera, para la navbar. 'menuItem': fila de ancho
+  // completo con etiqueta, para insertarlo dentro de otro dropdown (p. ej.
+  // el menú hamburguesa una vez hay sesión iniciada).
+  variant?: 'compact' | 'menuItem'
+  menuItemLabel?: string
 }
 
-export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ onLanguageChange, variant = 'compact', menuItemLabel }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
     if (typeof window === 'undefined') return 'es-PE'
@@ -102,27 +107,37 @@ export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
   return (
     <>
       {/* Trigger button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-transparent border-none text-[#151c26] cursor-pointer transition-colors hover:bg-gray-100"
-        aria-label="Cambiar idioma"
-      >
-        {selectedLang && (
-          <img
-            src={`https://flagcdn.com/w40/${selectedLang.countryCode}.png`}
-            alt={selectedLang.region ?? selectedLang.nativeName}
-            className="rounded-[2px]"
-            style={{
-              width: '20px',
-              height: '15px',
-              minWidth: '20px',
-              maxWidth: '20px',
-              objectFit: 'cover',
-            }}
-          />
-        )}
-        <Globe02Icon size={18} />
-      </button>
+      {variant === 'menuItem' ? (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2.5 px-4 py-2.5 w-full text-sm text-[#151c26] bg-transparent border-none cursor-pointer hover:bg-gray-50 transition-colors text-left"
+        >
+          <Globe02Icon size={16} className="text-gray-500" />
+          {menuItemLabel ?? 'Idiomas y moneda'}
+        </button>
+      ) : (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-transparent border-none text-[#151c26] cursor-pointer transition-colors hover:bg-gray-100"
+          aria-label="Cambiar idioma"
+        >
+          {selectedLang && (
+            <img
+              src={`https://flagcdn.com/w40/${selectedLang.countryCode}.png`}
+              alt={selectedLang.region ?? selectedLang.nativeName}
+              className="rounded-[2px]"
+              style={{
+                width: '20px',
+                height: '15px',
+                minWidth: '20px',
+                maxWidth: '20px',
+                objectFit: 'cover',
+              }}
+            />
+          )}
+          <Globe02Icon size={18} />
+        </button>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4">

@@ -1,13 +1,11 @@
 "use client"
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import Link from "next/link"
 import { WriteReviewModal } from "@/components/write-review-modal"
-import { 
-  FileValidationIcon, 
-  Home01Icon, 
-  BedIcon, 
+import {
+  FileValidationIcon,
+  BedIcon,
   Bathtub02Icon, 
   SquareIcon, 
   Location01Icon, 
@@ -72,12 +70,6 @@ export function TenantContractDesktop({ contracts }: Props) {
   return (
     <div className="min-h-screen bg-panel-bg">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        
-        <PanelPageHeader
-          icon={<FileValidationIcon size={32} className="text-admin-accent" />}
-          title="Mi Contrato de Alquiler"
-          subtitle="Consulta los términos de tu arriendo, descarga tu copia firmada y revisa el historial."
-        />
 
         {/* 1. Contrato Activo / Vigente */}
         {activeContract && (
@@ -299,7 +291,7 @@ export function TenantContractDesktop({ contracts }: Props) {
                   <a
                     href={`/api/contracts/${activeContract.id}/download`}
                     target="_blank"
-                    className="w-full h-12 bg-[#151c26] hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer no-underline"
+                    className="w-full h-12 !bg-accent !hover:bg-accent hover:bg-slate-800 !text-white rounded-xl text-xs font-bold transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer no-underline"
                   >
                     <Download01Icon size={16} />
                     <span>Descargar PDF del Contrato</span>

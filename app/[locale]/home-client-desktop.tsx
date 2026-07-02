@@ -23,13 +23,11 @@ interface Property {
 }
 
 interface PropertyStats { minPrice: number; availableCount: number }
-interface CityCount { city: string; count: number }
 interface LandlordStats { landlordCount: number; avgRating: number; contractCount: number }
 
 interface HomeClientProps {
   properties: Property[]
   stats: PropertyStats
-  cityCounts: CityCount[]
   landlordStats: LandlordStats
 }
 
@@ -95,7 +93,7 @@ function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
   )
 }
 
-export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats }: HomeClientProps) {
+export function HomeClientDesktop({ properties, stats, landlordStats }: HomeClientProps) {
   const t = useTranslations('home')
   const router = useRouter()
   const params = useParams()
@@ -402,74 +400,6 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
                 <p className="text-[0.95rem] text-gray-500 leading-[1.7]">{t(`whyChoose.${key}.description`)}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* EXPLORE BY LOCATION */}
-      <section className="py-20" style={{ background: 'linear-gradient(180deg, #fff 0%, #f9fafb 100%)' }}>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-end mb-8">
-            <div>
-              <h2 className="text-[clamp(1.75rem,3vw,2.25rem)] font-bold text-[#151c26] mb-2">{t('exploreLocation.title')}</h2>
-              <p className="text-base text-gray-500">{t('exploreLocation.subtitle')}</p>
-            </div>
-            <Link href={`/${locale}/propiedades?filter=location`}
-              className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-accent no-underline transition-all hover:gap-2.5"
-            >
-              Ver todo <ArrowRightDoubleIcon size={18} />
-            </Link>
-          </div>
-
-          {/* Region pills — quick links to filter by city */}
-          <div className="flex flex-wrap gap-3 mb-8">
-            {cityCounts.map((loc) => (
-              <Link
-                key={loc.city}
-                href={`/propiedades?district=${encodeURIComponent(loc.city)}`}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-semibold no-underline transition-all group ${
-                  loc.count > 0
-                    ? 'border-gray-200 text-[#151c26] hover:border-accent hover:text-accent hover:bg-accent/5'
-                    : 'border-gray-100 text-gray-300 cursor-default pointer-events-none'
-                }`}
-              >
-                <span
-                  className="size-2 rounded-full"
-                  style={{
-                    background: loc.count > 0
-                      ? 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)'
-                      : '#e5e7eb',
-                  }}
-                />
-                {loc.city}
-                {loc.count > 0 && (
-                  <span className="text-xs text-gray-400 font-normal ml-0.5">
-                    ({loc.count})
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-
-          {/* CTA banner */}
-          <div
-            className="rounded-2xl px-8 py-6 flex items-center justify-between"
-            style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
-          >
-            <div>
-              <p className="text-white font-extrabold text-lg mb-1">
-                Encuentra tu próximo hogar en el Perú
-              </p>
-              <p className="text-white/70 text-sm">
-                {cityCounts.reduce((s, c) => s + c.count, 0)} propiedades disponibles en todo el país
-              </p>
-            </div>
-            <Link
-              href={`/${locale}/propiedades`}
-              className="bg-white text-accent font-bold text-sm px-5 py-2.5 rounded-xl no-underline hover:bg-white/90 transition-colors whitespace-nowrap"
-            >
-              Ver todas →
-            </Link>
           </div>
         </div>
       </section>

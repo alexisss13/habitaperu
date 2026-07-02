@@ -3,14 +3,12 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { PanelPageHeader } from "@/components/panel-page-header"
-import { 
-  SecurityCheckIcon, 
-  SecurityValidationIcon,
-  CheckmarkCircle01Icon, 
-  AlertCircleIcon, 
-  Cancel01Icon, 
-  ImageAdd01Icon 
+import {
+  SecurityCheckIcon,
+  CheckmarkCircle01Icon,
+  AlertCircleIcon,
+  Cancel01Icon,
+  ImageAdd01Icon
 } from "hugeicons-react"
 import { submitKYCVerification } from "@/app/actions/kyc-actions"
 import { uploadImageAction } from "@/app/actions/upload-actions"
@@ -142,8 +140,6 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
       `}</style>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        
-        <PanelPageHeader icon={<SecurityValidationIcon size={32} className="text-admin-accent" />} title="Verificación de Identidad (KYC)" subtitle="Valida tus datos y activa tu perfil para poder celebrar contratos con firmas digitales válidas." />
 
         {/* 1. STATE: PENDIENTE / WIZARD FLOW */}
         {activeStatus === "PENDIENTE" && (

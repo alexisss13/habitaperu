@@ -1,6 +1,5 @@
 'use client'
 
-import { PanelPageHeader } from "@/components/panel-page-header"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -205,37 +204,32 @@ export function ContractsDesktop({ landlord, contracts, properties, tenants }: P
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
 
-      <PanelPageHeader
-        icon={<FileValidationIcon size={32} className="text-admin-accent" />}
-        title="Gestión de Contratos"
-        subtitle="Crea, visualiza y firma digitalmente contratos con validez legal peruana"
-        actions={
-          <button
-            onClick={handleOpenModal}
-            className="h-12 px-5 rounded-xl text-sm font-bold text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer"
-            style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
-          >
-            <Add01Icon size={18} />
-            <span>Crear Contrato</span>
-          </button>
-        }
-      />
-
       {/* Filters Bar */}
-      <div className="flex gap-2 mb-6 bg-panel-card-bg p-1.5 border border-panel-border rounded-xl max-w-max">
-        {["TODOS", "DRAFT", "PENDING_TENANT", "PENDING_LANDLORD", "ACTIVE"].map(status => (
-          <button
-            key={status}
-            onClick={() => setFilter(status)}
-            className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-              filter === status 
-                ? "bg-[#151c26] text-white shadow-sm" 
-                : "text-panel-text-muted hover:text-panel-text hover:bg-panel-hover-bg"
-            }`}
-          >
-            {status === "TODOS" ? "Todos" : status === "DRAFT" ? "Borradores" : status === "PENDING_TENANT" ? "Pendientes Inquilino" : status === "PENDING_LANDLORD" ? "Por Contrafirmar" : "Activos"}
-          </button>
-        ))}
+      <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+        <div className="flex gap-2 bg-panel-card-bg p-1.5 border border-panel-border rounded-xl max-w-max">
+          {["TODOS", "DRAFT", "PENDING_TENANT", "PENDING_LANDLORD", "ACTIVE"].map(status => (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                filter === status
+                  ? "bg-[#151c26] text-white shadow-sm"
+                  : "text-panel-text-muted hover:text-panel-text hover:bg-panel-hover-bg"
+              }`}
+            >
+              {status === "TODOS" ? "Todos" : status === "DRAFT" ? "Borradores" : status === "PENDING_TENANT" ? "Pendientes Inquilino" : status === "PENDING_LANDLORD" ? "Por Contrafirmar" : "Activos"}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={handleOpenModal}
+          className="h-11 px-5 rounded-xl text-sm font-bold text-white transition-all duration-200 shadow-sm hover:brightness-110 flex items-center gap-2 cursor-pointer"
+          style={{ background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' }}
+        >
+          <Add01Icon size={18} />
+          <span>Crear Contrato</span>
+        </button>
       </div>
 
       {/* Contracts Table */}

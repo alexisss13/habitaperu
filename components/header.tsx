@@ -9,7 +9,9 @@ import { useTranslations, useLocale } from "@/lib/i18n-context"
 import {
   UserCircleIcon, SecurityCheckIcon,
   FileValidationIcon, CustomerSupportIcon, Logout01Icon,
-  Building03Icon, Home01Icon
+  Home01Icon, Menu01Icon, FavouriteIcon,
+  IdentityCardIcon, AccountSetting01Icon, HelpCircleIcon,
+  UserAdd01Icon
 } from "hugeicons-react"
 import { LanguageSwitcher } from "./language-switcher"
 
@@ -58,7 +60,7 @@ export function Header() {
   const dashboardHref =
     role === 'ADMIN'    ? '/admin/dashboard' :
     role === 'LANDLORD' ? '/landlord/dashboard' :
-    role === 'TENANT'   ? '/tenant/dashboard' : `/${locale}`
+    role === 'TENANT'   ? '/tenant/contract' : `/${locale}`
 
   const dashboardLabel =
     role === 'ADMIN'    ? t('dashboardAdmin') :
@@ -70,9 +72,13 @@ export function Header() {
     role === 'LANDLORD' ? t('roleLandlord') :
     role === 'TENANT' ? t('roleTenant') : ''
 
+  const settingsHref =
+    role === 'ADMIN'    ? '/admin/settings' :
+    role === 'LANDLORD' ? '/landlord/settings' :
+    role === 'TENANT'   ? '/tenant/settings' : '/'
+
   // CTA button for logged-in users
   const tenantCTA = isLoggedIn && role === 'TENANT'
-  const showManageButton = tenantCTA && hasActiveContract
   const showSearchButton = tenantCTA && !hasActiveContract
 
   const menuLink = "flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#151c26] no-underline hover:bg-gray-50 transition-colors"
@@ -98,12 +104,14 @@ export function Header() {
           {/* ── Desktop right nav ── */}
           <nav className="hidden md:flex items-center gap-4" aria-label="Navegación principal">
 
-            {/* Siempre visible: mismo navbar para todos, con o sin sesión */}
+            {/* Siempre visible: mismo navbar para todos, con o sin sesión.
+                Una vez que la cuenta ya es arrendadora, deja de invitarla a
+                publicar y la manda directo a su panel. */}
             <Link
-              href={`/${locale}/publicar/onboarding`}
+              href={isLandlord ? '/landlord/dashboard' : `/${locale}/publicar/onboarding`}
               className="text-[0.9rem] font-medium text-[#151c26] no-underline hover:text-accent transition-colors"
             >
-              {t('publishProperty')}
+              {isLandlord ? t('switchToLandlordMode') : t('publishProperty')}
             </Link>
 
             {!isLoggedIn && status !== 'loading' && (
@@ -112,27 +120,6 @@ export function Header() {
                 className="text-[0.9rem] font-semibold text-accent no-underline hover:opacity-80 transition-opacity"
               >
                 {t('login')}
-              </Link>
-            )}
-
-            {isLoggedIn && isLandlord && (
-              <Link
-                href="/landlord/properties"
-                className="text-sm font-semibold text-[#151c26] no-underline hover:text-accent transition-colors flex items-center gap-1.5"
-              >
-                <Building03Icon size={16} className="text-accent" />
-                {t('myProperties')}
-              </Link>
-            )}
-
-            {showManageButton && (
-              <Link
-                href="/tenant/dashboard"
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold !text-white no-underline hover:opacity-90 transition-opacity"
-                style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
-              >
-                <Home01Icon size={16} />
-                {t('manageRoom')}
               </Link>
             )}
 
@@ -145,36 +132,31 @@ export function Header() {
               </Link>
             )}
 
-            <LanguageSwitcher />
+            {/* Con sesión iniciada, el idioma pasa a vivir dentro del menú */}
+            {!isLoggedIn && <LanguageSwitcher />}
 
             {/* User menu button */}
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className={`flex items-center gap-2 rounded-full border-[1.5px] cursor-pointer transition-all hover:border-accent hover:shadow-[0_2px_8px_rgba(15,52,87,0.15)] ${
-                  isLoggedIn ? 'pl-1 pr-3 py-1 border-gray-300' : 'size-10 justify-center border-gray-300'
-                }`}
-                aria-label={locale === 'en' ? 'User menu' : 'Menú de usuario'}
+                className="flex items-center gap-2.5 pl-3 pr-1.5 py-1.5 rounded-full border-[1.5px] border-gray-300 cursor-pointer transition-all hover:border-accent hover:shadow-[0_2px_8px_rgba(15,52,87,0.15)]"
+                aria-label={locale === 'en' ? 'Menu' : 'Menú'}
               >
+                <Menu01Icon size={16} className="text-gray-600" />
                 {isLoggedIn ? (
-                  <>
-                    <div
-                      className="size-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                      style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
-                    >
-                      {initials}
-                    </div>
-                    <span className="text-sm font-semibold text-[#151c26] max-w-[100px] truncate">
-                      {userName.split(' ')[0]}
-                    </span>
-                  </>
+                  <div
+                    className="size-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                    style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
+                  >
+                    {initials}
+                  </div>
                 ) : (
-                  <UserCircleIcon size={24} className="text-gray-500" />
+                  <UserCircleIcon size={26} className="text-gray-500" />
                 )}
               </button>
 
               {userMenuOpen && (
-                <div className="absolute top-[calc(100%+8px)] right-0 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.12)] min-w-[220px] py-2 z-[200]">
+                <div className="absolute top-[calc(100%+8px)] right-0 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.12)] min-w-[240px] py-2 z-[200]">
                   {isLoggedIn ? (
                     <>
                       {/* User info header */}
@@ -191,26 +173,49 @@ export function Header() {
                           <Home01Icon size={16} className="text-accent" />
                           {dashboardLabel}
                         </Link>
-                        {showManageButton && (
-                          <Link
-                            href="/tenant/dashboard"
-                            className={menuLink}
-                            onClick={() => setUserMenuOpen(false)}
-                          >
-                            <Home01Icon size={16} className="text-accent" />
-                            {t('manageRoom')}
-                          </Link>
+                        {/* "Cambiar a modo arrendador" ya cubre esto de forma
+                            siempre visible en la navbar, no hace falta
+                            repetirlo aquí. */}
+                        {role === 'TENANT' && (
+                          <>
+                            <Link
+                              href="/tenant/favorites"
+                              className={menuLink}
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <FavouriteIcon size={16} className="text-accent" />
+                              {t('favorites')}
+                            </Link>
+                            <Link
+                              href="/tenant/profile"
+                              className={menuLink}
+                              onClick={() => setUserMenuOpen(false)}
+                            >
+                              <IdentityCardIcon size={16} className="text-accent" />
+                              {t('myProfile')}
+                            </Link>
+                          </>
                         )}
-                        {showLandlordSwitch && (
-                          <Link
-                            href="/landlord/dashboard"
-                            className={menuLink}
-                            onClick={() => setUserMenuOpen(false)}
-                          >
-                            <Building03Icon size={16} className="text-accent" />
-                            {t('landlordDashboard')}
-                          </Link>
-                        )}
+                      </div>
+                      <div className="border-t border-gray-100 py-1">
+                        <Link
+                          href={settingsHref}
+                          className={menuLink}
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <AccountSetting01Icon size={16} className="text-gray-500" />
+                          {t('accountSettings')}
+                        </Link>
+                        <LanguageSwitcher variant="menuItem" menuItemLabel={t('language')} />
+                        <Link href="#" className={menuLink} onClick={() => setUserMenuOpen(false)}>
+                          <HelpCircleIcon size={16} className="text-gray-500" />
+                          {t('helpCenter')}
+                        </Link>
+                        {/* Placeholder visual: falta construir la ruta/funcionalidad de referidos */}
+                        <Link href="#" className={menuLink} onClick={() => setUserMenuOpen(false)}>
+                          <UserAdd01Icon size={16} className="text-gray-500" />
+                          {t('inviteReferral')}
+                        </Link>
                       </div>
                       <div className="border-t border-gray-100 py-1">
                         <button
@@ -224,28 +229,16 @@ export function Header() {
                     </>
                   ) : (
                     <>
+                      {/* Iniciar sesión / Registrarse ya están visibles en la navbar; no repetirlos aquí */}
                       <div className="py-1">
-                        <Link
-                          href={`/${locale}/register`}
-                          className={`${menuLink} font-semibold`}
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          {t('register')}
-                        </Link>
-                        <Link
-                          href={`/${locale}/login`}
-                          className={menuLink}
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          {t('login')}
-                        </Link>
-                      </div>
-                      <div className="border-t border-gray-100 py-1">
-                        <Link href={`/${locale}/publicar/onboarding`} className={menuLink} onClick={() => setUserMenuOpen(false)}>
-                          {t('publishProperty')}
-                        </Link>
                         <Link href="#" className={menuLink} onClick={() => setUserMenuOpen(false)}>
+                          <HelpCircleIcon size={16} className="text-gray-500" />
                           {t('helpCenter')}
+                        </Link>
+                        {/* Placeholder visual: falta construir la ruta/funcionalidad de referidos */}
+                        <Link href="#" className={menuLink} onClick={() => setUserMenuOpen(false)}>
+                          <UserAdd01Icon size={16} className="text-gray-500" />
+                          {t('inviteReferral')}
                         </Link>
                       </div>
                     </>
@@ -261,14 +254,6 @@ export function Header() {
               <div className="size-8 rounded-full bg-gray-100 animate-pulse" />
             ) : isLoggedIn ? (
               <>
-                {showManageButton && (
-                  <Link
-                    href="/tenant/dashboard"
-                    className="text-xs font-bold text-accent no-underline border border-accent/30 px-3 py-1.5 rounded-lg whitespace-nowrap"
-                  >
-                    {t('myRoom')}
-                  </Link>
-                )}
                 {showLandlordSwitch && (
                   <Link
                     href="/landlord/dashboard"
