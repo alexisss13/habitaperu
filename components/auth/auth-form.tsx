@@ -238,8 +238,8 @@ export function AuthForm({ onAuthenticated }: AuthFormProps) {
             <div className="flex flex-wrap gap-1.5">
               {[
                 { label: 'Admin:', email: 'admin@habitaperu.pe' },
-                { label: 'Arrendador:', email: 'jose.chavez@email.com' },
-                { label: 'Inquilino:', email: 'brayan.torres@email.com' },
+                { label: 'Arrendador:', email: 'patricia.rios@email.com' },
+                { label: 'Inquilino:', email: 'renzo.aguilar@email.com' },
               ].map(({ label, email: demoEmail }) => (
                 <button
                   key={demoEmail}

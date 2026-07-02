@@ -265,8 +265,8 @@ export function LoginDesktop() {
                 <div className="flex flex-wrap gap-1.5">
                   {[
                     { label: t('demoCredentials.admin'), email: 'admin@habitaperu.pe' },
-                    { label: t('demoCredentials.landlord'), email: 'jose.chavez@email.com' },
-                    { label: t('demoCredentials.tenant'), email: 'brayan.torres@email.com' },
+                    { label: t('demoCredentials.landlord'), email: 'patricia.rios@email.com' },
+                    { label: t('demoCredentials.tenant'), email: 'renzo.aguilar@email.com' },
                   ].map(({ label, email: demoEmail }) => (
                     <button
                       key={demoEmail}

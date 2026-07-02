@@ -608,7 +608,6 @@ export async function recordContractView(
       },
     })
 
-    revalidatePath(`/contracts/${contractId}`)
     return { success: true }
   } catch (error: unknown) {
     if (isKnownLegalError(error)) {

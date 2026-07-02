@@ -21,7 +21,23 @@ import {
   AlertCircleIcon,
   FlashIcon,
   SecurityCheckIcon,
+  LockIcon,
 } from "hugeicons-react"
+
+/// Tarjeta de prueba que simula un rechazo (misma convención que usan
+/// pasarelas reales como Stripe/Culqi con tarjetas terminadas en 0002).
+const DECLINE_TEST_CARD = "4000000000000002"
+
+function formatCardNumber(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 16)
+  return digits.replace(/(.{4})/g, "$1 ").trim()
+}
+
+function formatExpiry(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 4)
+  if (digits.length <= 2) return digits
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`
+}
 
 export interface PaymentModalProps {
   isOpen: boolean
@@ -49,6 +65,10 @@ export function PaymentModal({
 }: PaymentModalProps) {
   const [state, setState] = useState<"idle" | "processing" | "success" | "error">("idle")
   const [errorMsg, setErrorMsg] = useState("")
+  const [cardNumber, setCardNumber] = useState("4111 1111 1111 1111")
+  const [cardName, setCardName] = useState("Usuario Demo")
+  const [cardExpiry, setCardExpiry] = useState("12/28")
+  const [cardCvv, setCardCvv] = useState("123")
 
   if (!isOpen) return null
 
@@ -56,10 +76,13 @@ export function PaymentModal({
     setState("processing")
     setErrorMsg("")
 
+    // Simular latencia de red hacia la pasarela antes de resolver, para que
+    // el formulario se sienta como un checkout real y no un botón instantáneo.
+    await new Promise(r => setTimeout(r, 900))
+
     if (simulateFailure) {
-      await new Promise(r => setTimeout(r, 1000))
       setState("error")
-      setErrorMsg("Simulación de pago fallido: fondos insuficientes.")
+      setErrorMsg("Pago rechazado: fondos insuficientes en la tarjeta de prueba.")
       return
     }
 
@@ -76,6 +99,13 @@ export function PaymentModal({
       setState("error")
       setErrorMsg(res.error ?? "Error al procesar el pago.")
     }
+  }
+
+  const handleMockSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const digitsOnly = cardNumber.replace(/\D/g, "")
+    const simulateFailure = digitsOnly === DECLINE_TEST_CARD
+    handleMockPay(simulateFailure)
   }
 
   const handleClose = () => {
@@ -155,68 +185,101 @@ export function PaymentModal({
           {/* MODO SIMULACIÓN */}
           {isMockMode ? (
             <div>
-              <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-3 mb-5">
-                <FlashIcon size={15} className="text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-amber-700 text-xs font-medium leading-relaxed">
-                  <span className="font-bold">Modo simulación activo.</span> No se realizará ningún cobro real.
-                  Configura <code className="bg-amber-100 px-1 py-0.5 rounded text-[11px]">CULQI_SECRET_KEY</code> para activar pagos reales.
-                </p>
-              </div>
 
-              {/* Tarjeta simulada (decorativa) — estilo tarjeta física, distinto del gradiente de marca */}
-              <div className="relative rounded-2xl p-5 mb-5 text-white overflow-hidden shadow-lg"
-                style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" }}
-              >
-                <div className="absolute -bottom-8 -left-8 size-28 rounded-full bg-white/5" />
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-7">
-                    <div className="w-9 h-6.5 rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shadow-sm" />
-                    <span className="text-[10px] font-bold text-white/50 tracking-[0.15em]">SIMULACIÓN</span>
-                  </div>
-                  <p className="text-lg font-semibold tracking-[0.2em] mb-5 font-mono">4111 1111 1111 1111</p>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[8px] uppercase text-white/40 tracking-wider mb-0.5">Titular</p>
-                      <p className="text-[11px] font-semibold text-white/90">Usuario Demo</p>
-                    </div>
-                    <div>
-                      <p className="text-[8px] uppercase text-white/40 tracking-wider mb-0.5">Vence</p>
-                      <p className="text-[11px] font-semibold text-white/90">12/28</p>
-                    </div>
-                    <div>
-                      <p className="text-[8px] uppercase text-white/40 tracking-wider mb-0.5">CVV</p>
-                      <p className="text-[11px] font-semibold text-white/90">123</p>
-                    </div>
+              {/* Formulario de tarjeta — pide los datos como un checkout real,
+                  pero el envío siempre resuelve en modo simulado (no se cobra
+                  nada ni se contacta a ninguna pasarela real). */}
+              <form onSubmit={handleMockSubmit} className="flex flex-col gap-3.5 mb-4">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Número de tarjeta
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                      placeholder="1234 5678 9012 3456"
+                      required
+                      disabled={state === "processing" || state === "success"}
+                      className="w-full pl-3.5 pr-10 py-2.5 border border-slate-200 rounded-xl text-sm font-mono tracking-wider outline-none focus:border-accent bg-slate-50 transition-colors disabled:opacity-60"
+                    />
+                    <CreditCardIcon size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Nombre del titular
+                  </label>
+                  <input
+                    type="text"
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                    placeholder="Como aparece en la tarjeta"
+                    required
+                    disabled={state === "processing" || state === "success"}
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-accent bg-slate-50 transition-colors disabled:opacity-60"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                      Vencimiento
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                      placeholder="MM/AA"
+                      required
+                      disabled={state === "processing" || state === "success"}
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono outline-none focus:border-accent bg-slate-50 transition-colors disabled:opacity-60"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                      CVV
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={cardCvv}
+                      onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                      placeholder="123"
+                      required
+                      disabled={state === "processing" || state === "success"}
+                      className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm font-mono outline-none focus:border-accent bg-slate-50 transition-colors disabled:opacity-60"
+                    />
+                  </div>
+                </div>
+
                 <button
-                  onClick={() => handleMockPay(false)}
+                  type="submit"
                   disabled={state === "processing" || state === "success"}
-                  className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-2 border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm shadow-emerald-600/20"
+                  className="w-full mt-1.5 py-3.5 rounded-xl font-bold text-sm text-white bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-2 border-none cursor-pointer transition-colors disabled:opacity-60 disabled:cursor-not-allowed shadow-sm shadow-emerald-600/20"
                 >
                   {state === "processing" ? (
                     <>
                       <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Procesando...
+                      Procesando pago...
                     </>
                   ) : (
                     <>
-                      <CheckmarkCircle01Icon size={16} />
-                      Simular pago exitoso — S/ {amount.toFixed(2)}
+                      <LockIcon size={15} />
+                      Pagar S/ {amount.toFixed(2)}
                     </>
                   )}
                 </button>
-                <button
-                  onClick={() => handleMockPay(true)}
-                  disabled={state === "processing" || state === "success"}
-                  className="w-full py-2.5 rounded-xl font-semibold text-xs text-slate-400 hover:text-slate-600 hover:bg-slate-50 border-none bg-transparent cursor-pointer transition-colors disabled:opacity-50"
-                >
-                  Simular pago fallido (para pruebas)
-                </button>
-              </div>
+
+                <p className="text-center text-[10px] text-slate-400 leading-relaxed">
+                  Datos de prueba precargados, no se realiza ningún cobro real.
+                  Para simular un rechazo, usa la tarjeta <span className="font-mono font-semibold text-slate-500">4000 0000 0000 0002</span>.
+                </p>
+              </form>
             </div>
           ) : (
             /* MODO REAL — formulario de Culqi */

@@ -14,6 +14,8 @@ const PERU_CITIES = [
   "Ica","Tacna","Huancayo","Iquitos","Cajamarca","Puno",
 ]
 
+const MAX_PHOTOS = 5
+
 const AMENITIES_LIST = [
   { id: "wifi",           label: "Wi-Fi de Alta Velocidad" },
   { id: "hot_water",      label: "Agua Caliente" },
@@ -56,12 +58,10 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
   const [bathrooms, setBathrooms]   = useState(property.bathrooms)
   const [parking, setParking]       = useState(property.parking)
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(property.amenities)
-  const [imageUrl1, setImageUrl1]   = useState(property.images[0] ?? "")
-  const [imageUrl2, setImageUrl2]   = useState(property.images[1] ?? "")
-  const [imageUrl3, setImageUrl3]   = useState(property.images[2] ?? "")
-  const [uploading1, setUploading1] = useState(false)
-  const [uploading2, setUploading2] = useState(false)
-  const [uploading3, setUploading3] = useState(false)
+  const [images, setImages] = useState<string[]>(
+    Array.from({ length: MAX_PHOTOS }, (_, i) => property.images[i] ?? "")
+  )
+  const [uploadingIndexes, setUploadingIndexes] = useState<Set<number>>(new Set())
   const [city, setCity]             = useState(() => PERU_CITIES.find(c => property.district.includes(c)) ?? "")
   const [lat, setLat]               = useState(property.lat?.toString() ?? "")
   const [lng, setLng]               = useState(property.lng?.toString() ?? "")
@@ -97,23 +97,32 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     )
 
+  const setImageAt = (index: number, url: string) => {
+    setImages(prev => prev.map((u, i) => (i === index ? url : u)))
+  }
+
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    setUrl: (u: string) => void,
-    setUploading: (b: boolean) => void
+    index: number
   ) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setUploading(true)
+    setUploadingIndexes(prev => new Set(prev).add(index))
     setError(null)
     const fd = new FormData()
     fd.append("file", file)
     try {
       const res = await uploadImageAction(fd, "properties")
-      if (res.success && res.url) setUrl(res.url)
+      if (res.success && res.url) setImageAt(index, res.url)
       else setError(res.error ?? "Error al subir imagen")
     } catch { setError("Error de conexión") }
-    finally { setUploading(false) }
+    finally {
+      setUploadingIndexes(prev => {
+        const next = new Set(prev)
+        next.delete(index)
+        return next
+      })
+    }
   }
 
   const nextStep = () => {
@@ -137,7 +146,7 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
     if (description.length < 30) { setError("Descripción: mínimo 30 caracteres."); return }
 
     setLoading(true)
-    const images = [imageUrl1, imageUrl2, imageUrl3]
+    const finalImages = images
       .map(u => u.trim())
       .filter(Boolean)
 
@@ -156,7 +165,7 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
           deposit:     Number(deposit),
           minDuration: Number(minDuration),
           amenities:   selectedAmenities,
-          images:      images.length > 0 ? images : undefined,
+          images:      finalImages.length > 0 ? finalImages : undefined,
           conditions:  conditions || undefined,
           lat:         lat ? Number(lat) : undefined,
           lng:         lng ? Number(lng) : undefined,
@@ -419,28 +428,29 @@ export function EditPropertyForm({ property }: { property: PropertyData }) {
               </div>
 
               <div className="pt-4 border-t border-slate-200">
-                <p className="text-xs font-bold text-text mb-4 uppercase tracking-wider">Fotos</p>
-                {[
-                  { label:"Foto Principal", url:imageUrl1, setUrl:setImageUrl1, uploading:uploading1, setUploading:setUploading1 },
-                  { label:"Foto Secundaria", url:imageUrl2, setUrl:setImageUrl2, uploading:uploading2, setUploading:setUploading2 },
-                  { label:"Foto Adicional",  url:imageUrl3, setUrl:setImageUrl3, uploading:uploading3, setUploading:setUploading3 },
-                ].map(({ label, url, setUrl, uploading, setUploading }) => (
-                  <div key={label} className="border border-slate-200 rounded-xl p-3 bg-slate-50 mb-3">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-bold text-text">{label}</span>
-                      {uploading && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo…</span>}
+                <p className="text-xs font-bold text-text mb-1 uppercase tracking-wider">Fotos</p>
+                <p className="text-[10px] text-text-muted mb-4">Sube hasta 5 fotos. La primera es la portada del anuncio.</p>
+                {images.map((url, index) => {
+                  const label = index === 0 ? "Foto 1 — Portada" : `Foto ${index + 1}`
+                  const uploading = uploadingIndexes.has(index)
+                  return (
+                    <div key={index} className="border border-slate-200 rounded-xl p-3 bg-slate-50 mb-3">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-xs font-bold text-text">{label}</span>
+                        {uploading && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo…</span>}
+                      </div>
+                      <div className="grid grid-cols-[1fr_auto] gap-3 items-center">
+                        <input type="file" accept="image/*"
+                          onChange={e => handleFileUpload(e, index)}
+                          className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer" />
+                        {url && <img src={url} alt={label} className="size-10 rounded object-cover border border-slate-200" />}
+                      </div>
+                      <input type="text" value={url} onChange={e => setImageAt(index, e.target.value)}
+                        placeholder="O pega la URL aquí"
+                        className="w-full h-9 px-3 border border-slate-200 rounded-xl text-[11px] font-semibold focus:border-accent mt-2 bg-white outline-none" />
                     </div>
-                    <div className="grid grid-cols-[1fr_auto] gap-3 items-center">
-                      <input type="file" accept="image/*"
-                        onChange={e => handleFileUpload(e, setUrl, setUploading)}
-                        className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer" />
-                      {url && <img src={url} alt={label} className="size-10 rounded object-cover border border-slate-200" />}
-                    </div>
-                    <input type="text" value={url} onChange={e => setUrl(e.target.value)}
-                      placeholder="O pega la URL aquí"
-                      className="w-full h-9 px-3 border border-slate-200 rounded-xl text-[11px] font-semibold focus:border-accent mt-2 bg-white outline-none" />
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}

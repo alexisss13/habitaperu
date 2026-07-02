@@ -378,29 +378,11 @@ export function generatePeruvianLeaseAgreement(data: ContractData): string {
   voluntaria e informada de todos los términos del presente contrato.
 </div>
 
-<div class="signature-block">
-  <div class="signature-line">
-    ___________________________<br/>
-    <strong>${landlord.fullName}</strong><br/>
-    DNI: ${landlord.dni}<br/>
-    ARRENDADOR
-  </div>
-  <div class="signature-line">
-    ___________________________<br/>
-    <strong>${tenant.fullName}</strong><br/>
-    DNI: ${tenant.dni}<br/>
-    ARRENDATARIO
-  </div>
-</div>
-
 <div class="footer">
   <p>Contrato generado electrónicamente por <strong>Habita Perú</strong> — Motor LegalTech v1.0</p>
   <p>ID de Contrato: ${contractId} | Fecha de generación: ${todayFormatted}</p>
   <p>Este documento tiene validez jurídica conforme a Ley N° 27269, Ley N° 30201, Ley N° 30933 y Ley N° 29733.</p>
-  <p>Hash de integridad SHA-256 del documento:</p>
-  <div class="hash-block" id="document-hash-placeholder">
-    [HASH SHA-256 CALCULADO DESPUÉS DE LA GENERACIÓN DEL DOCUMENTO]
-  </div>
+  <p>El bloque de firmas electrónicas y el sello de integridad SHA-256 se muestran a continuación de este documento.</p>
 </div>
 
 </body>
