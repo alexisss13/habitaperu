@@ -154,30 +154,30 @@ async function getDashboardData(landlordId: string) {
       payments: [
         {
           id: '1',
-          amount: 1800,
+          amount: 1200,
           dueDate: new Date(2026, 4, 15).toISOString(),
           status: 'PENDIENTE',
           tenant: {
-            name: 'Carlos Ramírez',
-            email: 'carlos.ramirez@email.com',
+            name: 'Brayan Torres',
+            email: 'brayan.torres@email.com',
           },
           property: {
-            title: 'Depa en Miraflores',
-            district: 'Miraflores',
+            title: 'Depa moderno en el centro de Trujillo',
+            district: 'Trujillo',
           },
         },
         {
           id: '2',
-          amount: 750,
+          amount: 550,
           dueDate: new Date(2026, 4, 10).toISOString(),
           status: 'VENCIDO',
           tenant: {
-            name: 'María López',
-            email: 'maria.lopez@email.com',
+            name: 'Fiorella Castillo',
+            email: 'fiorella.castillo@email.com',
           },
           property: {
-            title: 'Habitación en San Isidro',
-            district: 'San Isidro',
+            title: 'Habitación ejecutiva en Víctor Larco',
+            district: 'Víctor Larco Herrera',
           },
         },
       ],

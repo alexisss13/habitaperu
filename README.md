@@ -260,8 +260,8 @@ Después de ejecutar `npm run db:seed`:
 | Rol | Email | Password |
 |-----|-------|----------|
 | Admin | admin@habitaperu.pe | password123 |
-| Landlord | juan.diaz@email.com | password123 |
-| Tenant | carlos.ramirez@email.com | password123 |
+| Landlord | jose.chavez@email.com | password123 |
+| Tenant | brayan.torres@email.com | password123 |
 
 ### Flujo de Autenticación
 
