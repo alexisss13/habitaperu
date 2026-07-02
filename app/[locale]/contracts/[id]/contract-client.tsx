@@ -13,6 +13,7 @@ import {
 import { signContractAsTenant, counterSignAsLandlord } from "@/app/actions/contract-actions"
 import { processSuccessFee } from "@/app/actions/culqi-actions"
 import { PaymentModal } from "@/components/ui/payment-modal"
+import { formatDateTimeLimaNumeric } from "@/lib/format-date"
 import Link from "next/link"
 
 interface UserFields {
@@ -216,7 +217,7 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
                 <p className="text-xs text-text-muted mt-0.5">{contract.tenant.firstName} {contract.tenant.lastName}</p>
                 {contract.tenantSignedAt ? (
                   <p className="text-[10px] text-green font-medium mt-1">
-                    Firmado el {new Date(contract.tenantSignedAt).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    Firmado el {formatDateTimeLimaNumeric(contract.tenantSignedAt)}
                   </p>
                 ) : (
                   <p className="text-[10px] text-amber-600 font-medium mt-1">Pendiente de firma</p>
@@ -235,7 +236,7 @@ export function ContractClient({ contract: initialContract, html, isLandlord, is
                 <p className="text-xs text-text-muted mt-0.5">{contract.landlord.firstName} {contract.landlord.lastName}</p>
                 {contract.landlordSignedAt ? (
                   <p className="text-[10px] text-green font-medium mt-1">
-                    Firmado el {new Date(contract.landlordSignedAt).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    Firmado el {formatDateTimeLimaNumeric(contract.landlordSignedAt)}
                   </p>
                 ) : (
                   <p className="text-[10px] text-amber-600 font-medium mt-1">Pendiente de contrafirma</p>

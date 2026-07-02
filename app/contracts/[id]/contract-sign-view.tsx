@@ -9,6 +9,7 @@ import {
   CalendarAdd01Icon, Wallet01Icon, ArrowLeft01Icon
 } from "hugeicons-react"
 import { recordContractView, signContractAsTenant, counterSignAsLandlord } from "@/app/actions/contract-actions"
+import { formatDateTimeLimaShortMonth } from "@/lib/format-date"
 
 interface AuditEntry {
   id: string
@@ -125,8 +126,7 @@ export function ContractSignView({ contract, currentUserId, currentUserRole }: C
   const fmt = (iso: string) =>
     new Date(iso).toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric", timeZone: "America/Lima" })
 
-  const fmtShort = (iso: string) =>
-    new Date(iso).toLocaleString("es-PE", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "America/Lima" })
+  const fmtShort = formatDateTimeLimaShortMonth
 
   const typeLabels: Record<string, string> = {
     HABITACION: "Habitación", DEPARTAMENTO: "Departamento",

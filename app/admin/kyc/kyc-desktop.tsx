@@ -11,6 +11,7 @@ import {
 import { usePagination } from "@/hooks/use-pagination"
 import { AdminPagination } from "@/components/ui/pagination"
 import { approveKYC, rejectKYC } from "@/app/actions/kyc-actions"
+import { formatDateTimeLima } from "@/lib/format-date"
 import type { AdminKYCItem } from "./kyc-view"
 
 interface Props {
@@ -41,15 +42,7 @@ export function AdminKYCDesktop({ verifications, currentFilter }: Props) {
   const approvedCount = verifications.filter(v => v.status === "APROBADO").length
   const rejectedCount = verifications.filter(v => v.status === "RECHAZADO").length
 
-  const formatLocalDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString("es-PE", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+  const formatLocalDate = formatDateTimeLima
 
   const getStatusBadge = (status: string) => {
     switch (status) {

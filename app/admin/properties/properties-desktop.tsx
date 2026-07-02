@@ -197,7 +197,7 @@ export function PropertiesDesktop({ data }: { data: PropertiesData }) {
 
                     <div className="flex items-center gap-1.5 mb-3">
                       <Location01Icon size={14} className="text-admin-text-muted" />
-                      <span className="text-[0.8rem] text-admin-text-muted">{p.district}, Lima</span>
+                      <span className="text-[0.8rem] text-admin-text-muted">{p.district}</span>
                     </div>
 
                     <div className="flex items-center gap-4 mb-4 pb-4 border-b border-admin-border">

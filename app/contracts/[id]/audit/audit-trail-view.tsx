@@ -108,7 +108,7 @@ export function AuditTrailView({ data }: { data: AuditData }) {
         <div className="mt-4 pt-4 border-t border-gray-100">
           <p className="text-xs text-gray-400">Propiedad</p>
           <p className="text-sm font-bold text-[#151c26]">{data.property.title}</p>
-          <p className="text-xs text-gray-400">{data.property.district}, Lima</p>
+          <p className="text-xs text-gray-400">{data.property.district}</p>
         </div>
 
         {/* Document hash */}
