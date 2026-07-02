@@ -1,5 +1,6 @@
 import { PrismaClient, Role, PropertyType, PropertyCondition, PropertyStatus, ContractStatus, PaymentStatus, KYCStatus, NotificationType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { seedLocations } from './seed-locations'
 
 const prisma = new PrismaClient()
 
@@ -19,6 +20,9 @@ async function main() {
   } catch (error) {
     console.log('ℹ️  Base de datos vacía o tablas no existen aún')
   }
+
+  console.log('🌱 Sembrando ciudades y distritos...')
+  await seedLocations(prisma)
 
   // Crear usuarios
   const hashedPassword = await bcrypt.hash('password123', 10)

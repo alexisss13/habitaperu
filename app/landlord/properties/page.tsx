@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { redirect } from "next/navigation"
 import { PropertiesView } from "./properties-view"
 import { CULQI_IS_MOCK } from "@/lib/culqi"
+import { hasLandlordRole } from "@/lib/permissions"
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +14,7 @@ export default async function LandlordPropertiesPage({
 }) {
   const session = await auth()
 
-  if (!session || session.user.role !== "LANDLORD") {
+  if (!session || !hasLandlordRole(session.user)) {
     redirect("/login")
   }
 

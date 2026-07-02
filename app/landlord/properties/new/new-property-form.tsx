@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 import {
   AlertCircleIcon,
@@ -11,11 +12,8 @@ import {
   Target01Icon,
 } from "hugeicons-react"
 import { uploadImageAction } from "@/app/actions/upload-actions"
-
-const PERU_CITIES = [
-  "Lima","Trujillo","Chiclayo","Arequipa","Piura","Cusco",
-  "Ica","Tacna","Huancayo","Iquitos","Cajamarca","Puno",
-]
+import { useCityDistrictOptions } from "@/hooks/useCityDistrictOptions"
+import { Combobox } from "@/components/ui/combobox"
 
 const AMENITIES_LIST = [
   { id: "wifi", label: "Wi-Fi de Alta Velocidad" },
@@ -36,6 +34,7 @@ const DEMO_IMAGES = [
 
 export function NewPropertyForm() {
   const router = useRouter()
+  const { data: session, update: updateSession } = useSession()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -66,6 +65,7 @@ export function NewPropertyForm() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [conditions, setConditions] = useState("")
+  const { cities, citiesLoading, districts, districtsLoading } = useCityDistrictOptions(city)
 
   useEffect(() => {
     const raw = sessionStorage.getItem("habitaperu_onboarding_draft")
@@ -147,7 +147,7 @@ export function NewPropertyForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title, description, type, condition, district,
+          title, description, type, condition, district, city: city || undefined,
           address: address || undefined,
           area: area ? Number(area) : undefined,
           rooms: Number(rooms), bathrooms: Number(bathrooms), parking: Number(parking),
@@ -160,8 +160,16 @@ export function NewPropertyForm() {
         }),
       })
       const data = await res.json()
-      if (res.ok) { router.push("/landlord/properties"); router.refresh() }
-      else setError(data.error || "Ocurrió un error al guardar la propiedad.")
+      if (res.ok) {
+        // Si esta era su primera propiedad, el servidor acaba de marcar la
+        // cuenta como isLandlord=true: hay que refrescar la sesión antes de
+        // navegar, o el gate de /landlord/properties la rechazaría por JWT viejo.
+        if (!session?.user?.isLandlord) await updateSession()
+        router.push("/landlord/properties")
+        router.refresh()
+      } else {
+        setError(data.error || "Ocurrió un error al guardar la propiedad.")
+      }
     } catch {
       setError("Error inesperado al conectar con el servidor.")
     } finally {
@@ -230,17 +238,26 @@ export function NewPropertyForm() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-text-muted mb-2 uppercase tracking-wider">Ciudad</label>
-                  <select className="w-full h-12 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent cursor-pointer"
-                    value={city} onChange={e => { setCity(e.target.value); setDistrict(e.target.value) }}>
-                    <option value="">-- Selecciona --</option>
-                    {PERU_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  <Combobox
+                    value={city}
+                    onChange={setCity}
+                    options={cities}
+                    loading={citiesLoading}
+                    placeholder="Escribe o elige una ciudad"
+                    className="w-full h-12 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent focus:outline-none"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-text-muted mb-2 uppercase tracking-wider">Distrito / Barrio</label>
-                  <input type="text" value={district} onChange={e => setDistrict(e.target.value)}
+                  <Combobox
+                    value={district}
+                    onChange={setDistrict}
+                    options={districts}
+                    loading={districtsLoading}
                     placeholder="Ej: El Porvenir, Miraflores…"
-                    className="w-full h-12 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent" />
+                    emptyLabel={city.trim() ? "Distrito nuevo, se agregará al escribirlo." : "Primero elige una ciudad."}
+                    className="w-full h-12 px-3 border border-slate-200 rounded-xl text-sm font-semibold focus:border-accent focus:outline-none"
+                  />
                 </div>
               </div>
               <div>

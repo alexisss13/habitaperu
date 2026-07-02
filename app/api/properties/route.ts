@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { propertySchema } from "@/lib/validations"
+import { ensureDistrictExists } from "@/lib/locations"
 import { z } from "zod"
 
 // GET /api/properties - Listar propiedades con filtros
@@ -79,7 +80,8 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/properties - Crear propiedad (solo LANDLORD)
+// POST /api/properties - Crear propiedad (cualquier cuenta autenticada;
+// así es como se gana la capacidad de arrendador la primera vez que publica)
 export async function POST(req: NextRequest) {
   try {
     const session = await auth()
@@ -88,22 +90,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    if ((session.user as any).role !== "LANDLORD") {
-      return NextResponse.json(
-        { error: "Solo los arrendadores pueden publicar propiedades" },
-        { status: 403 }
-      )
-    }
-
     const body = await req.json()
     const validated = propertySchema.parse(body)
 
     const property = await prisma.property.create({
       data: {
         ...validated,
-        ownerId: (session.user as any).id,
+        ownerId: session.user.id,
       },
     })
+
+    // Si esta era la primera propiedad de la cuenta, gana la capacidad de
+    // arrendador sin perder su rol original (ver User.isLandlord).
+    if (!session.user.isLandlord) {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { isLandlord: true },
+      })
+    }
+
+    // Si el distrito escrito no existía para esa ciudad, lo registra para que
+    // aparezca en el combobox de los siguientes arrendadores.
+    if (typeof body.city === "string" && body.city.trim()) {
+      ensureDistrictExists(body.city, validated.district).catch((err) =>
+        console.error("Error registrando distrito nuevo:", err)
+      )
+    }
 
     return NextResponse.json(property, { status: 201 })
   } catch (error) {

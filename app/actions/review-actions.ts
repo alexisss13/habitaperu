@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { Role, ContractStatus, ReviewType } from "@prisma/client"
 import { createNotificationHelper } from "@/lib/notifications"
+import { hasLandlordRole } from "@/lib/permissions"
 
 const MIN_DAYS_FOR_REVIEW = 30
 
@@ -110,7 +111,7 @@ export async function createTenantReview({
   comment: string
 }) {
   const session = await auth()
-  if (!session?.user?.id || session.user.role !== Role.LANDLORD) {
+  if (!session?.user?.id || !hasLandlordRole(session.user)) {
     return { success: false, error: "Solo los arrendadores pueden calificar inquilinos." }
   }
 
@@ -203,9 +204,10 @@ export async function checkReviewEligibility(contractId: string) {
 
   if (!contract) return { eligible: false, alreadyReviewed: false, daysRemaining: 0 }
 
+  const isLandlordOfContract = contract.landlordId === userId
   const isParty =
     (role === Role.TENANT && contract.tenantId === userId) ||
-    (role === Role.LANDLORD && contract.landlordId === userId)
+    (hasLandlordRole(session.user) && isLandlordOfContract)
 
   if (!isParty) return { eligible: false, alreadyReviewed: false, daysRemaining: 0 }
   if (![ContractStatus.ACTIVE, ContractStatus.FINISHED].includes(contract.status)) {
@@ -220,7 +222,10 @@ export async function checkReviewEligibility(contractId: string) {
     daysRemaining = Math.max(0, MIN_DAYS_FOR_REVIEW - daysSince)
   }
 
-  const reviewType = role === Role.LANDLORD ? ReviewType.TENANT_REVIEW : ReviewType.PROPERTY_REVIEW
+  // Se decide por la relación con ESTE contrato, no por el rol principal de
+  // la cuenta: alguien dual (isLandlord + role TENANT) reseña como arrendador
+  // si es dueño de este contrato en particular.
+  const reviewType = isLandlordOfContract ? ReviewType.TENANT_REVIEW : ReviewType.PROPERTY_REVIEW
   const existing = await prisma.review.findFirst({
     where: { contractId, authorId: userId, reviewType },
   })
@@ -257,20 +262,27 @@ export async function checkBatchReviewEligibility(contractIds: string[]) {
     },
   })
 
-  // Un solo query para todas las reseñas existentes del usuario
-  const reviewType = role === Role.LANDLORD ? ReviewType.TENANT_REVIEW : ReviewType.PROPERTY_REVIEW
+  // Un solo query para todas las reseñas existentes del usuario. Como cada
+  // contrato puede pedir un reviewType distinto para cuentas duales, se
+  // consultan ambos tipos y se resuelve por contrato más abajo.
+  const isAccountLandlord = hasLandlordRole(session.user)
   const existingReviews = await prisma.review.findMany({
-    where: { contractId: { in: contractIds }, authorId: userId, reviewType },
-    select: { contractId: true },
+    where: {
+      contractId: { in: contractIds },
+      authorId: userId,
+      reviewType: isAccountLandlord ? { in: [ReviewType.TENANT_REVIEW, ReviewType.PROPERTY_REVIEW] } : ReviewType.PROPERTY_REVIEW,
+    },
+    select: { contractId: true, reviewType: true },
   })
-  const reviewedSet = new Set(existingReviews.map(r => r.contractId))
+  const reviewedSet = new Set(existingReviews.map(r => `${r.contractId}:${r.reviewType}`))
 
   const resultMap = new Map<string, { eligible: boolean; alreadyReviewed: boolean; daysRemaining: number }>()
 
   for (const contract of contracts) {
+    const isLandlordOfContract = contract.landlordId === userId
     const isParty =
       (role === Role.TENANT && contract.tenantId === userId) ||
-      (role === Role.LANDLORD && contract.landlordId === userId)
+      (isAccountLandlord && isLandlordOfContract)
 
     let eligible = false
     let daysRemaining = 0
@@ -285,9 +297,10 @@ export async function checkBatchReviewEligibility(contractIds: string[]) {
       eligible = daysRemaining === 0
     }
 
+    const reviewType = isLandlordOfContract ? ReviewType.TENANT_REVIEW : ReviewType.PROPERTY_REVIEW
     resultMap.set(contract.id, {
       eligible,
-      alreadyReviewed: reviewedSet.has(contract.id),
+      alreadyReviewed: reviewedSet.has(`${contract.id}:${reviewType}`),
       daysRemaining,
     })
   }

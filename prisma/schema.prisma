@@ -134,6 +134,10 @@ model User {
   /// DNI encriptado en reposo (Ley 29733)
   dni                String?   @unique
   role               Role      @default(TENANT)
+  /// Se activa sola (nunca se desactiva) la primera vez que la cuenta publica
+  /// una propiedad. Permite gestionar propiedades sin perder el rol original
+  /// (p. ej. alguien que alquila como inquilino y también arrienda otra casa).
+  isLandlord         Boolean   @default(false)
   avatar             String?
   bio                String?
   district           String?
@@ -413,4 +417,42 @@ model Notification {
   @@index([userId])
   @@index([read])
   @@index([createdAt])
+}
+
+// ─────────────────────────────────────────────
+// UBICACIONES (ciudades y distritos habilitados)
+// ─────────────────────────────────────────────
+
+enum DistrictSource {
+  ADMIN
+  HOST
+}
+
+model City {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  isActive  Boolean    @default(true)
+  districts District[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([isActive])
+}
+
+model District {
+  id     String @id @default(cuid())
+  name   String
+  cityId String
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  isActive Boolean        @default(true)
+  /// ADMIN = cargado desde el panel; HOST = creado automáticamente porque un
+  /// arrendador escribió un distrito que no existía en la lista para su ciudad.
+  source   DistrictSource @default(ADMIN)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cityId, name])
+  @@index([cityId, isActive])
 }

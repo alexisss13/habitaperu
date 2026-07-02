@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { Role } from "@prisma/client"
+import { hasLandlordRole } from "@/lib/permissions"
 
 // PATCH /api/payments/[id] — actualizar estado (marcar como pagado, subir recibo)
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -22,20 +23,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const userId = session.user.id
     const role = session.user.role as Role
 
-    // Tenant solo puede subir recibo; landlord/admin pueden cambiar estado
-    if (role === Role.TENANT && payment.tenantId !== userId)
-      return NextResponse.json({ error: "Sin acceso" }, { status: 403 })
-    if (role === Role.LANDLORD && payment.landlordId !== userId)
+    // La capacidad se decide por la relación con ESTE pago, no solo por el
+    // rol principal de la cuenta (una cuenta dual puede ser tenant en un
+    // contrato y landlord en otro).
+    const isTenantOfPayment = payment.tenantId === userId
+    const isLandlordOfPayment = hasLandlordRole(session.user) && payment.landlordId === userId
+    const actsAsLandlord = isLandlordOfPayment || role === Role.ADMIN
+
+    if (!isTenantOfPayment && !isLandlordOfPayment && role !== Role.ADMIN)
       return NextResponse.json({ error: "Sin acceso" }, { status: 403 })
 
     const data: Record<string, unknown> = {}
     if (receipt) data.receipt = receipt
     if (notes) data.notes = notes
-    if (status && role !== Role.TENANT) data.status = status
-    if (paidDate && role !== Role.TENANT) data.paidDate = new Date(paidDate)
+    if (status && actsAsLandlord) data.status = status
+    if (paidDate && actsAsLandlord) data.paidDate = new Date(paidDate)
 
-    // Si tenant sube recibo → pago pasa a EN_PROCESO para revisión del landlord
-    if (receipt && role === Role.TENANT) data.status = "EN_PROCESO"
+    // Si el tenant sube recibo → pago pasa a EN_PROCESO para revisión del landlord
+    if (receipt && !actsAsLandlord) data.status = "EN_PROCESO"
 
     const updated = await prisma.payment.update({ where: { id }, data })
 

@@ -86,6 +86,23 @@ export async function checkHasActiveContract() {
   return { hasActiveContract: !!active }
 }
 
+/**
+ * Primer paso del flujo unificado de login/registro: dado un email, dice si
+ * ya existe una cuenta (para pedir contraseña) o no (para crear una nueva).
+ */
+export async function checkAccountExistsAction(email: string) {
+  if (!email) {
+    return { success: false, error: "Email requerido", exists: false }
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase().trim() },
+    select: { id: true },
+  })
+
+  return { success: true, exists: !!user }
+}
+
 export async function checkTwoFactorRequiredAction(email: string) {
   if (!email) {
     return { success: false, error: "Email requerido", twoFactorRequired: false }

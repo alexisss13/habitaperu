@@ -2,13 +2,13 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/db"
 import { LandlordPaymentsView } from "./payments-view"
-import { Role } from "@prisma/client"
+import { hasLandlordRole } from "@/lib/permissions"
 
 export const dynamic = "force-dynamic"
 
 export default async function LandlordPaymentsPage() {
   const session = await auth()
-  if (!session || session.user.role !== Role.LANDLORD) {
+  if (!session || !hasLandlordRole(session.user)) {
     redirect("/login")
   }
 

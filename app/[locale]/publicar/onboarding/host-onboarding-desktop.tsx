@@ -1,105 +1,31 @@
 'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { useSession } from "next-auth/react"
+import { useLocale } from "@/lib/i18n-context"
+import { Combobox } from "@/components/ui/combobox"
 import {
-  Home01Icon,
-  Building02Icon,
-  Store01Icon,
-  Door01Icon,
   ArrowRight01Icon,
   ArrowLeft01Icon,
   Target01Icon,
   Cancel01Icon,
 } from "hugeicons-react"
+import { useHostOnboarding, PROPERTY_TYPES, CONDITIONS, TOTAL_STEPS } from "./use-host-onboarding"
 
-const PERU_CITIES = [
-  "Lima", "Trujillo", "Chiclayo", "Arequipa", "Piura", "Cusco",
-  "Ica", "Tacna", "Huancayo", "Iquitos", "Cajamarca", "Puno",
-]
-
-const PROPERTY_TYPES = [
-  { id: "DEPARTAMENTO", label: "Departamento", Icon: Building02Icon },
-  { id: "CASA", label: "Casa", Icon: Home01Icon },
-  { id: "HABITACION", label: "Habitación", Icon: Door01Icon },
-  { id: "OFICINA", label: "Oficina", Icon: Building02Icon },
-  { id: "LOCAL", label: "Local Comercial", Icon: Store01Icon },
-] as const
-
-const CONDITIONS = [
-  {
-    id: "SIN_MUEBLES",
-    label: "Sin muebles",
-    description: "Entregas el espacio vacío, listo para que el inquilino lo amoble a su gusto.",
-  },
-  {
-    id: "SEMI_AMOBLADO",
-    label: "Semi-amoblado",
-    description: "Incluye piezas básicas como cocina o closets, pero no muebles de sala ni dormitorio.",
-  },
-  {
-    id: "AMOBLADO",
-    label: "Amoblado",
-    description: "El inquilino puede mudarse de inmediato: cama, muebles y electrodomésticos incluidos.",
-  },
-] as const
-
-const TOTAL_STEPS = 3
-const DRAFT_KEY = "habitaperu_onboarding_draft"
-
-export function HostOnboarding({ locale }: { locale: string }) {
-  const router = useRouter()
-  const { data: session, status } = useSession()
-
-  const [step, setStep] = useState(1)
-  const [city, setCity] = useState("")
-  const [district, setDistrict] = useState("")
-  const [address, setAddress] = useState("")
-  const [lat, setLat] = useState("")
-  const [lng, setLng] = useState("")
-  const [locLoading, setLocLoading] = useState(false)
-  const [locError, setLocError] = useState<string | null>(null)
-  const [type, setType] = useState<string | null>(null)
-  const [condition, setCondition] = useState<string | null>(null)
-
-  const handleGetLocation = () => {
-    setLocError(null)
-    if (!navigator.geolocation) { setLocError("Tu dispositivo no soporta geolocalización."); return }
-    setLocLoading(true)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { setLat(pos.coords.latitude.toFixed(6)); setLng(pos.coords.longitude.toFixed(6)); setLocLoading(false) },
-      () => { setLocError("No se pudo detectar tu ubicación. Asegúrate de dar permiso al navegador."); setLocLoading(false) },
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
-  }
-
-  const canAdvance =
-    (step === 1 && district.trim().length > 0 && address.trim().length > 0) ||
-    (step === 2 && type !== null) ||
-    (step === 3 && condition !== null)
-
-  const handleNext = () => {
-    if (!canAdvance) return
-    if (step < TOTAL_STEPS) {
-      setStep((s) => s + 1)
-      return
-    }
-
-    sessionStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({ city, district, address, lat, lng, type, condition })
-    )
-
-    const role = (session?.user as any)?.role
-    if (status === "authenticated" && role === "LANDLORD") {
-      router.push("/landlord/properties/new")
-    } else {
-      router.push(`/${locale}/register?role=LANDLORD`)
-    }
-  }
+export function HostOnboardingDesktop() {
+  const locale = useLocale()
+  const {
+    step, goBack,
+    city, setCity,
+    district, setDistrict,
+    address, setAddress,
+    lat, lng, locLoading, locError, handleGetLocation, clearLocation,
+    type, setType,
+    condition, setCondition,
+    cities, citiesLoading,
+    districts, districtsLoading,
+    canAdvance, handleNext,
+  } = useHostOnboarding()
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -142,22 +68,24 @@ export function HostOnboarding({ locale }: { locale: string }) {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Ciudad</label>
-                  <select
-                    className="w-full h-14 px-4 border border-gray-200 rounded-2xl text-sm font-semibold focus:border-accent focus:outline-none cursor-pointer"
+                  <Combobox
                     value={city}
-                    onChange={(e) => { setCity(e.target.value); if (!district) setDistrict(e.target.value) }}
-                  >
-                    <option value="">-- Selecciona --</option>
-                    {PERU_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                    onChange={setCity}
+                    options={cities}
+                    loading={citiesLoading}
+                    placeholder="Escribe o elige una ciudad"
+                    className="w-full h-14 px-4 border border-gray-200 rounded-2xl text-sm font-semibold focus:border-accent focus:outline-none"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Distrito</label>
-                  <input
-                    type="text"
+                  <Combobox
                     value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
+                    onChange={setDistrict}
+                    options={districts}
+                    loading={districtsLoading}
                     placeholder="Ej: Miraflores"
+                    emptyLabel={city.trim() ? "Distrito nuevo, se agregará al escribirlo." : "Primero elige una ciudad."}
                     className="w-full h-14 px-4 border border-gray-200 rounded-2xl text-sm font-semibold focus:border-accent focus:outline-none"
                   />
                 </div>
@@ -175,7 +103,7 @@ export function HostOnboarding({ locale }: { locale: string }) {
               {lat && lng ? (
                 <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-3">
                   <p className="text-xs font-bold text-emerald-700">Ubicación exacta registrada ({lat}, {lng})</p>
-                  <button type="button" onClick={() => { setLat(""); setLng("") }}
+                  <button type="button" onClick={clearLocation}
                     className="text-[10px] font-bold text-emerald-600 border border-emerald-300 rounded-lg px-2.5 py-1 cursor-pointer bg-white">
                     Cambiar
                   </button>
@@ -249,35 +177,35 @@ export function HostOnboarding({ locale }: { locale: string }) {
 
       {/* Bottom bar */}
       <div className="border-t border-gray-100">
-      <div className="flex items-center justify-between px-6 max-w-7xl mx-auto py-5">
-        {step > 1 ? (
-          <button
-            type="button"
-            onClick={() => setStep((s) => s - 1)}
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-[#151c26] underline bg-transparent border-0 cursor-pointer p-0"
-          >
-            <ArrowLeft01Icon size={16} /> Atrás
-          </button>
-        ) : <div />}
+        <div className="flex items-center justify-between px-6 max-w-7xl mx-auto py-5">
+          {step > 1 ? (
+            <button
+              type="button"
+              onClick={goBack}
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-[#151c26] underline bg-transparent border-0 cursor-pointer p-0"
+            >
+              <ArrowLeft01Icon size={16} /> Atrás
+            </button>
+          ) : <div />}
 
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex gap-1.5">
-            {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-              <div key={i} className={`h-1.5 w-8 rounded-full transition-all ${step > i ? "bg-accent" : "bg-gray-200"}`} />
-            ))}
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex gap-1.5">
+              {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+                <div key={i} className={`h-1.5 w-8 rounded-full transition-all ${step > i ? "bg-accent" : "bg-gray-200"}`} />
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={!canAdvance}
+              className="inline-flex items-center gap-2 h-12 px-6 rounded-xl text-sm font-bold text-white cursor-pointer border-0 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+              style={{ background: "linear-gradient(135deg, #0f3457 0%, #0a2540 100%)" }}
+            >
+              {step < TOTAL_STEPS ? "Siguiente" : "Continuar"}
+              <ArrowRight01Icon size={16} />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleNext}
-            disabled={!canAdvance}
-            className="inline-flex items-center gap-2 h-12 px-6 rounded-xl text-sm font-bold text-white cursor-pointer border-0 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
-            style={{ background: "linear-gradient(135deg, #0f3457 0%, #0a2540 100%)" }}
-          >
-            {step < TOTAL_STEPS ? "Siguiente" : "Continuar"}
-            <ArrowRight01Icon size={16} />
-          </button>
         </div>
-      </div>
       </div>
     </div>
   )

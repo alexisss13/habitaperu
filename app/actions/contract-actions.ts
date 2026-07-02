@@ -16,6 +16,7 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { Prisma, AuditAction, ContractStatus, KYCStatus, PropertyStatus, Role, PaymentStatus, Currency } from "@prisma/client"
+import { hasLandlordRole } from "@/lib/permissions"
 import {
   sendContractSentEmail,
   sendContractSignedByTenantEmail,
@@ -312,7 +313,7 @@ export async function counterSignAsLandlord(
     const userId = (session.user as { id: string; role: Role }).id
     const userRole = (session.user as { id: string; role: Role }).role
 
-    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+    if (!hasLandlordRole(session.user) && userRole !== Role.ADMIN) {
       throw new UnauthorizedLegalActionError(
         userId,
         "counterSignAsLandlord",
@@ -647,7 +648,7 @@ export async function sendContractToTenant(
     const userId = (session.user as { id: string; role: Role }).id
     const userRole = (session.user as { id: string; role: Role }).role
 
-    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+    if (!hasLandlordRole(session.user) && userRole !== Role.ADMIN) {
       throw new UnauthorizedLegalActionError(userId, "sendContractToTenant", Role.LANDLORD)
     }
 
@@ -752,7 +753,7 @@ export async function finishContract(
     const userId = (session.user as { id: string; role: Role }).id
     const userRole = (session.user as { id: string; role: Role }).role
 
-    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+    if (!hasLandlordRole(session.user) && userRole !== Role.ADMIN) {
       throw new UnauthorizedLegalActionError(userId, "finishContract", Role.LANDLORD)
     }
 
@@ -851,7 +852,7 @@ export async function breachContract(
     const userId = (session.user as { id: string; role: Role }).id
     const userRole = (session.user as { id: string; role: Role }).role
 
-    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+    if (!hasLandlordRole(session.user) && userRole !== Role.ADMIN) {
       throw new UnauthorizedLegalActionError(userId, "breachContract", Role.LANDLORD)
     }
 
@@ -966,7 +967,7 @@ export async function createDraftContract(input: {
     const userId = (session.user as { id: string; role: Role }).id
     const userRole = (session.user as { id: string; role: Role }).role
 
-    if (userRole !== Role.LANDLORD && userRole !== Role.ADMIN) {
+    if (!hasLandlordRole(session.user) && userRole !== Role.ADMIN) {
       throw new UnauthorizedLegalActionError(userId, "createDraftContract", Role.LANDLORD)
     }
 

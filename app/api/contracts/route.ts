@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { Role } from "@prisma/client"
+import { hasLandlordRole } from "@/lib/permissions"
 
 // GET /api/contracts — lista contratos del usuario autenticado
 export async function GET(req: NextRequest) {
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(Math.max(1, parseInt(searchParams.get("limit") ?? "20") || 20), 100)
     const skip = (page - 1) * limit
 
-    const where: Record<string, unknown> = role === Role.LANDLORD
+    const where: Record<string, unknown> = hasLandlordRole(session.user)
       ? { landlordId: userId }
       : role === Role.TENANT
         ? { tenantId: userId }
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
     if (!session?.user) return NextResponse.json({ error: "No autenticado" }, { status: 401 })
 
     const role = session.user.role as Role
-    if (role !== Role.LANDLORD && role !== Role.ADMIN)
+    if (!hasLandlordRole(session.user) && role !== Role.ADMIN)
       return NextResponse.json({ error: "Solo arrendadores pueden crear contratos" }, { status: 403 })
 
     const body = await req.json()
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "La propiedad no está disponible" }, { status: 409 })
 
     const landlordId = session.user.id
-    if (role === Role.LANDLORD && property.ownerId !== landlordId)
+    if (hasLandlordRole(session.user) && property.ownerId !== landlordId)
       return NextResponse.json({ error: "No eres dueño de esta propiedad" }, { status: 403 })
 
     const contract = await prisma.contract.create({

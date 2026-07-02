@@ -28,6 +28,7 @@
     "searchRoom": "방 찾기",
     "dashboardAdmin": "관리자 패널",
     "dashboardLandlord": "내 매물 관리",
+    "landlordDashboard": "임대인 패널",
     "dashboardTenant": "마이 패널",
     "dashboardDefault": "대시보드",
     "roleAdmin": "관리자",

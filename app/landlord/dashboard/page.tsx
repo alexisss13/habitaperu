@@ -1,6 +1,8 @@
 import { DashboardClient } from './dashboard-client'
 import { prisma } from '@/lib/db'
 import { auth } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { hasLandlordRole } from '@/lib/permissions'
 
 export const dynamic = 'force-dynamic'
 
@@ -195,7 +197,9 @@ async function getDashboardData(landlordId: string) {
 export default async function LandlordDashboardPage() {
   // Obtener sesión del usuario
   const session = await auth()
-  const landlordId = session?.user?.id || 'demo-landlord-id'
+  if (!session || !hasLandlordRole(session.user)) redirect('/login')
+
+  const landlordId = session.user.id
 
   const data = await getDashboardData(landlordId)
 

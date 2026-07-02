@@ -5,7 +5,6 @@ import Facebook from "next-auth/providers/facebook"
 import { prisma } from "@/lib/db"
 import bcrypt from "bcryptjs"
 import { randomUUID } from "crypto"
-import { Role } from "@prisma/client"
 import { sendWelcomeEmail } from "@/lib/email"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -65,12 +64,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: `${user.firstName} ${user.lastName}`,
           role: user.role,
+          isLandlord: user.isLandlord,
         }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
+      // El cliente llama a session.update() justo después de que una cuenta
+      // gana isLandlord (al publicar su primera propiedad) para refrescar el
+      // JWT sin pedirle que vuelva a iniciar sesión.
+      if (trigger === "update" && token.id) {
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true, isLandlord: true },
+        })
+        if (freshUser) {
+          token.role = freshUser.role
+          token.isLandlord = freshUser.isLandlord
+        }
+        return token
+      }
+
       if (user) {
         if (account?.provider && account.provider !== 'credentials') {
           // OAuth (Google/Facebook): no adapter is configured, so there's no
@@ -96,9 +111,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
           token.id = appUser.id
           token.role = appUser.role
+          token.isLandlord = appUser.isLandlord
         } else {
           token.id = user.id as string
           token.role = (user as any).role
+          token.isLandlord = (user as any).isLandlord
         }
         // Check active contract for tenants at sign-in (stored in JWT so no extra DB call later)
         if (token.role === 'TENANT') {
@@ -117,6 +134,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         (session.user as any).id = token.id as string
         ;(session.user as any).role = token.role as string
+        ;(session.user as any).isLandlord = token.isLandlord ?? false
         ;(session.user as any).hasActiveContract = token.hasActiveContract ?? false
       }
       return session

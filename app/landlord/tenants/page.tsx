@@ -2,13 +2,13 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { redirect } from "next/navigation"
 import { TenantsView } from "./tenants-view"
-import { Role } from "@prisma/client"
+import { hasLandlordRole } from "@/lib/permissions"
 
 export const dynamic = "force-dynamic"
 
 export default async function LandlordTenantsPage() {
   const session = await auth()
-  if (!session || session.user.role !== Role.LANDLORD) redirect("/login")
+  if (!session || !hasLandlordRole(session.user)) redirect("/login")
 
   const landlordId = session.user.id
 

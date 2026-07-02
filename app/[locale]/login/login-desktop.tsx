@@ -7,38 +7,76 @@ import { signIn } from "next-auth/react"
 import { ViewIcon, ViewOffIcon } from "hugeicons-react"
 import { useTranslations, useLocale } from "@/lib/i18n-context"
 
-import { checkTwoFactorRequiredAction } from "@/app/actions/user-actions"
+import { checkTwoFactorRequiredAction, checkAccountExistsAction } from "@/app/actions/user-actions"
+
+type Step = 'email' | 'password' | 'signup'
 
 export function LoginDesktop() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const justRegistered = searchParams.get('registered') === 'true'
+  const callbackUrl = searchParams.get('callbackUrl')
   const t = useTranslations('login')
+  const tr = useTranslations('register')
   const tc = useTranslations('common')
   const locale = useLocale()
-  const [formData, setFormData] = useState({ email: "", password: "" })
+
+  const [step, setStep] = useState<Step>('email')
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // 2FA States
+  // 2FA state (sub-paso dentro de "password")
   const [require2FA, setRequire2FA] = useState(false)
   const [totpCode, setTotpCode] = useState("")
 
-  const performLogin = async (email: string, password: string) => {
+  const passwordTooShort = confirmPassword.length > 0 && password.length < 8
+  const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword
+
+  const goToEmailStep = () => {
+    setStep('email')
+    setPassword("")
+    setConfirmPassword("")
+    setFirstName("")
+    setLastName("")
+    setRequire2FA(false)
+    setTotpCode("")
+    setError("")
+  }
+
+  const afterAuth = () => {
+    if (callbackUrl) { router.push(callbackUrl); return }
+    router.push(`/${locale}`)
+  }
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    if (!email.trim()) return
+    setLoading(true)
+    const result = await checkAccountExistsAction(email)
+    setLoading(false)
+    if (!result.success) { setError(result.error || t('error')); return }
+    setStep(result.exists ? 'password' : 'signup')
+  }
+
+  const performLogin = async (loginEmail: string = email, loginPassword: string = password) => {
     setError("")
     setLoading(true)
     try {
       if (!require2FA) {
-        // Step 1: Check if 2FA is enabled for this account
-        const checkResult = await checkTwoFactorRequiredAction(email)
+        const checkResult = await checkTwoFactorRequiredAction(loginEmail)
         if (!checkResult.success) {
           setError(checkResult.error || t('error'))
           setLoading(false)
           return
         }
-
         if (checkResult.twoFactorRequired) {
           setRequire2FA(true)
           setLoading(false)
@@ -46,10 +84,9 @@ export function LoginDesktop() {
         }
       }
 
-      // Step 2: Perform Credentials Sign In (with or without 2FA)
       const result = await signIn("credentials", {
-        email,
-        password,
+        email: loginEmail,
+        password: loginPassword,
         totpCode: require2FA ? totpCode : "",
         redirect: false,
       })
@@ -59,6 +96,8 @@ export function LoginDesktop() {
         setLoading(false)
         return
       }
+
+      if (callbackUrl) { router.push(callbackUrl); return }
 
       const response = await fetch("/api/auth/session")
       const session = await response.json()
@@ -79,22 +118,60 @@ export function LoginDesktop() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    performLogin(formData.email, formData.password)
+    performLogin()
   }
 
-  const handleDemoLogin = (email: string, password: string) => {
-    setFormData({ email, password })
-    performLogin(email, password)
+  const handleDemoLogin = (demoEmail: string, demoPassword: string) => {
+    setEmail(demoEmail)
+    setPassword(demoPassword)
+    setStep('password')
+    performLogin(demoEmail, demoPassword)
   }
 
-  const floatLabel = (field: string) =>
-    formData[field as keyof typeof formData] || focusedField === field
+  const handleSignupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    if (password.length < 8) { setError(tr('passwordTooShort')); return }
+    if (password !== confirmPassword) { setError(tr('passwordMismatch')); return }
+    setLoading(true)
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, firstName, lastName, role: "TENANT" }),
+      })
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || tr('error'))
+      }
+
+      // Auto-login: the user just typed this password, no need to ask again.
+      const result = await signIn("credentials", { email, password, redirect: false })
+      if (result?.error) { setStep('password'); return }
+      afterAuth()
+    } catch (err: unknown) {
+      setError((err as Error).message || tr('error'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inputClass = "w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent"
+  const inputPad = { padding: '26px 16px 10px 16px' } as const
+  const floatLabel = (field: string, value: string) => value || focusedField === field
+  const labelStyle = (field: string, value: string) => ({
+    top: floatLabel(field, value) ? '8px' : '50%',
+    transform: floatLabel(field, value) ? 'translateY(0)' : 'translateY(-50%)',
+    fontSize: floatLabel(field, value) ? '0.75rem' : '1rem',
+    fontWeight: floatLabel(field, value) ? '600' : '400',
+    color: '#6b7280',
+  })
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-6 pt-[120px] pb-10 relative overflow-hidden"
+      className="flex items-center justify-center px-6 pt-[136px] pb-16 relative overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #f9fafb 0%, #ffffff 100%)' }}
     >
       {/* Decorative blobs */}
@@ -104,105 +181,233 @@ export function LoginDesktop() {
         style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.06) 0%, transparent 70%)' }} />
 
       <div className="w-full max-w-[568px] relative z-[1]">
-        <div
-          className="bg-white rounded-2xl border border-gray-100 p-8 shadow-[0_4px_20px_rgba(15,52,87,0.08)]"
-        >
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100">
-            <button
-              onClick={() => {
-                if (require2FA) {
-                  setRequire2FA(false)
-                  setTotpCode("")
-                  setError("")
-                } else {
-                  router.back()
-                }
-              }}
-              className="size-9 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-text-muted cursor-pointer transition-all hover:bg-gray-100 hover:border-accent hover:text-accent text-base font-bold"
-              aria-label="Volver"
-            >
-              ←
-            </button>
-            <h1 className="text-base font-semibold text-text m-0">
-              {require2FA ? "Autenticación de doble factor" : t('title')}
-            </h1>
-          </div>
-
-          {/* Welcome / Header Text */}
-          <div className="mb-8">
+        <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-[0_4px_20px_rgba(15,52,87,0.08)]">
+          <div className="mb-6">
             <h2 className="text-2xl font-bold text-text mb-2 leading-tight tracking-tight">
-              {require2FA ? "Verificación de Seguridad" : t('welcome')}
+              {step === 'email' ? t('welcome')
+                : step === 'signup' ? tr('welcome')
+                : require2FA ? "Verificación de seguridad" : t('welcome')}
             </h2>
-            {require2FA && (
+            {step !== 'email' && (
               <p className="text-sm text-text-muted">
-                Tu cuenta tiene activada la protección 2FA. Por favor, ingresa el código de 6 dígitos.
+                {require2FA
+                  ? "Tu cuenta tiene activada la protección 2FA. Ingresa el código de 6 dígitos."
+                  : <>
+                      {email}{" "}
+                      <button type="button" onClick={goToEmailStep} className="text-accent font-semibold no-underline hover:text-brown transition-colors bg-transparent border-0 p-0 cursor-pointer">
+                        · Cambiar
+                      </button>
+                    </>
+                }
               </p>
             )}
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {justRegistered && (
-              <div className="flex items-center gap-2.5 p-3 px-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm font-semibold">
-                ✓ Cuenta creada exitosamente. Inicia sesión para continuar.
-              </div>
-            )}
-            {error && (
-              <div className="flex items-center gap-2.5 p-3 px-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm font-semibold">
-                ⚠️ {error}
-              </div>
-            )}
+          {error && (
+            <div className="flex items-center gap-2.5 p-3 px-4 mb-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm font-semibold">
+              ⚠️ {error}
+            </div>
+          )}
 
-            {!require2FA ? (
-              <>
-                {/* Email */}
+          {step === 'email' && (
+            <>
+              <form onSubmit={handleEmailSubmit} className="flex flex-col gap-4">
                 <div className="relative">
                   <input
                     id="email"
                     type="email"
                     autoComplete="email"
-                    className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent"
-                    style={{ padding: '26px 16px 10px 16px' }}
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className={inputClass}
+                    style={inputPad}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
                     required
+                    autoFocus
                   />
-                  <label htmlFor="email" className="absolute left-4 pointer-events-none transition-all" style={{
-                    top: floatLabel('email') ? '8px' : '50%',
-                    transform: floatLabel('email') ? 'translateY(0)' : 'translateY(-50%)',
-                    fontSize: floatLabel('email') ? '0.75rem' : '1rem',
-                    fontWeight: floatLabel('email') ? '600' : '400',
-                    color: '#6b7280',
-                  }}>
+                  <label htmlFor="email" className="absolute left-4 pointer-events-none transition-all" style={labelStyle('email', email)}>
                     {t('email')}
                   </label>
                 </div>
+                <p className="text-xs text-text-muted -mt-2">
+                  Usaremos este correo para iniciar sesión o crear tu cuenta.
+                </p>
 
-                {/* Password */}
-                <div className="relative">
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-white font-semibold text-base rounded-lg transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                  style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)', boxShadow: '0 4px 12px rgba(15,52,87,0.25)' }}
+                  disabled={loading}
+                >
+                  {loading ? t('loading') : t('continue')}
+                </button>
+
+                <div className="flex items-center gap-4 my-2">
+                  <div className="flex-1 h-px bg-gray-200" />
+                  <span className="text-xs text-text-muted font-semibold">{t('or')}</span>
+                  <div className="flex-1 h-px bg-gray-200" />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => signIn("google", { callbackUrl: `/${locale}` })}
+                  className="flex items-center justify-center gap-3 w-full py-3 px-6 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 cursor-pointer transition-all hover:bg-gray-50 hover:border-gray-300"
+                >
+                  <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
+                  {t('googleLogin')}
+                </button>
+              </form>
+
+              {/* Demo credentials */}
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <p className="text-[0.65rem] text-gray-400 mb-1.5">{t('demoCredentials.title')}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { label: t('demoCredentials.admin'), email: 'admin@habitaperu.pe' },
+                    { label: t('demoCredentials.landlord'), email: 'juan.diaz@email.com' },
+                    { label: t('demoCredentials.tenant'), email: 'carlos.ramirez@email.com' },
+                  ].map(({ label, email: demoEmail }) => (
+                    <button
+                      key={demoEmail}
+                      type="button"
+                      disabled={loading}
+                      title={`${demoEmail} · password123`}
+                      onClick={() => handleDemoLogin(demoEmail, 'password123')}
+                      className="text-[0.7rem] font-medium text-gray-400 border border-gray-200 rounded-full px-2.5 py-1 cursor-pointer bg-transparent transition-colors hover:text-accent hover:border-accent/30 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {step === 'password' && (
+            <form onSubmit={handleLoginSubmit} className="flex flex-col gap-4">
+              {!require2FA ? (
+                <>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      className={inputClass}
+                      style={{ ...inputPad, paddingRight: '44px' }}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onFocus={() => setFocusedField('password')}
+                      onBlur={() => setFocusedField(null)}
+                      required
+                      autoFocus
+                    />
+                    <label htmlFor="password" className="absolute left-4 pointer-events-none transition-all" style={labelStyle('password', password)}>
+                      {t('password')}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? tc('hidePassword') : tc('showPassword')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 size-7 flex items-center justify-center bg-transparent border-none text-gray-400 cursor-pointer hover:text-accent transition-colors"
+                    >
+                      {showPassword ? <ViewOffIcon size={18} /> : <ViewIcon size={18} />}
+                    </button>
+                  </div>
+
+                  <div className="flex justify-between -mt-2">
+                    <button type="button" onClick={goToEmailStep} className="text-xs font-semibold text-text-muted no-underline hover:text-accent transition-colors bg-transparent border-0 p-0 cursor-pointer">
+                      ← Usar otra cuenta
+                    </button>
+                    <Link href={`/${locale}/forgot-password`} className="text-xs font-semibold text-accent no-underline hover:text-brown transition-colors">
+                      {t('forgotPassword')}
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="relative">
+                    <input
+                      id="totpCode"
+                      type="text"
+                      maxLength={6}
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      placeholder="Escribe el código de 6 dígitos"
+                      className="w-full bg-white border border-gray-300 rounded-lg text-lg text-center tracking-[0.5em] font-mono outline-none transition-all focus:border-accent"
+                      style={{ padding: '16px' }}
+                      value={totpCode}
+                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                    <p className="font-semibold mb-1">💡 Código de Simulación 2FA:</p>
+                    <p className="m-0">Para pruebas rápidas de este prototipo, ingresa el código <strong>123456</strong>.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setRequire2FA(false); setTotpCode(""); setError("") }}
+                    className="text-xs font-semibold text-accent no-underline hover:text-brown transition-colors bg-transparent border-0 p-0 self-start cursor-pointer"
+                  >
+                    ← Intentar de nuevo
+                  </button>
+                </>
+              )}
+
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-white font-semibold text-base rounded-lg transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)', boxShadow: '0 4px 12px rgba(15,52,87,0.25)' }}
+                disabled={loading}
+              >
+                {loading ? t('loading') : (require2FA ? "Verificar e iniciar sesión" : t('continue'))}
+              </button>
+            </form>
+          )}
+
+          {step === 'signup' && (
+            <form onSubmit={handleSignupSubmit} className="flex flex-col gap-3">
+              {([
+                { id: 'firstName', value: firstName, set: setFirstName, autoComplete: 'given-name' },
+                { id: 'lastName', value: lastName, set: setLastName, autoComplete: 'family-name' },
+              ] as const).map(({ id, value, set, autoComplete }) => (
+                <div key={id} className="relative">
                   <input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    className="w-full bg-white border border-gray-300 rounded-lg text-base outline-none transition-all focus:border-accent"
-                    style={{ padding: '26px 44px 10px 16px' }}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    onFocus={() => setFocusedField('password')}
+                    id={id}
+                    type="text"
+                    autoComplete={autoComplete}
+                    className={inputClass}
+                    style={inputPad}
+                    value={value}
+                    onChange={(e) => set(e.target.value)}
+                    onFocus={() => setFocusedField(id)}
                     onBlur={() => setFocusedField(null)}
                     required
                   />
-                  <label htmlFor="password" className="absolute left-4 pointer-events-none transition-all" style={{
-                    top: floatLabel('password') ? '8px' : '50%',
-                    transform: floatLabel('password') ? 'translateY(0)' : 'translateY(-50%)',
-                    fontSize: floatLabel('password') ? '0.75rem' : '1rem',
-                    fontWeight: floatLabel('password') ? '600' : '400',
-                    color: '#6b7280',
-                  }}>
-                    {t('password')}
+                  <label htmlFor={id} className="absolute left-4 pointer-events-none transition-all" style={labelStyle(id, value)}>
+                    {tr(id)}
+                  </label>
+                </div>
+              ))}
+
+              <div>
+                <div className="relative">
+                  <input
+                    id="signupPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className={inputClass}
+                    style={{ ...inputPad, paddingRight: '44px' }}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => setFocusedField('signupPassword')}
+                    onBlur={() => setFocusedField(null)}
+                    required
+                  />
+                  <label htmlFor="signupPassword" className="absolute left-4 pointer-events-none transition-all" style={labelStyle('signupPassword', password)}>
+                    {tr('password')}
                   </label>
                   <button
                     type="button"
@@ -213,117 +418,52 @@ export function LoginDesktop() {
                     {showPassword ? <ViewOffIcon size={18} /> : <ViewIcon size={18} />}
                   </button>
                 </div>
+                {passwordTooShort && <p className="text-xs text-red-500 mt-1.5 ml-1">{tr('passwordTooShort')}</p>}
+              </div>
 
-                <div className="flex justify-end -mt-2">
-                  <Link
-                    href={`/${locale}/forgot-password`}
-                    className="text-xs font-semibold text-accent no-underline hover:text-brown transition-colors"
-                  >
-                    {t('forgotPassword')}
-                  </Link>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* 2FA Input */}
+              <div>
                 <div className="relative">
                   <input
-                    id="totpCode"
-                    type="text"
-                    maxLength={6}
-                    pattern="[0-9]*"
-                    inputMode="numeric"
-                    placeholder="Escribe el código de 6 dígitos"
-                    className="w-full bg-white border border-gray-300 rounded-lg text-lg text-center tracking-[0.5em] font-mono outline-none transition-all focus:border-accent"
-                    style={{ padding: '16px' }}
-                    value={totpCode}
-                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className={inputClass}
+                    style={{ ...inputPad, paddingRight: '44px' }}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onFocus={() => setFocusedField('confirmPassword')}
+                    onBlur={() => setFocusedField(null)}
                     required
-                    autoFocus
                   />
-                </div>
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
-                  <p className="font-semibold mb-1">💡 Código de Simulación 2FA:</p>
-                  <p className="m-0">Para pruebas rápidas de este prototipo, ingresa el código <strong>123456</strong>.</p>
-                </div>
-              </>
-            )}
-
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-white font-semibold text-base rounded-lg transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
-              style={{
-                background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)',
-                boxShadow: '0 4px 12px rgba(15,52,87,0.25)',
-              }}
-              disabled={loading}
-            >
-              {loading ? t('loading') : (require2FA ? "Verificar e Iniciar Sesión" : t('continue'))}
-            </button>
-
-            {!require2FA && (
-              <>
-                {/* Divider */}
-                <div className="flex items-center gap-4 my-2">
-                  <div className="flex-1 h-px bg-gray-200" />
-                  <span className="text-xs text-text-muted font-semibold">{t('or')}</span>
-                  <div className="flex-1 h-px bg-gray-200" />
-                </div>
-
-                <div className="flex flex-col gap-2">
+                  <label htmlFor="confirmPassword" className="absolute left-4 pointer-events-none transition-all" style={labelStyle('confirmPassword', confirmPassword)}>
+                    {tr('confirmPassword')}
+                  </label>
                   <button
                     type="button"
-                    onClick={() => signIn("google", { callbackUrl: `/${locale}` })}
-                    className="flex items-center justify-center gap-3 w-full py-3 px-6 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 cursor-pointer transition-all hover:bg-gray-50 hover:border-gray-300"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    aria-label={showConfirmPassword ? tc('hidePassword') : tc('showPassword')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 size-7 flex items-center justify-center bg-transparent border-none text-gray-400 cursor-pointer hover:text-accent transition-colors"
                   >
-                    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/></svg>
-                    {t('googleLogin')}
+                    {showConfirmPassword ? <ViewOffIcon size={18} /> : <ViewIcon size={18} />}
                   </button>
                 </div>
-              </>
-            )}
-          </form>
+                {passwordsMismatch && <p className="text-xs text-red-500 mt-1.5 ml-1">{tr('passwordMismatch')}</p>}
+              </div>
 
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <p className="text-sm text-text-muted m-0">
-              {t('noAccount')}{" "}
-              <Link href={`/${locale}/register`}
-                className="text-accent font-semibold no-underline transition-colors hover:text-brown"
+              <button type="button" onClick={goToEmailStep} className="text-xs font-semibold text-text-muted no-underline hover:text-accent transition-colors bg-transparent border-0 p-0 self-start cursor-pointer">
+                ← Usar otro correo
+              </button>
+
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-6 text-white font-semibold text-base rounded-lg transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-70"
+                style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)', boxShadow: '0 4px 12px rgba(15,52,87,0.25)' }}
+                disabled={loading}
               >
-                {t('signUp')}
-              </Link>
-            </p>
-          </div>
-
-          {/* Demo credentials */}
-          <div
-            className="mt-6 p-4 border border-accent/10 rounded-lg"
-            style={{ background: 'linear-gradient(135deg, rgba(15,52,87,0.04) 0%, rgba(143,130,114,0.06) 100%)' }}
-          >
-            <p className="text-xs font-semibold text-accent mb-3 flex items-center gap-1.5">
-              ℹ️ {t('demoCredentials.title')} <span className="font-normal text-text-muted">— clic para entrar</span>
-            </p>
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3 text-[0.7rem]">
-              {[
-                { label: t('demoCredentials.admin'), email: 'admin@habitaperu.pe' },
-                { label: t('demoCredentials.landlord'), email: 'juan.diaz@email.com' },
-                { label: t('demoCredentials.tenant'), email: 'carlos.ramirez@email.com' },
-              ].map(({ label, email }) => (
-                <button
-                  key={email}
-                  type="button"
-                  disabled={loading}
-                  onClick={() => handleDemoLogin(email, 'password123')}
-                  className="text-left p-2 -m-2 rounded-lg border border-transparent cursor-pointer transition-all hover:border-accent/30 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <strong className="block mb-1 text-accent">{label}</strong>
-                  <span className="block text-text-muted">{email}</span>
-                  <span className="block text-text-muted">password123</span>
-                </button>
-              ))}
-            </div>
-          </div>
+                {loading ? tr('loading') : tr('continue')}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

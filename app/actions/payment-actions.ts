@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { PaymentStatus, Role } from "@prisma/client"
 import { sendPaymentApprovedEmail } from "@/lib/email"
 import { createNotificationHelper } from "@/lib/notifications"
+import { hasLandlordRole } from "@/lib/permissions"
 
 export interface ActionResult<T = null> {
   success: boolean
@@ -96,9 +97,8 @@ export async function approvePayment(
     }
 
     const userId = session.user.id
-    const userRole = session.user.role
 
-    if (userRole !== Role.LANDLORD) {
+    if (!hasLandlordRole(session.user)) {
       return { success: false, error: "Solo los propietarios pueden aprobar pagos." }
     }
 
@@ -172,8 +172,7 @@ export async function markOverduePayments(): Promise<ActionResult<{ updated: num
       return { success: false, error: "No autorizado. Inicie sesión." }
     }
 
-    const userRole = session.user.role
-    if (userRole !== Role.ADMIN && userRole !== Role.LANDLORD) {
+    if (session.user.role !== Role.ADMIN && !hasLandlordRole(session.user)) {
       return { success: false, error: "Solo administradores y arrendadores pueden marcar pagos como vencidos." }
     }
 
@@ -209,9 +208,8 @@ export async function rejectPayment(
     }
 
     const userId = session.user.id
-    const userRole = session.user.role
 
-    if (userRole !== Role.LANDLORD) {
+    if (!hasLandlordRole(session.user)) {
       return { success: false, error: "Solo los propietarios pueden rechazar pagos." }
     }
 

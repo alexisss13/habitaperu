@@ -15,7 +15,9 @@ const PLAN_LIMITS: Record<string, number> = {
 
 export default async function NewPropertyPage() {
   const session = await auth()
-  if (!session || (session.user as any).role !== "LANDLORD") redirect("/login")
+  // Cualquier cuenta autenticada puede llegar aquí: así es como se gana
+  // isLandlord al publicar la primera propiedad.
+  if (!session) redirect("/login")
 
   const landlordId = session.user.id
 

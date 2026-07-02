@@ -37,8 +37,12 @@ export function Header() {
   }, [])
 
   const isLoggedIn = status === 'authenticated'
-  const user = session?.user as { role?: string; hasActiveContract?: boolean; name?: string | null } | undefined
+  const user = session?.user as { role?: string; isLandlord?: boolean; hasActiveContract?: boolean; name?: string | null } | undefined
   const role = user?.role
+  const isLandlord = role === 'LANDLORD' || !!user?.isLandlord
+  // Cuenta dual: su rol principal no es LANDLORD pero ya ganó la capacidad
+  // publicando (p. ej. inquilino en Trujillo que también arrienda en Chimbote).
+  const showLandlordSwitch = isLoggedIn && isLandlord && role !== 'LANDLORD'
   const hasActiveContract = user?.hasActiveContract
   const userName = user?.name ?? ''
   const initials = userName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'U'
@@ -87,25 +91,24 @@ export function Header() {
           {/* ── Desktop right nav ── */}
           <nav className="hidden md:flex items-center gap-4" aria-label="Navegación principal">
 
-            {/* CTA depending on auth state */}
+            {/* Siempre visible: mismo navbar para todos, con o sin sesión */}
+            <Link
+              href={`/${locale}/publicar/onboarding`}
+              className="text-[0.9rem] font-medium text-[#151c26] no-underline hover:text-accent transition-colors"
+            >
+              {t('publishProperty')}
+            </Link>
+
             {!isLoggedIn && status !== 'loading' && (
-              <>
-                <Link
-                  href={`/${locale}/publicar/onboarding`}
-                  className="text-[0.9rem] font-medium text-[#151c26] no-underline hover:text-accent transition-colors"
-                >
-                  {t('publishProperty')}
-                </Link>
-                <Link
-                  href={`/${locale}/login`}
-                  className="text-[0.9rem] font-semibold text-accent no-underline hover:opacity-80 transition-opacity"
-                >
-                  {t('login')}
-                </Link>
-              </>
+              <Link
+                href={`/${locale}/login`}
+                className="text-[0.9rem] font-semibold text-accent no-underline hover:opacity-80 transition-opacity"
+              >
+                {t('login')}
+              </Link>
             )}
 
-            {isLoggedIn && role === 'LANDLORD' && (
+            {isLoggedIn && isLandlord && (
               <Link
                 href="/landlord/properties"
                 className="text-sm font-semibold text-[#151c26] no-underline hover:text-accent transition-colors flex items-center gap-1.5"
@@ -191,6 +194,16 @@ export function Header() {
                             {t('manageRoom')}
                           </Link>
                         )}
+                        {showLandlordSwitch && (
+                          <Link
+                            href="/landlord/dashboard"
+                            className={menuLink}
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            <Building03Icon size={16} className="text-accent" />
+                            {t('landlordDashboard')}
+                          </Link>
+                        )}
                       </div>
                       <div className="border-t border-gray-100 py-1">
                         <button
@@ -247,6 +260,14 @@ export function Header() {
                     className="text-xs font-bold text-accent no-underline border border-accent/30 px-3 py-1.5 rounded-lg whitespace-nowrap"
                   >
                     {t('myRoom')}
+                  </Link>
+                )}
+                {showLandlordSwitch && (
+                  <Link
+                    href="/landlord/dashboard"
+                    className="text-xs font-bold text-accent no-underline border border-accent/30 px-3 py-1.5 rounded-lg whitespace-nowrap"
+                  >
+                    {t('landlordDashboard')}
                   </Link>
                 )}
                 <a href={dashboardHref} className="no-underline">

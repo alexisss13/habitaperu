@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { Role } from "@prisma/client"
+import { hasLandlordRole } from "@/lib/permissions"
 
 // GET /api/payments
 export async function GET(req: NextRequest) {
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit
 
     const where: Record<string, unknown> = {}
-    if (role === Role.LANDLORD) where.landlordId = userId
+    if (hasLandlordRole(session.user)) where.landlordId = userId
     else if (role === Role.TENANT) where.tenantId = userId
     if (status) where.status = status
     if (contractId) where.contractId = contractId
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
     if (!session?.user) return NextResponse.json({ error: "No autenticado" }, { status: 401 })
 
     const role = session.user.role as Role
-    if (role === Role.TENANT)
+    if (role === Role.TENANT && !hasLandlordRole(session.user))
       return NextResponse.json({ error: "Inquilinos no pueden crear registros de pago" }, { status: 403 })
 
     const body = await req.json()

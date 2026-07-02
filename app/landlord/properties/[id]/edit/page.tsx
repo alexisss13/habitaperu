@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { redirect, notFound } from "next/navigation"
 import { EditPropertyForm } from "./edit-property-form"
+import { hasLandlordRole } from "@/lib/permissions"
 
 export const dynamic = "force-dynamic"
 
@@ -11,7 +12,7 @@ export default async function EditPropertyPage({
   params: Promise<{ id: string }>
 }) {
   const session = await auth()
-  if (!session || (session.user as any).role !== "LANDLORD") redirect("/login")
+  if (!session || !hasLandlordRole(session.user)) redirect("/login")
 
   const { id } = await params
 

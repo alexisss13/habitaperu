@@ -6,12 +6,14 @@ declare module "next-auth" {
     user: {
       id: string
       role: Role
+      isLandlord: boolean
       hasActiveContract: boolean
     } & DefaultSession["user"]
   }
 
   interface User {
     role: Role
+    isLandlord: boolean
   }
 }
 
@@ -19,6 +21,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string
     role: Role
+    isLandlord: boolean
     hasActiveContract: boolean
   }
 }

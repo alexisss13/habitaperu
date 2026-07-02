@@ -29,7 +29,10 @@ interface LandlordLayoutProps {
 export default async function LandlordLayout({ children }: LandlordLayoutProps) {
   const session = await auth()
 
-  if (!session || session.user.role !== "LANDLORD") {
+  // El gate estricto de "ya es arrendador" vive en cada página; aquí solo se
+  // exige sesión porque /landlord/properties/new debe ser alcanzable por
+  // cualquier cuenta (así es como se gana isLandlord).
+  if (!session) {
     redirect("/login")
   }
 

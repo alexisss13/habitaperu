@@ -17,7 +17,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
-import { PaymentStatus, PaymentType as PrismaPaymentType, ContractStatus, Role, SubscriptionPlan } from "@prisma/client"
+import { PaymentStatus, PaymentType as PrismaPaymentType, ContractStatus, SubscriptionPlan } from "@prisma/client"
 import {
   createCulqiCharge,
   CULQI_IS_MOCK,
@@ -26,6 +26,7 @@ import {
   type PaymentType,
 } from "@/lib/culqi"
 import { createNotificationHelper } from "@/lib/notifications"
+import { hasLandlordRole } from "@/lib/permissions"
 
 export interface PaymentActionResult {
   success: boolean
@@ -131,7 +132,7 @@ export async function processPlanUpgrade(
     if (!session?.user) return { success: false, error: "No autorizado." }
 
     const userId = session.user.id
-    if ((session.user as any).role !== Role.LANDLORD) return { success: false, error: "Solo arrendadores pueden suscribirse." }
+    if (!hasLandlordRole(session.user)) return { success: false, error: "Solo arrendadores pueden suscribirse." }
 
     const user = await prisma.user.findUnique({
       where: { id: userId },

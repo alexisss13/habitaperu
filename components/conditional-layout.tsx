@@ -11,14 +11,15 @@ export default function ConditionalLayout({
 }) {
   const pathname = usePathname()
   
-  // Ocultar header y footer en rutas de admin, landlord y tenant
+  // Ocultar header y footer en rutas de admin, landlord y tenant.
+  // Login/registro SÍ muestran header y footer (estilo Airbnb: tarjeta
+  // centrada sobre el layout normal del sitio).
   const isAdminRoute = pathname?.startsWith('/admin')
   const isLandlordRoute = pathname?.startsWith('/landlord')
   const isTenantRoute = pathname?.startsWith('/tenant')
-  const isAuthRoute = /\/(login|register)(\/|$)/.test(pathname ?? '')
   const isOnboardingRoute = /\/publicar\/onboarding(\/|$)/.test(pathname ?? '')
 
-  const hideLayout = isAdminRoute || isLandlordRoute || isTenantRoute || isAuthRoute || isOnboardingRoute
+  const hideLayout = isAdminRoute || isLandlordRoute || isTenantRoute || isOnboardingRoute
 
   if (hideLayout) {
     return <>{children}</>

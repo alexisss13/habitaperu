@@ -10,7 +10,8 @@ import {
   Home01Icon, FileValidationIcon, Wallet01Icon,
   FavouriteIcon, UserCircleIcon, SecurityCheckIcon,
   Settings02Icon, Building03Icon, UserMultiple02Icon,
-  Add01Icon, MoneyBag02Icon, DatabaseIcon, DashboardSquare02Icon
+  Add01Icon, MoneyBag02Icon, DatabaseIcon, DashboardSquare02Icon,
+  Location01Icon
 } from "hugeicons-react"
 import { NotificationBell } from "./notification-bell"
 import ThemeSwitcher from "./theme-switcher"
@@ -55,6 +56,7 @@ const NAV: Record<Role, { nav: NavItem[]; title: string }> = {
       { name: "Usuarios",       short: "Usuarios",  href: "/admin/users",     Icon: UserMultiple02Icon },
       { name: "Verificaciones", short: "KYC",       href: "/admin/kyc",       Icon: SecurityCheckIcon },
       { name: "Propiedades",    short: "Props.",    href: "/admin/properties",Icon: Building03Icon },
+      { name: "Ciudades",       short: "Ciudades",  href: "/admin/locations", Icon: Location01Icon },
       { name: "Contratos",      short: "Contratos", href: "/admin/contracts", Icon: FileValidationIcon },
       { name: "Pagos",          short: "Pagos",     href: "/admin/payments",  Icon: MoneyBag02Icon },
       { name: "Auditoría",      short: "Auditoría", href: "/admin/audit",     Icon: DatabaseIcon },
