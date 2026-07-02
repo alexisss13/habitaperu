@@ -46,6 +46,20 @@ export async function getActiveDistrictsAction(cityName: string): Promise<string
   return districts.map((d) => d.name)
 }
 
+/**
+ * Todos los distritos activos de todas las ciudades activas, sin filtrar por
+ * una ciudad en particular. Usado por el buscador general de la home, donde
+ * el usuario aún no eligió ciudad.
+ */
+export async function getAllActiveDistrictsAction(): Promise<string[]> {
+  const districts = await prisma.district.findMany({
+    where: { isActive: true, city: { isActive: true } },
+    select: { name: true },
+    orderBy: { name: "asc" },
+  })
+  return Array.from(new Set(districts.map((d) => d.name)))
+}
+
 // ── Administración de ciudades ──
 
 export interface CityAdminRow {

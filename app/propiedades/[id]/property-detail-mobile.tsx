@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
   Location01Icon, FavouriteIcon, CheckmarkCircle02Icon,
@@ -9,34 +9,41 @@ import {
   LockPasswordIcon, UserCheck01Icon
 } from "hugeicons-react"
 import type { PropertyDetail } from './property-detail-view'
+import { useAuthModal } from "@/components/auth/auth-modal-provider"
 
 const typeLabel = (t: string) =>
   t === 'HABITACION' ? 'Habitación' : t === 'DEPARTAMENTO' ? 'Departamento' : 'Casa'
 
 export function PropertyDetailMobile({ property: p }: { property: PropertyDetail }) {
   const [imgIndex, setImgIndex] = useState(0)
-  const [isFavorite, setIsFavorite] = useState(() => {
-    if (typeof window === 'undefined') return false
-    try {
-      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      return ids.includes(p.id)
-    } catch { return false }
-  })
+  const [isFavorite, setIsFavorite] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [message, setMessage] = useState('')
   const [formSent, setFormSent] = useState(false)
 
+  const { requireAuth } = useAuthModal()
+
+  useEffect(() => {
+    try {
+      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsFavorite(ids.includes(p.id))
+    } catch {}
+  }, [p.id])
+
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    try {
-      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      const next = ids.includes(p.id) ? ids.filter(id => id !== p.id) : [...ids, p.id]
-      localStorage.setItem('habitaperu_favorites', JSON.stringify(next))
-      setIsFavorite(next.includes(p.id))
-    } catch {}
+    requireAuth(() => {
+      try {
+        const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
+        const next = ids.includes(p.id) ? ids.filter(id => id !== p.id) : [...ids, p.id]
+        localStorage.setItem('habitaperu_favorites', JSON.stringify(next))
+        setIsFavorite(next.includes(p.id))
+      } catch {}
+    })
   }
 
   const handleGalleryScroll = (e: React.UIEvent<HTMLDivElement>) => {

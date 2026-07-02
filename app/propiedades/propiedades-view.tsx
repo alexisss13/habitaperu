@@ -46,6 +46,9 @@ interface ViewProps {
   initialCondition?: string
   initialSearchQuery?: string
   initialAmenity?: string
+  initialMinPrice?: string
+  initialMaxPrice?: string
+  initialUniversityId?: string
 }
 
 export function PropiedadesView({
@@ -56,6 +59,9 @@ export function PropiedadesView({
   initialCondition = '',
   initialSearchQuery = '',
   initialAmenity = '',
+  initialMinPrice = '',
+  initialMaxPrice = '',
+  initialUniversityId = '',
 }: ViewProps) {
   const { isMobile, isLoading } = useResponsive()
 
@@ -63,13 +69,13 @@ export function PropiedadesView({
   const [selectedTypes, setSelectedTypes]   = useState<string[]>(
     initialType ? [TYPE_PARAM_MAP[initialType] ?? initialType] : []
   )
-  const [minPrice, setMinPrice]             = useState<number | "">("")
-  const [maxPrice, setMaxPrice]             = useState<number | "">("")
+  const [minPrice, setMinPrice]             = useState<number | "">(initialMinPrice ? Number(initialMinPrice) : "")
+  const [maxPrice, setMaxPrice]             = useState<number | "">(initialMaxPrice ? Number(initialMaxPrice) : "")
   const [districtSearch, setDistrictSearch] = useState(initialDistrict)
   const [minRooms, setMinRooms]             = useState<number>(0)
   const [sortBy, setSortBy]                 = useState(initialSort)
   const [conditionFilter, setConditionFilter] = useState(initialCondition)
-  const [nearUniversityId, setNearUniversityId] = useState<string>("")
+  const [nearUniversityId, setNearUniversityId] = useState<string>(initialUniversityId)
   const [nearRadiusKm, setNearRadiusKm]     = useState<number>(2)
   const [amenityFilter, setAmenityFilter]   = useState(initialAmenity)
 

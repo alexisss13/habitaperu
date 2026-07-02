@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import {
   Location01Icon, FavouriteIcon, Home01Icon, CheckmarkCircle02Icon,
@@ -10,6 +10,7 @@ import {
   ArrowLeft01Icon, LockPasswordIcon, UserCheck01Icon
 } from "hugeicons-react"
 import type { PropertyDetail } from './property-detail-view'
+import { useAuthModal } from "@/components/auth/auth-modal-provider"
 
 const typeLabel = (t: string) =>
   t === 'HABITACION' ? 'Habitación' : t === 'DEPARTAMENTO' ? 'Departamento' : 'Casa'
@@ -34,21 +35,27 @@ function GallerySlot({ src, alt }: { src?: string; alt: string }) {
 }
 
 export function PropertyDetailDesktop({ property: p }: { property: PropertyDetail }) {
-  const [isFavorite, setIsFavorite] = useState(() => {
-    if (typeof window === 'undefined') return false
+  const [isFavorite, setIsFavorite] = useState(false)
+
+  useEffect(() => {
     try {
       const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      return ids.includes(p.id)
-    } catch { return false }
-  })
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsFavorite(ids.includes(p.id))
+    } catch {}
+  }, [p.id])
+
+  const { requireAuth } = useAuthModal()
 
   const toggleFavorite = () => {
-    try {
-      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      const next = ids.includes(p.id) ? ids.filter(id => id !== p.id) : [...ids, p.id]
-      localStorage.setItem('habitaperu_favorites', JSON.stringify(next))
-      setIsFavorite(next.includes(p.id))
-    } catch {}
+    requireAuth(() => {
+      try {
+        const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
+        const next = ids.includes(p.id) ? ids.filter(id => id !== p.id) : [...ids, p.id]
+        localStorage.setItem('habitaperu_favorites', JSON.stringify(next))
+        setIsFavorite(next.includes(p.id))
+      } catch {}
+    })
   }
 
   // Share

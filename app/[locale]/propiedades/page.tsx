@@ -6,7 +6,10 @@ export const dynamic = 'force-dynamic'
 export default async function PropiedadesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ district?: string; type?: string; sort?: string; condition?: string; q?: string; amenity?: string }>
+  searchParams: Promise<{
+    district?: string; type?: string; sort?: string; condition?: string; q?: string; amenity?: string
+    minPrice?: string; maxPrice?: string; university?: string
+  }>
 }) {
   const params = await searchParams
 
@@ -66,6 +69,9 @@ export default async function PropiedadesPage({
       initialSort={params.sort ?? 'recent'}
       initialCondition={params.condition ?? ''}
       initialAmenity={params.amenity ?? ''}
+      initialMinPrice={params.minPrice ?? ''}
+      initialMaxPrice={params.maxPrice ?? ''}
+      initialUniversityId={params.university ?? ''}
     />
   )
 }

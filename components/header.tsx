@@ -30,11 +30,18 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // En /propiedades hay un buscador sticky justo debajo de esta barra: si se
+  // queda visible durante el scroll, se solapa con él. Ahí se oculta casi de
+  // inmediato; en el resto del sitio conserva el umbral normal.
+  const hasStickyBarBelow = pathname?.includes('/propiedades')
+
   useEffect(() => {
-    const handleScroll = () => setShowAnnouncement(window.scrollY <= 200)
+    const threshold = hasStickyBarBelow ? 4 : 200
+    const handleScroll = () => setShowAnnouncement(window.scrollY <= threshold)
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [hasStickyBarBelow])
 
   const isLoggedIn = status === 'authenticated'
   const user = session?.user as { role?: string; isLandlord?: boolean; hasActiveContract?: boolean; name?: string | null } | undefined

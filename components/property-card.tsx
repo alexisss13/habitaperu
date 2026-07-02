@@ -1,12 +1,10 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import {
-  Location01Icon, StarIcon, FavouriteIcon,
-  Building03Icon, BedIcon, Bathtub02Icon
-} from "hugeicons-react"
+import { StarIcon, FavouriteIcon, Building03Icon } from "hugeicons-react"
+import { useAuthModal } from "@/components/auth/auth-modal-provider"
 
 interface PropertyCardProps {
   id: string
@@ -55,24 +53,29 @@ export function PropertyCard({
 }: PropertyCardProps) {
   const isCurrentlyFeatured =
     !!featuredUntil && new Date(featuredUntil) > new Date()
-  const [isFavorite, setIsFavorite] = useState(() => {
-    if (typeof window === 'undefined') return false
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [imgErr, setImgErr] = useState(false)
+  const { requireAuth } = useAuthModal()
+
+  useEffect(() => {
     try {
       const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      return ids.includes(id)
-    } catch { return false }
-  })
-  const [imgErr, setImgErr] = useState(false)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsFavorite(ids.includes(id))
+    } catch {}
+  }, [id])
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    try {
-      const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
-      const next = ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]
-      localStorage.setItem('habitaperu_favorites', JSON.stringify(next))
-      setIsFavorite(next.includes(id))
-    } catch {}
+    requireAuth(() => {
+      try {
+        const ids: string[] = JSON.parse(localStorage.getItem('habitaperu_favorites') || '[]')
+        const next = ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]
+        localStorage.setItem('habitaperu_favorites', JSON.stringify(next))
+        setIsFavorite(next.includes(id))
+      } catch {}
+    })
   }
 
   const mainImage = !imgErr && Array.isArray(images) && images.length > 0 ? images[0] : null
@@ -80,7 +83,7 @@ export function PropertyCard({
 
   return (
     <Link href={`/propiedades/${id}`} className="no-underline block group">
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-[0_8px_24px_rgba(15,52,87,0.1)] transition-all duration-200">
+      <div className=" rounded-2xl border border-gray-100 overflow-hidden hover:shadow-[0_8px_24px_rgba(15,52,87,0.1)] transition-all duration-200">
 
         {/* Image */}
         <div className="relative h-48 bg-gray-100 overflow-hidden">
@@ -102,8 +105,8 @@ export function PropertyCard({
           {/* Top-left: type + status + featured badges */}
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
             {isCurrentlyFeatured && (
-              <span className="text-[11px] font-bold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
-                ★ Destacado
+              <span className="text-[11px] font-bold bg-[#8f8272] text-white px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                ★
               </span>
             )}
             <span className="text-[11px] font-semibold bg-white/92 text-[#151c26] px-2 py-0.5 rounded-full shadow-sm">
@@ -139,41 +142,20 @@ export function PropertyCard({
         </div>
 
         {/* Content */}
-        <div className="p-4">
-          <h3 className="font-bold text-[#151c26] text-sm leading-snug line-clamp-2 mb-1.5 group-hover:text-accent transition-colors">
-            {title}
-          </h3>
+        <div className="property-info-simple !pt-3 !pb-5">
+          <p className="property-title-simple line-clamp-2">{title}</p>
 
-          <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
-            <Location01Icon size={11} />
-            <span>{district}</span>
-          </div>
+          <p className="property-location-simple">{district}</p>
 
-          {/* Stats */}
-          <div className="flex items-center gap-3 text-xs text-gray-400 mb-4 pb-3 border-b border-gray-50">
-            {area && <span className="flex items-center gap-1">{area} m²</span>}
-            <span className="flex items-center gap-1">
-              <BedIcon size={12} />
-              {rooms} hab.
-            </span>
-            <span className="flex items-center gap-1">
-              <Bathtub02Icon size={12} />
-              {bathrooms} baños
-            </span>
-          </div>
+          <p className="property-specs-simple">
+            {area ? `${area} m² · ` : ''}
+            {rooms} {rooms === 1 ? 'hab.' : 'hab.'} · {bathrooms} {bathrooms === 1 ? 'baño' : 'baños'}
+          </p>
 
-          {/* Price + CTA */}
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-lg font-extrabold text-accent">
-                {price > 0 ? `S/ ${price.toLocaleString('es-PE')}` : 'Precio a consultar'}
-              </span>
-              <span className="text-xs text-gray-400"> /mes</span>
-            </div>
-            <span className="text-xs font-bold text-accent border border-accent/30 px-3 py-1.5 rounded-lg group-hover:bg-accent group-hover:text-white transition-all">
-              Ver detalle
-            </span>
-          </div>
+          <p className="property-price-simple">
+            <strong>{price > 0 ? `S/ ${price.toLocaleString('es-PE')}` : 'Precio a consultar'}</strong>
+            {price > 0 && ' /mes'}
+          </p>
         </div>
 
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, KeyboardEvent } from 'react'
+import { useEffect, useState, KeyboardEvent } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useParams, usePathname } from 'next/navigation'
@@ -11,6 +11,7 @@ import {
   SecurityCheckIcon, FileValidationIcon, CreditCardIcon, CustomerSupportIcon,
   PlusSignCircleIcon, ArrowRight01Icon, UserCircleIcon, Location01Icon,
 } from 'hugeicons-react'
+import { useAuthModal } from '@/components/auth/auth-modal-provider'
 
 interface Property {
   id: string; title: string; type: string; condition: string; district: string
@@ -119,14 +120,17 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
   const locale = (params?.locale as string) || 'es'
   const pathname = usePathname()
   const [activeFilter, setActiveFilter] = useState('all')
-  const [favorites, setFavorites] = useState<Set<string>>(() => {
-    if (typeof window === 'undefined') return new Set()
+  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [searchQuery, setSearchQuery] = useState('')
+  const { requireAuth } = useAuthModal()
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem('habitaperu_favorites')
-      return stored ? new Set(JSON.parse(stored)) : new Set()
-    } catch { return new Set() }
-  })
-  const [searchQuery, setSearchQuery] = useState('')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (stored) setFavorites(new Set(JSON.parse(stored)))
+    } catch {}
+  }, [])
 
   const handleSearch = () => {
     const q = searchQuery.trim()
@@ -146,11 +150,13 @@ export function HomeClientMobile({ properties, stats, cityCounts, landlordStats 
   }
 
   const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id); else next.add(id)
-      try { localStorage.setItem('habitaperu_favorites', JSON.stringify([...next])) } catch {}
-      return next
+    requireAuth(() => {
+      setFavorites((prev) => {
+        const next = new Set(prev)
+        if (next.has(id)) next.delete(id); else next.add(id)
+        try { localStorage.setItem('habitaperu_favorites', JSON.stringify([...next])) } catch {}
+        return next
+      })
     })
   }
 

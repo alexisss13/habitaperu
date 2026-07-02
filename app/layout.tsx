@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider"
+import { AuthModalProvider } from "@/components/auth/auth-modal-provider"
 
 import { headers } from "next/headers";
 
@@ -36,7 +37,9 @@ export default async function RootLayout({
       </head>
       <body className={outfit.className}>
         <AuthProvider>
-          {children}
+          <AuthModalProvider>
+            {children}
+          </AuthModalProvider>
         </AuthProvider>
       </body>
     </html>

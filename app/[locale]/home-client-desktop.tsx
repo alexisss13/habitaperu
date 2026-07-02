@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState, KeyboardEvent } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
 import { useTranslations, useLocale } from '@/lib/i18n-context'
+import { HeroSearchBar } from '@/components/hero-search-bar'
 import {
   Search01Icon, FavouriteIcon, StarIcon, ArrowRightDoubleIcon,
   SecurityCheckIcon, FileValidationIcon, CreditCardIcon, CustomerSupportIcon,
@@ -12,6 +13,7 @@ import {
   Sofa01Icon, Wifi01Icon,
   Calendar01Icon, SignatureIcon
 } from 'hugeicons-react'
+import { useAuthModal } from '@/components/auth/auth-modal-provider'
 
 interface Property {
   id: string; title: string; type: string; condition: string; district: string
@@ -35,13 +37,20 @@ const filterBtn = (active: boolean) =>
   `px-5 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all border-none
   ${active ? 'bg-accent text-white' : 'bg-transparent text-gray-500 hover:bg-gray-100 hover:text-[#151c26]'}`
 
+// El grid de propiedades tiene 5 columnas en desktop; recorta a un múltiplo
+// de 5 para no dejar una fila final a medio llenar.
+function trimToGridMultiple<T>(items: T[], columns = 5): T[] {
+  if (items.length <= columns) return items
+  return items.slice(0, Math.floor(items.length / columns) * columns)
+}
+
 function PropertyCardGrid({ properties, favorites, toggleFavorite, t, badge }: {
   properties: Property[]; favorites: Set<string>; toggleFavorite: (id: string) => void
   t: (key: string) => string; badge?: { bg: string; label: string }
 }) {
   const locale = useLocale()
   return (
-    <div className="property-grid grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+    <div className="property-grid grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))' }}>
       {properties.map((property) => (
         <Link key={property.id} href={`/${locale}/propiedades/${property.id}`} className="property-card-simple fade-in">
           <div className="property-img-simple">
@@ -94,23 +103,10 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
   const [activeFilter, setActiveFilter] = useState('all')
   const [visibleProperties, setVisibleProperties] = useState(properties)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
-  const [searchQuery, setSearchQuery] = useState('')
+  const { requireAuth } = useAuthModal()
 
   const studentMatches = properties.filter((p) => p.tenantProfile?.includes('estudiante'))
-  const studentProperties = (studentMatches.length > 0 ? studentMatches : properties).slice(0, 4)
-
-  const handleSearch = () => {
-    const q = searchQuery.trim()
-    if (q) {
-      router.push(`/${locale}/propiedades?q=${encodeURIComponent(q)}`)
-    } else {
-      router.push(`/${locale}/propiedades`)
-    }
-  }
-
-  const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearch()
-  }
+  const studentProperties = (studentMatches.length > 0 ? studentMatches : properties).slice(0, 5)
 
   const handleQuickFilter = (value: string) => {
     const routes: Record<string, string> = {
@@ -147,10 +143,12 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
   }
 
   const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id); else next.add(id)
-      return next
+    requireAuth(() => {
+      setFavorites((prev) => {
+        const next = new Set(prev)
+        if (next.has(id)) next.delete(id); else next.add(id)
+        return next
+      })
     })
   }
 
@@ -158,13 +156,16 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
     <div>
       {/* HERO SECTION */}
       <section
-        className="pt-[112px] pb-20 min-h-[85vh] flex items-center relative overflow-hidden"
+        className="pt-[112px] pb-20 min-h-[85vh] flex items-center relative"
         style={{ background: 'linear-gradient(180deg, #f9fafb 0%, #ffffff 100%)' }}
       >
-        <div className="absolute top-[-5%] right-[-3%] size-[500px] rounded-full z-0 blur-[60px]"
-          style={{ background: 'radial-gradient(circle, rgba(15,52,87,0.04) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-[-10%] left-[-5%] size-[600px] rounded-full z-0 blur-[80px]"
-          style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.06) 0%, transparent 70%)' }} />
+        {/* Envueltas aparte para que overflow-hidden no recorte los popovers del buscador */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          <div className="absolute top-[-5%] right-[-3%] size-[500px] rounded-full blur-[60px]"
+            style={{ background: 'radial-gradient(circle, rgba(15,52,87,0.04) 0%, transparent 70%)' }} />
+          <div className="absolute bottom-[-10%] left-[-5%] size-[600px] rounded-full blur-[80px]"
+            style={{ background: 'radial-gradient(circle, rgba(143,130,114,0.06) 0%, transparent 70%)' }} />
+        </div>
 
         <div className="max-w-7xl mx-auto px-6 w-full relative z-[1]">
           <div className="grid grid-cols-2 gap-20 items-center">
@@ -185,27 +186,8 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
               <p className="text-lg text-gray-500 leading-[1.8] mb-10 max-w-[540px]">{t('hero.subtitle')}</p>
 
               {/* Search Box */}
-              <div className="bg-white rounded-2xl p-2 shadow-[0_4px_24px_rgba(15,52,87,0.12)] mb-6 border border-gray-200 max-w-[680px]">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl border border-transparent transition-all hover:bg-white hover:border-gray-200">
-                    <Search01Icon size={20} className="text-gray-500 shrink-0" />
-                    <input
-                      type="text"
-                      placeholder={t('hero.searchPlaceholder')}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={handleSearchKeyDown}
-                      className="flex-1 border-none outline-none text-[0.95rem] text-[#151c26] bg-transparent font-normal"
-                    />
-                  </div>
-                  <button
-                    onClick={handleSearch}
-                    className="py-3.5 px-7 text-white border-none rounded-xl text-[0.95rem] font-semibold cursor-pointer transition-all whitespace-nowrap shrink-0 hover:scale-[1.02] hover:shadow-[0_4px_16px_rgba(15,52,87,0.3)]"
-                    style={{ background: 'linear-gradient(135deg, #0f3457 0%, #0a2540 100%)' }}
-                  >
-                    {t('hero.searchButton')}
-                  </button>
-                </div>
+              <div className="mb-6">
+                <HeroSearchBar locale={locale} />
               </div>
 
               {/* Quick Filters */}
@@ -288,7 +270,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
             ))}
           </div>
 
-          <PropertyCardGrid properties={visibleProperties} favorites={favorites} toggleFavorite={toggleFavorite} t={t} />
+          <PropertyCardGrid properties={trimToGridMultiple(visibleProperties)} favorites={favorites} toggleFavorite={toggleFavorite} t={t} />
 
           <div className="text-center mt-12">
             <Link href={`/${locale}/propiedades`}
@@ -531,7 +513,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
             </Link>
           </div>
           <PropertyCardGrid
-            properties={properties.filter(p => p.type === 'DEPARTAMENTO').slice(0, 4)}
+            properties={properties.filter(p => p.type === 'DEPARTAMENTO').slice(0, 5)}
             favorites={favorites}
             toggleFavorite={toggleFavorite}
             t={t}
@@ -554,7 +536,7 @@ export function HomeClientDesktop({ properties, stats, cityCounts, landlordStats
             </Link>
           </div>
           <PropertyCardGrid
-            properties={[...properties].sort((a, b) => a.price - b.price).slice(0, 4)}
+            properties={[...properties].sort((a, b) => a.price - b.price).slice(0, 5)}
             favorites={favorites}
             toggleFavorite={toggleFavorite}
             t={t}
