@@ -7,11 +7,11 @@ import {
   SecurityCheckIcon,
   CheckmarkCircle01Icon,
   AlertCircleIcon,
-  Cancel01Icon,
-  ImageAdd01Icon
 } from "hugeicons-react"
 import { submitKYCVerification } from "@/app/actions/kyc-actions"
 import { uploadImageAction } from "@/app/actions/upload-actions"
+import { getFaceDescriptor, loadImageFromUrl, computeFaceMatch } from "@/lib/face-verification"
+import { CameraCapture } from "@/components/kyc/camera-capture"
 import type { KYCVerificationData } from "./kyc-view"
 
 interface Props {
@@ -19,75 +19,126 @@ interface Props {
   isMockPayment: boolean
 }
 
+interface FaceMatchResult {
+  distance: number
+  matchPercent: number
+  isMatch: boolean
+}
+
 export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [dniDocument, setDniDocument] = useState("")
-  const [isBiometricDone, setIsBiometricDone] = useState(false)
-  const [isScanning, setIsScanning] = useState(false)
-  const [scanSuccess, setScanSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  
+
+  // Foto del DNI
+  const [dniPreview, setDniPreview] = useState<string | null>(null)
+  const [dniUploadedUrl, setDniUploadedUrl] = useState<string | null>(null)
+  const [dniDescriptor, setDniDescriptor] = useState<Float32Array | null>(null)
+  const [dniProcessing, setDniProcessing] = useState(false)
+
+  // Selfie
+  const [selfieUploadedUrl, setSelfieUploadedUrl] = useState<string | null>(null)
+  const [selfieProcessing, setSelfieProcessing] = useState(false)
+  const [matchResult, setMatchResult] = useState<FaceMatchResult | null>(null)
+
   // State for re-submission if rejected
   const [isReSubmitting, setIsReSubmitting] = useState(false)
-  const [uploading, setUploading] = useState(false)
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setUploading(true)
+  const handleDniCapture = async (file: File, previewUrl: string) => {
+    setDniPreview(previewUrl)
+    setDniUploadedUrl(null)
+    setDniDescriptor(null)
     setError(null)
-
-    const formData = new FormData()
-    formData.append("file", file)
+    setDniProcessing(true)
 
     try {
-      const res = await uploadImageAction(formData, "kyc")
-      if (res.success && res.url) {
-        setDniDocument(res.url)
+      const [descriptorResult, uploadResult] = await Promise.all([
+        (async () => {
+          const img = await loadImageFromUrl(previewUrl)
+          return getFaceDescriptor(img)
+        })(),
+        (async () => {
+          const formData = new FormData()
+          formData.append("file", file)
+          return uploadImageAction(formData, "kyc")
+        })(),
+      ])
+
+      if (!descriptorResult.descriptor) {
+        setError(
+          descriptorResult.faceCount === 0
+            ? "No se detectó ningún rostro en la foto del DNI. Asegúrate de que la foto de tu documento salga nítida y vuelve a intentarlo."
+            : "Se detectó más de un rostro en la foto. Vuelve a tomarla mostrando solo tu DNI."
+        )
       } else {
-        if (res.isMocked) {
-          setError("Cloudinary no configurado. Se mantiene el simulador, por favor ingresa la URL de forma manual o usa la simulación.")
-        } else {
-          setError(res.error || "Error al subir el DNI.")
-        }
+        setDniDescriptor(descriptorResult.descriptor)
+      }
+
+      if (uploadResult.success && uploadResult.url) {
+        setDniUploadedUrl(uploadResult.url)
+      } else {
+        setError(uploadResult.error || "Error al subir la foto del DNI.")
       }
     } catch (err) {
       console.error(err)
-      setError("Error de conexión al subir la imagen del DNI.")
+      setError("Error al procesar la foto del DNI.")
     } finally {
-      setUploading(false)
+      setDniProcessing(false)
     }
   }
 
-  const handleSimulateDni = () => {
-    // Simulated DNI image scan url
-    setDniDocument("https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&w=800&q=80")
-  }
-
-  const handleStartScan = () => {
-    setIsScanning(true)
+  const handleSelfieCapture = async (file: File, previewUrl: string) => {
+    setSelfieUploadedUrl(null)
+    setMatchResult(null)
     setError(null)
-    
-    // Simulate biometric scanning animation
-    setTimeout(() => {
-      setIsScanning(false)
-      setScanSuccess(true)
-      setIsBiometricDone(true)
-    }, 2500)
+    setSelfieProcessing(true)
+
+    try {
+      const [descriptorResult, uploadResult] = await Promise.all([
+        (async () => {
+          const img = await loadImageFromUrl(previewUrl)
+          return getFaceDescriptor(img)
+        })(),
+        (async () => {
+          const formData = new FormData()
+          formData.append("file", file)
+          return uploadImageAction(formData, "kyc")
+        })(),
+      ])
+
+      if (!descriptorResult.descriptor) {
+        setError(
+          descriptorResult.faceCount === 0
+            ? "No se detectó ningún rostro en la selfie. Verifica la iluminación y vuelve a intentarlo."
+            : "Se detectó más de un rostro en la selfie. Asegúrate de que solo aparezcas tú."
+        )
+      } else if (dniDescriptor) {
+        setMatchResult(computeFaceMatch(dniDescriptor, descriptorResult.descriptor))
+      }
+
+      if (uploadResult.success && uploadResult.url) {
+        setSelfieUploadedUrl(uploadResult.url)
+      } else {
+        setError(uploadResult.error || "Error al subir la selfie.")
+      }
+    } catch (err) {
+      console.error(err)
+      setError("Error al procesar la selfie.")
+    } finally {
+      setSelfieProcessing(false)
+    }
   }
 
   const handleSubmitKYC = async () => {
-    if (!dniDocument) {
-      setError("Por favor adjunta la foto de tu DNI.")
+    if (!dniUploadedUrl || !dniDescriptor) {
+      setError("Por favor captura la foto de tu DNI.")
       setStep(1)
       return
     }
-    if (!isBiometricDone) {
-      setError("Debes realizar la verificación facial biométrica.")
+    if (!selfieUploadedUrl || !matchResult) {
+      setError("Debes completar la verificación facial con tu selfie.")
       setStep(2)
       return
     }
@@ -96,7 +147,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
     setError(null)
 
     try {
-      const res = await submitKYCVerification(dniDocument)
+      const res = await submitKYCVerification(dniUploadedUrl, selfieUploadedUrl, matchResult.matchPercent)
       if (res.success) {
         setSuccess(true)
         setTimeout(() => {
@@ -114,6 +165,17 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
     }
   }
 
+  const resetWizard = () => {
+    setError(null)
+    setDniPreview(null)
+    setDniUploadedUrl(null)
+    setDniDescriptor(null)
+    setSelfieUploadedUrl(null)
+    setMatchResult(null)
+    setStep(1)
+    setIsReSubmitting(true)
+  }
+
   const formatLocalDate = (isoString: string) => {
     return new Date(isoString).toLocaleDateString("es-PE", {
       day: "numeric",
@@ -127,18 +189,6 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
 
   return (
     <div className="min-h-screen bg-panel-bg ">
-      {/* CSS Keyframes for Scan Effect */}
-      <style jsx global>{`
-        @keyframes scanEffect {
-          0% { top: 0%; opacity: 0.8; }
-          50% { top: 100%; opacity: 0.8; }
-          100% { top: 0%; opacity: 0.8; }
-        }
-        .scanner-line {
-          animation: scanEffect 2.5s infinite linear;
-        }
-      `}</style>
-
       <div className="max-w-7xl mx-auto px-6 py-8">
 
         {/* 1. STATE: PENDIENTE / WIZARD FLOW */}
@@ -146,7 +196,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
           <div className="grid grid-cols-3 gap-8">
             {/* Left Col (2 cols): Wizard */}
             <div className="col-span-2 bg-panel-card-bg border border-panel-border shadow-sm rounded-2xl overflow-hidden">
-              
+
               {/* Wizard Steps indicator */}
               <div className="bg-panel-hover-bg border-b border-panel-border px-6 py-4 flex items-center justify-between">
                 <div>
@@ -155,8 +205,8 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                 </div>
                 <div className="flex gap-1.5">
                   {[1, 2, 3].map(s => (
-                    <div 
-                      key={s} 
+                    <div
+                      key={s}
                       className={`h-1.5 w-6 rounded-full transition-colors ${
                         step >= s ? "bg-accent" : "bg-slate-200"
                       }`}
@@ -181,111 +231,75 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                   </div>
                 )}
 
-                {/* Step 1: DNI Photo upload */}
+                {/* Step 1: DNI Photo capture via camera */}
                 {step === 1 && (
                   <div className="space-y-4">
                     <div>
                       <h4 className="text-sm font-bold text-panel-text mb-1.5">Documento de Identidad</h4>
                       <p className="text-xs text-panel-text-muted mb-4 leading-relaxed">
-                        Sube una foto clara y legible del anverso de tu Documento Nacional de Identidad (DNI) o Carnet de Extranjería.
+                        Usa tu cámara para tomar una foto clara y legible del anverso de tu Documento Nacional de Identidad (DNI) o Carnet de Extranjería.
                       </p>
                     </div>
 
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] text-panel-text-muted font-bold uppercase">Foto del Documento</span>
-                      <div className="flex gap-2">
-                        {uploading && <span className="text-[10px] text-accent animate-pulse font-bold">Subiendo...</span>}
-                        <button
-                          type="button"
-                          onClick={handleSimulateDni}
-                          className="text-[10px] text-accent hover:underline bg-transparent border-0 cursor-pointer font-bold"
-                        >
-                          Simular Carga de DNI
-                        </button>
-                      </div>
-                    </div>
+                    <CameraCapture
+                      facingMode="environment"
+                      activateLabel="Activar cámara"
+                      captureLabel="Capturar foto del DNI"
+                      guideText="Ubica tu DNI dentro del recuadro, con buena iluminación y sin reflejos."
+                      aspect="video"
+                      onCapture={handleDniCapture}
+                    />
 
-                    <div className="border border-panel-border rounded-xl p-4 bg-panel-hover-bg space-y-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileUpload}
-                        className="text-xs text-panel-text-dim file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white file:cursor-pointer hover:file:bg-slate-800 w-full"
-                      />
-                      <input 
-                        type="text" 
-                        value={dniDocument} 
-                        onChange={(e) => setDniDocument(e.target.value)}
-                        placeholder="O pega la URL de la foto de tu DNI aquí" 
-                        className="w-full h-10 px-3 border border-panel-border rounded-xl text-xs font-semibold focus:border-accent bg-panel-card-bg"
-                      />
-                    </div>
+                    {dniProcessing && (
+                      <p className="text-[10px] text-accent animate-pulse font-bold">Analizando rostro y subiendo documento...</p>
+                    )}
 
-                    {dniDocument && (
-                      <div className="mt-4 border border-panel-border rounded-xl p-3 bg-panel-hover-bg flex items-center gap-4">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={dniDocument} 
-                          alt="DNI" 
-                          className="w-24 h-16 rounded object-cover border border-slate-300" 
-                        />
-                        <div>
-                          <p className="text-xs font-bold text-panel-text">DNI_Anverso_Digital.jpg</p>
-                          <p className="text-[10px] text-panel-text-muted">Documento en alta resolución cargado para análisis OCR</p>
-                        </div>
+                    {dniPreview && dniDescriptor && dniUploadedUrl && !dniProcessing && (
+                      <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-3 flex items-center gap-2.5 text-xs font-semibold text-emerald-700">
+                        <CheckmarkCircle01Icon size={16} className="shrink-0" />
+                        Rostro detectado y documento cargado correctamente.
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* Step 2: Facial Biometric analysis */}
+                {/* Step 2: Facial biometric verification via selfie */}
                 {step === 2 && (
                   <div className="space-y-4">
                     <div>
                       <h4 className="text-sm font-bold text-panel-text mb-1.5">Verificación Facial Biométrica</h4>
                       <p className="text-xs text-panel-text-muted mb-4 leading-relaxed">
-                        El sistema realizará una toma de puntos faciales para corroborar que tu rostro coincida con la fotografía de tu DNI.
+                        Tómate una selfie. El sistema comparará tu rostro con la foto de tu DNI para validar tu identidad.
                       </p>
                     </div>
 
-                    {/* Camera Scanner Simulation viewport */}
-                    <div className="border border-panel-border rounded-2xl h-64 bg-slate-900 overflow-hidden relative flex flex-col items-center justify-center p-6 text-white text-center">
-                      {isScanning ? (
-                        <>
-                          {/* Animated scanner bar line */}
-                          <div className="absolute left-0 right-0 h-1 bg-cyan-400 opacity-85 shadow-[0_0_10px_#22d3ee] scanner-line" />
-                          <div className="size-32 rounded-full border-2 border-dashed border-cyan-400 animate-spin absolute" />
-                          <p className="text-xs font-bold tracking-widest text-cyan-300 animate-pulse z-10 mt-20">ESCANEANDO ROSTRO...</p>
-                        </>
-                      ) : scanSuccess ? (
-                        <div className="space-y-3 z-10">
-                          <div className="size-16 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
-                            <CheckmarkCircle01Icon size={32} />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-emerald-400">Análisis Biométrico Completado</p>
-                            <p className="text-[10px] text-panel-text-dim mt-1">Coincidencia con DNI: 98.6% (Aprobado)</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4 z-10">
-                          <div className="size-16 rounded-full border border-dashed border-slate-500 flex items-center justify-center mx-auto text-panel-text-dim">
-                            <span className="text-2xl">👤</span>
-                          </div>
-                          <div>
-                            <p className="text-xs font-bold text-panel-text-dim">Cámara Inactiva</p>
-                            <p className="text-[10px] text-panel-text-dim mt-0.5">Haz clic en iniciar para simular el escaneo facial</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={handleStartScan}
-                            className="h-10 px-6 bg-accent hover:bg-accent-dark text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer border-0"
-                          >
-                            Iniciar Análisis Facial
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                    <CameraCapture
+                      facingMode="user"
+                      activateLabel="Activar cámara"
+                      captureLabel="Tomar selfie"
+                      guideText="Centra tu rostro, con buena iluminación y sin lentes de sol ni gorra."
+                      aspect="square"
+                      onCapture={handleSelfieCapture}
+                    />
+
+                    {selfieProcessing && (
+                      <p className="text-[10px] text-accent animate-pulse font-bold">Comparando rostro con el DNI...</p>
+                    )}
+
+                    {matchResult && !selfieProcessing && (
+                      <div className={`rounded-xl p-4 text-center space-y-1.5 ${
+                        matchResult.isMatch ? "bg-emerald-50 border border-emerald-100" : "bg-amber-50 border border-amber-200"
+                      }`}>
+                        <p className={`text-sm font-bold ${matchResult.isMatch ? "text-emerald-700" : "text-amber-700"}`}>
+                          Coincidencia con DNI: {matchResult.matchPercent}%
+                        </p>
+                        <p className="text-[10px] text-panel-text-muted">
+                          {matchResult.isMatch
+                            ? "Rostro validado automáticamente."
+                            : "Coincidencia baja — tu expediente pasará a revisión manual de un asesor."}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -295,22 +309,26 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                     <div>
                       <h4 className="text-sm font-bold text-panel-text mb-1.5">Confirmar Expediente KYC</h4>
                       <p className="text-xs text-panel-text-muted mb-4 leading-relaxed">
-                        Revisa que la información cargada esté en orden antes de enviarla a los asesores legales de Habita Perú.
+                        Revisa que la información cargada esté en orden antes de enviarla.
                       </p>
                     </div>
 
                     <div className="border border-panel-border rounded-xl overflow-hidden text-xs font-semibold text-panel-text divide-y divide-slate-100">
                       <div className="p-3.5 bg-panel-hover-bg/50 flex justify-between">
                         <span className="text-panel-text-muted">Documento DNI:</span>
-                        <span className="text-emerald-600">✓ Cargado</span>
+                        <span className="text-emerald-600">{dniUploadedUrl ? "✓ Cargado" : "Pendiente"}</span>
                       </div>
                       <div className="p-3.5 flex justify-between">
-                        <span className="text-panel-text-muted">Escaneo Biométrico:</span>
-                        <span className="text-emerald-600">✓ Verificado con éxito</span>
+                        <span className="text-panel-text-muted">Coincidencia facial:</span>
+                        <span className={matchResult?.isMatch ? "text-emerald-600" : "text-amber-600"}>
+                          {matchResult ? `${matchResult.matchPercent}%` : "Pendiente"}
+                        </span>
                       </div>
                       <div className="p-3.5 bg-panel-hover-bg/50 flex justify-between">
-                        <span className="text-panel-text-muted">Verificación Antecedentes:</span>
-                        <span className="text-amber-600">⚙ Encolada (Automática)</span>
+                        <span className="text-panel-text-muted">Resultado esperado:</span>
+                        <span className={matchResult?.isMatch ? "text-emerald-600" : "text-amber-600"}>
+                          {matchResult?.isMatch ? "Aprobación automática" : "Revisión manual por un asesor"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -334,18 +352,19 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
                     <button
                       type="button"
                       onClick={() => {
-                        if (step === 1 && !dniDocument) {
-                          setError("Por favor adjunta la foto de tu DNI.")
+                        if (step === 1 && (!dniUploadedUrl || !dniDescriptor)) {
+                          setError("Captura y espera a que se procese la foto de tu DNI.")
                           return
                         }
-                        if (step === 2 && !isBiometricDone) {
-                          setError("Por favor completa el escaneo facial.")
+                        if (step === 2 && (!selfieUploadedUrl || !matchResult)) {
+                          setError("Captura y espera a que se procese tu selfie.")
                           return
                         }
                         setError(null)
                         setStep(prev => prev + 1)
                       }}
-                      className="h-11 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer border-0"
+                      disabled={dniProcessing || selfieProcessing}
+                      className="h-11 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer border-0 disabled:opacity-50"
                     >
                       Siguiente
                     </button>
@@ -401,10 +420,10 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
               </span>
               <h3 className="text-lg font-bold text-panel-text mb-2">Expediente en Proceso de Evaluación</h3>
               <p className="text-xs font-medium text-panel-text-muted leading-relaxed max-w-sm mx-auto">
-                Tus documentos DNI y prueba facial biométrica están siendo cotejados con el padrón electoral por nuestros oficiales legales. El tiempo máximo de respuesta es de <strong>24 horas hábiles</strong>.
+                Tu coincidencia facial con el DNI fue baja, así que tus documentos están siendo revisados manualmente por nuestros oficiales legales. El tiempo máximo de respuesta es de <strong>24 horas hábiles</strong>.
               </p>
             </div>
-            
+
             <div className="pt-4 border-t border-panel-border text-[10px] text-panel-text-muted">
               Te enviaremos una notificación al correo electrónico registrado en cuanto se valide tu perfil.
             </div>
@@ -456,7 +475,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
               <p className="text-xs font-medium text-panel-text-muted leading-relaxed max-w-sm mx-auto mb-4">
                 Lamentablemente tu expediente de identidad fue rechazado por nuestros asesores legales.
               </p>
-              
+
               <div className="bg-red/5 border border-red/10 rounded-xl p-4 text-left">
                 <span className="text-[10px] font-bold text-red block mb-1 uppercase tracking-wider">Motivo de Rechazo:</span>
                 <p className="text-xs text-red font-medium leading-relaxed">
@@ -468,14 +487,7 @@ export function TenantKYCDesktop({ verification, isMockPayment }: Props) {
             <div className="pt-4 border-t border-panel-border">
               <button
                 type="button"
-                onClick={() => {
-                  setError(null)
-                  setDniDocument("")
-                  setIsBiometricDone(false)
-                  setScanSuccess(false)
-                  setStep(1)
-                  setIsReSubmitting(true)
-                }}
+                onClick={resetWizard}
                 className="h-11 px-6 bg-slate-900 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer border-0"
               >
                 Corregir y Enviar Nuevamente

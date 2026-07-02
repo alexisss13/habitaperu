@@ -333,26 +333,45 @@ export function AdminKYCDesktop({ verifications, currentFilter }: Props) {
                 </div>
               )}
 
-              {/* DNI Document Frame */}
-              {selectedKyc.dniDocument && (
-                <div className="space-y-1.5">
-                  <span className="text-[10px] text-admin-text-muted uppercase block font-bold">Documento DNI Frontal:</span>
-                  <div className="border border-admin-border rounded-xl overflow-hidden relative h-56 bg-admin-bg flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={selectedKyc.dniDocument} 
-                      alt="DNI Frontal" 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+              {/* DNI Document + Selfie side by side */}
+              {(selectedKyc.dniDocument || selectedKyc.selfiePhoto) && (
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedKyc.dniDocument && (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-admin-text-muted uppercase block font-bold">Documento DNI:</span>
+                      <div className="border border-admin-border rounded-xl overflow-hidden relative h-40 bg-admin-bg flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={selectedKyc.dniDocument}
+                          alt="DNI Frontal"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {selectedKyc.selfiePhoto && (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-admin-text-muted uppercase block font-bold">Selfie:</span>
+                      <div className="border border-admin-border rounded-xl overflow-hidden relative h-40 bg-admin-bg flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={selectedKyc.selfiePhoto}
+                          alt="Selfie"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               <div className="grid grid-cols-2 gap-4 text-xs font-bold text-admin-text bg-admin-bg p-4 rounded-xl border border-admin-border">
                 <div>
-                  <span className="text-[10px] text-admin-text-muted uppercase block mb-0.5">Cotejo Biométrico Facial:</span>
-                  {selectedKyc.biometricVerified ? (
-                    <span className="text-admin-success">✓ Validado</span>
+                  <span className="text-[10px] text-admin-text-muted uppercase block mb-0.5">Cotejo Facial (face-api.js):</span>
+                  {selectedKyc.faceMatchScore != null ? (
+                    <span className={selectedKyc.biometricVerified ? "text-admin-success" : "text-admin-warning"}>
+                      {Math.round(selectedKyc.faceMatchScore)}% de coincidencia
+                    </span>
                   ) : (
                     <span className="text-admin-warning">⚙ Pendiente</span>
                   )}
@@ -475,17 +494,43 @@ export function AdminKYCDesktop({ verifications, currentFilter }: Props) {
                 </div>
               </div>
 
-              {viewKyc.dniDocument && (
-                <div className="space-y-1.5">
-                  <span className="text-[10px] text-admin-text-muted uppercase block">Documento DNI:</span>
-                  <div className="border border-admin-border rounded-xl overflow-hidden relative h-48 bg-admin-bg flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={viewKyc.dniDocument} 
-                      alt="DNI" 
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+              {(viewKyc.dniDocument || viewKyc.selfiePhoto) && (
+                <div className="grid grid-cols-2 gap-3">
+                  {viewKyc.dniDocument && (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-admin-text-muted uppercase block">Documento DNI:</span>
+                      <div className="border border-admin-border rounded-xl overflow-hidden relative h-40 bg-admin-bg flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={viewKyc.dniDocument}
+                          alt="DNI"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {viewKyc.selfiePhoto && (
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-admin-text-muted uppercase block">Selfie:</span>
+                      <div className="border border-admin-border rounded-xl overflow-hidden relative h-40 bg-admin-bg flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={viewKyc.selfiePhoto}
+                          alt="Selfie"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {viewKyc.faceMatchScore != null && (
+                <div className="bg-admin-bg border border-admin-border p-3 rounded-xl text-xs font-bold text-admin-text">
+                  <span className="text-[10px] text-admin-text-muted uppercase block mb-0.5">Cotejo Facial (face-api.js)</span>
+                  <span className={viewKyc.biometricVerified ? "text-admin-success" : "text-admin-warning"}>
+                    {Math.round(viewKyc.faceMatchScore)}% de coincidencia
+                  </span>
                 </div>
               )}
 

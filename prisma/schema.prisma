@@ -364,6 +364,12 @@ model KYCVerification {
   biometricData     String?
   backgroundReport  String?
 
+  /// Foto de la selfie capturada por cámara para el cotejo facial
+  selfiePhoto       String?
+  /// Puntaje de similitud (0-100) entre el rostro del DNI y la selfie,
+  /// calculado en el cliente con face-api.js (distancia euclidiana de descriptores)
+  faceMatchScore    Float?
+
   reviewNotes       String?
   verifiedAt        DateTime?
 

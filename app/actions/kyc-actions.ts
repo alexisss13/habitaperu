@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { KYCStatus, Role } from "@prisma/client"
 import { createNotificationHelper } from "@/lib/notifications"
 import { sendKycApprovedEmail, sendKycRejectedEmail } from "@/lib/email"
+import { FACE_MATCH_PERCENT_THRESHOLD } from "@/lib/face-verification-constants"
 
 export interface ActionResult<T = null> {
   success: boolean
@@ -14,7 +15,9 @@ export interface ActionResult<T = null> {
 }
 
 export async function submitKYCVerification(
-  dniDocumentUrl: string
+  dniDocumentUrl: string,
+  selfiePhotoUrl: string,
+  faceMatchScore: number
 ): Promise<ActionResult> {
   try {
     const session = await auth()
@@ -24,31 +27,66 @@ export async function submitKYCVerification(
 
     const userId = session.user.id
 
-    // Crear o actualizar registro de verificación KYC
-    await prisma.kYCVerification.upsert({
-      where: { userId },
-      create: {
-        userId,
-        status: KYCStatus.EN_REVISION,
-        dniDocument: dniDocumentUrl,
-        dniVerified: false,
-        biometricVerified: true, // Mock biometric as completed by client scan
-        backgroundCheck: false,
-      },
-      update: {
-        status: KYCStatus.EN_REVISION,
-        dniDocument: dniDocumentUrl,
-        dniVerified: false,
-        biometricVerified: true,
-        backgroundCheck: false,
-        reviewNotes: null, // Clear any previous rejection notes
+    // Si el cotejo facial (calculado en el cliente con face-api.js) supera el
+    // umbral, se aprueba automáticamente. Si la coincidencia es baja, se
+    // envía a revisión manual del admin en vez de rechazar de plano.
+    const autoApproved = faceMatchScore >= FACE_MATCH_PERCENT_THRESHOLD
+    const nextStatus = autoApproved ? KYCStatus.APROBADO : KYCStatus.EN_REVISION
+
+    await prisma.$transaction(async (tx) => {
+      await tx.kYCVerification.upsert({
+        where: { userId },
+        create: {
+          userId,
+          status: nextStatus,
+          dniDocument: dniDocumentUrl,
+          selfiePhoto: selfiePhotoUrl,
+          faceMatchScore,
+          dniVerified: autoApproved,
+          biometricVerified: autoApproved,
+          backgroundCheck: false,
+          verifiedAt: autoApproved ? new Date() : null,
+        },
+        update: {
+          status: nextStatus,
+          dniDocument: dniDocumentUrl,
+          selfiePhoto: selfiePhotoUrl,
+          faceMatchScore,
+          dniVerified: autoApproved,
+          biometricVerified: autoApproved,
+          backgroundCheck: false,
+          verifiedAt: autoApproved ? new Date() : null,
+          reviewNotes: null, // Clear any previous rejection notes
+        }
+      })
+
+      if (autoApproved) {
+        await tx.user.update({ where: { id: userId }, data: { verified: true } })
+        await createNotificationHelper(
+          userId,
+          "KYC_APPROVE",
+          "Identidad verificada exitosamente",
+          "Tu rostro coincide con tu DNI. Tu verificación fue aprobada automáticamente y ya puedes firmar contratos y subir pagos.",
+          null,
+          tx
+        )
       }
     })
 
     revalidatePath("/tenant/kyc")
     revalidatePath("/tenant/dashboard")
 
-    // Notificar a todos los administradores
+    if (autoApproved) {
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, firstName: true } })
+      if (user) {
+        sendKycApprovedEmail(user.email, user.firstName).catch(err => {
+          console.error("Error sending KYC approved email:", err)
+        })
+      }
+      return { success: true }
+    }
+
+    // Notificar a todos los administradores para revisión manual
     try {
       const admins = await prisma.user.findMany({
         where: { role: Role.ADMIN },
@@ -59,7 +97,7 @@ export async function submitKYCVerification(
           admin.id,
           "KYC_SUBMIT",
           "Nueva verificación KYC",
-          "Un usuario ha cargado sus documentos de identidad para verificación KYC.",
+          `Un usuario ha cargado sus documentos de identidad para verificación KYC (coincidencia facial: ${Math.round(faceMatchScore)}%, requiere revisión manual).`,
           { applicantId: userId }
         )
       }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useParams, usePathname } from "next/navigation"
 import {
   Location01Icon, FavouriteIcon, Home01Icon, CheckmarkCircle02Icon,
   StarIcon, WhatsappIcon, SecurityCheckIcon, ArrowRight01Icon,
@@ -36,6 +37,9 @@ function GallerySlot({ src, alt }: { src?: string; alt: string }) {
 
 export function PropertyDetailDesktop({ property: p }: { property: PropertyDetail }) {
   const [isFavorite, setIsFavorite] = useState(false)
+  const params = useParams()
+  const locale = (params?.locale as string) || 'es'
+  const pathname = usePathname()
 
   useEffect(() => {
     try {
@@ -440,7 +444,7 @@ export function PropertyDetailDesktop({ property: p }: { property: PropertyDetai
                       Necesitas una cuenta para ver el contacto del arrendador.
                     </p>
                     <Link
-                      href="/login"
+                      href={`/${locale}/login?callbackUrl=${encodeURIComponent(pathname)}`}
                       className="block w-full py-2.5 text-white rounded-xl font-bold text-sm text-center no-underline hover:opacity-90 transition-opacity"
                       style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
                     >

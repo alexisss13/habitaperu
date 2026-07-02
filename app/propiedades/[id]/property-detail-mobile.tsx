@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useParams, usePathname } from "next/navigation"
 import {
   Location01Icon, FavouriteIcon, CheckmarkCircle02Icon,
   StarIcon, WhatsappIcon, SecurityCheckIcon, ArrowLeft01Icon,
@@ -24,6 +25,9 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
   const [formSent, setFormSent] = useState(false)
 
   const { requireAuth } = useAuthModal()
+  const params = useParams()
+  const locale = (params?.locale as string) || 'es'
+  const pathname = usePathname()
 
   useEffect(() => {
     try {
@@ -103,7 +107,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
                 <p className="font-bold !text-[#151c26] text-sm mb-1">Inicia sesión para contactar</p>
                 <p className="text-xs text-gray-400 mb-4">Necesitas una cuenta para ver el contacto del arrendador.</p>
                 <Link
-                  href="/login"
+                  href={`/${locale}/login?callbackUrl=${encodeURIComponent(pathname)}`}
                   onClick={() => setContactOpen(false)}
                   className="block w-full py-3 !text-white rounded-xl font-bold text-sm text-center no-underline"
                   style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
@@ -431,7 +435,7 @@ export function PropertyDetailMobile({ property: p }: { property: PropertyDetail
             </span>
           ) : !p.isAuthenticated ? (
             <Link
-              href="/login"
+              href={`/${locale}/login?callbackUrl=${encodeURIComponent(pathname)}`}
               className="px-4 py-2.5 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline whitespace-nowrap"
               style={{ background: 'linear-gradient(135deg, #0f3457 0%, #8f8272 100%)' }}
             >

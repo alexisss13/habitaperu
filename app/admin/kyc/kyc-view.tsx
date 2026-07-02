@@ -15,6 +15,8 @@ export interface AdminKYCItem {
   dniDocument: string | null
   biometricData: string | null
   backgroundReport: string | null
+  selfiePhoto: string | null
+  faceMatchScore: number | null
   reviewNotes: string | null
   verifiedAt: string | null
   createdAt: string

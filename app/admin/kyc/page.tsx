@@ -55,6 +55,8 @@ export default async function AdminKYCPage(props: { searchParams?: Promise<{ sta
     dniDocument: v.dniDocument,
     biometricData: v.biometricData,
     backgroundReport: v.backgroundReport,
+    selfiePhoto: v.selfiePhoto,
+    faceMatchScore: v.faceMatchScore,
     reviewNotes: v.reviewNotes,
     verifiedAt: v.verifiedAt ? v.verifiedAt.toISOString() : null,
     createdAt: v.createdAt.toISOString(),
